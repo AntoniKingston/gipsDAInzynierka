@@ -6,7 +6,7 @@ train_indexes = sample(1:nrow(scenario_3_df), size = 0.7 * nrow(scenario_3_df))
 train_data = scenario_3_df[train_indexes, ]
 test_data = scenario_3_df[-train_indexes, ]
 
-model_gipsQDA = qda(Y~., data = train_data)
+model_gipsQDA = gipsqda(Y~., data = train_data)
 
 predictions_gipsQDA = predict(model_gipsQDA, newdata = test_data)
 print(predictions_gipsQDA$class)

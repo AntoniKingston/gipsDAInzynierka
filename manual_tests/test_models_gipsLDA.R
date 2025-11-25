@@ -6,7 +6,7 @@ train_indexes = sample(1:nrow(scenario_1_df), size = 0.7 * nrow(scenario_1_df))
 train_data = scenario_1_df[train_indexes, ]
 test_data = scenario_1_df[-train_indexes, ]
 
-model_gipsLDA = lda(Y~., data = train_data)
+model_gipsLDA = gipslda(Y~., data = train_data)
 print(model_gipsLDA)
 plot(model_gipsLDA)
 
