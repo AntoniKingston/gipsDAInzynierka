@@ -55,7 +55,7 @@ cat(sprintf("Target LDA Accuracy -> Train: %.2f | Test: %.2f \n\n",
 
 for (i in 1:max_iterations) {
   
-  cat(sprintf("--- Iteration %d: Testing with divisor psi = %d ---\n", i, psi / 2**i))
+  cat(sprintf("--- Iteration %d: Testing with divisor psi = %f ---\n", i, psi / 2**i))
   
   # ** Generate synthetic data with the new covariance matrix **
   class_means <- matrix(runif(n_classes * p, min = 0, max = 1), nrow = p, ncol = n_classes)
