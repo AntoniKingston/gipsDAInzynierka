@@ -62,7 +62,6 @@ for (i in 1:max_iterations) {
   data_list <- list()
   
   for (k in 1:n_classes) {
-    # take random permutation
     perm <- perms[[k]]
     
     # Generate a different covariance matrix for each class
