@@ -3,31 +3,36 @@ accuracy_experiment <- function(df, model, MAP = TRUE, opt = "BF", max_iter = 10
   train_indexes = sample(1:nrow(df), size = tr_ts_split * nrow(df))
   train_data = df[train_indexes, ]
   test_data = df[-train_indexes, ]
-  if (model == "lda") {
-    classifier <- MASS::lda(Y ~ ., data = train_data, method = "mve")
-  }
-  else if (model == "qda") {
-    classifier <- MASS::qda(Y ~ ., data = train_data, method = "mve")
-  }
-  else if (model == "gipsldacl") {
-    classifier <- gipslda(Y ~ ., data = train_data, weighted_avg = FALSE, MAP = MAP, optimizer = opt, max_iter = max_iter)
-  }
-  else if (model == "gipsldawa") {
-    classifier <- gipslda(Y ~ ., data = train_data, weighted_avg = TRUE, MAP = MAP, optimizer = opt, max_iter = max_iter)
-  }
-  else if (model == "gipsqda") {
-    classifier <- gipsqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
-  }
-  else {
-    classifier <- gipsmultqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+
+  classifier <- tryCatch({
+    if (model == "lda") {
+      MASS::lda(Y ~ ., data = train_data, method = "mve")
+    } else if (model == "qda") {
+      MASS::qda(Y ~ ., data = train_data, method = "mve")
+    } else if (model == "gipsldacl") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = FALSE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsldawa") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = TRUE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsqda") {
+      gipsqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else {
+      gipsmultqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    }
+  }, error = function(e) {
+    warning(sprintf("Error fitting model: %s ", model))
+    NULL
+  })
+
+  if (is.null(classifier)) {
+    return(0)
   }
 
   pred <- predict(classifier, test_data)$class
   y_true <- test_data$Y
   acc <- mean(pred == y_true)
   return(acc)
-
 }
+
 generate_accuracy_data <- function(df, model, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP) {
   if(nrow(df) < lb) {
   rlang::abort(c("x" = "dataset has less rows than specified lower bound"))
