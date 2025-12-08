@@ -28,21 +28,21 @@ accuracy_experiment <- function(df, model, MAP = TRUE, opt = "BF", max_iter = 10
   return(acc)
 
 }
-generate_accuracy_data <- function(df, model, granularity, lb, n_experiments, opt, max_iter, tr_ts_split) {
+generate_accuracy_data <- function(df, model, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP) {
   if(nrow(df) < lb) {
   rlang::abort(c("x" = "dataset has less rows than specified lower bound"))
   }
   ns_obs <- round(exp(seq(log(lb), log(nrow(df)), length.out = granularity)))
   accs <- c()
   for (n_obs in ns_obs) {
-    accs <- c(accs, mean(rep(accuracy_experiment(df[1:n_obs,], model), n_experiments)))
+    accs <- c(accs, mean(rep(accuracy_experiment(df[1:n_obs,], model, MAP = MAP), n_experiments)))
   }
 
   return(list("accs" = accs, "ns_obs" = ns_obs))
 }
 
-generate_single_plot_info <- function(scenario_data, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split) {
-  plot_info <- lapply(model_names, function (x) generate_accuracy_data(scenario_data, x, granularity, lb, n_experiments, opt, max_iter, tr_ts_split))
+generate_single_plot_info <- function(scenario_data, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP) {
+  plot_info <- lapply(model_names, function (x) generate_accuracy_data(scenario_data, x, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
   names(plot_info) <- model_names
   return(plot_info)
 }
@@ -56,12 +56,13 @@ generate_multiple_plots_info <- function(data_path,
                              opt = "BF",
                              max_iter = 100,
                              tr_ts_split = 0.7,
-                                  data_file_prefix) {
+                             MAP = TRUE,
+                             data_file_prefix) {
   set.seed(42)
   data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
   #read in with shuffling
   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
-  multiple_plots_info <- lapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split))
+  multiple_plots_info <- lapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
   names(multiple_plots_info) <- scenario_names
   return(multiple_plots_info)
 }
