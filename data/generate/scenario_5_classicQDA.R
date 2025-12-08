@@ -11,8 +11,8 @@ cat("\n\n--- RUNNING SCENARIO 5: Classic QDA ---\n")
 
 
 # Data parameters
-p <- 8          # Number of features (data dimension)
-n_classes <- 6  # Number of classes
+p <- 5          # Number of features (data dimension)
+n_classes <- 3  # Number of classes
 n_per_class <- 50 # Number of observations per class
 
 # Wishart distribution parameters
@@ -23,7 +23,7 @@ psi <- 2.0       # Scaling factor for covariance matrices
 max_iterations <- 40           # Safety limit for the search loop
 target_train_accuracy <- 0.70  # Target accuracy for the training set
 target_test_accuracy  <- 0.50  # Target accuracy for the test set
-output_filename <- "scenario_5.csv" # Filename for the output data
+output_filename <- "scenario_qda.csv" # Filename for the output data
 
 # Initialize variables to store results
 found_divisor <- FALSE

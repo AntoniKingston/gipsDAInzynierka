@@ -9,8 +9,8 @@
 cat("++++++SCENARIO 1: gipsLDA MODEL++++++\n")
 
 # Data parameters
-p <- 8          # Number of features (data dimension)
-n_classes <- 6  # Number of classes
+p <- 5          # Number of features (data dimension)
+n_classes <- 3  # Number of classes
 n_per_class <- 50 # Number of observations per class
 
 # Wishart distribution parameters
@@ -21,7 +21,7 @@ psi <- 16.0       # Scaling factor for covariance matrices
 max_iterations <- 40           # Safety limit for the search loop
 target_train_accuracy <- 0.70  # Target accuracy for the training set
 target_test_accuracy  <- 0.50  # Target accuracy for the test set
-output_filename <- "scenario_1.csv" # Filename for the output data
+output_filename <- "scenario_gipslda.csv" # Filename for the output data
 
 # Initialize variables to store results
 found_divisor <- FALSE
@@ -40,7 +40,7 @@ A <- matrix(rnorm(p * p), nrow = p, ncol = p)
 Sigma <- t(A) %*% A
 wishart_output <- rWishart(n = 1, df = df, Sigma = Sigma)
 base_cov_matrix <- wishart_output[,,1] # This matrix will be reused
-perm <- "(2,3,4)(1,5,7)"
+perm <- "(2,3,4)(1,5)"
 cat("Base matrix generated successfully.\n\n")
 
 #-----------------------------------------------------------------------

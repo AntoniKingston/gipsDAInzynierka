@@ -10,15 +10,15 @@ cat("\n\n--- RUNNING SCENARIO 3: gipsQDA ---\n")
 
 
 # Data parameters
-p <- 8          # Number of features (data dimension)
-n_classes <- 6  # Number of classes
+p <- 5          # Number of features (data dimension)
+n_classes <- 3  # Number of classes
 n_per_class <- 50 # Number of observations per class
-perms = list("(2,3,4)(1,5,7)",
-             "(1,2)(3,4)(5,6,7,8)",
-             "(1,3,5)(2,4,6)(7,8)",
-             "(1,2,3)(4,5)(6,7,8)",
-             "(1,4)(2,5)(3,6)(7,8)",
-             "(1,5,2)(3,7)(4,6)(8)")
+perms = list("(2,3,4)(1,5)",
+             "(1,2)(3,4)(5)",
+             "(1,3,5)(2,4)",
+             "(1,2,3)(4,5)",
+             "(1,4)(2,5)(3)",
+             "(1,5,2)(3)(4)")
 
 # Wishart distribution parameters
 df <- p + 2     # Degrees of freedom (must be >= p)
@@ -28,7 +28,7 @@ psi <- 128.0       # Scaling factor for covariance matrices
 max_iterations <- 40           # Safety limit for the search loop
 target_train_accuracy <- 0.70  # Target accuracy for the training set
 target_test_accuracy  <- 0.50  # Target accuracy for the test set
-output_filename <- "scenario_3.csv" # Filename for the output data
+output_filename <- "scenario_gipsqda.csv" # Filename for the output data
 
 # Initialize variables to store results
 found_divisor <- FALSE

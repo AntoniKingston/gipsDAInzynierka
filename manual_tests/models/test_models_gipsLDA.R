@@ -32,3 +32,5 @@ print(confusion_matrix_MASS_lda)
 accuracy_MASS_lda = sum(diag(confusion_matrix_MASS_lda)) / sum(confusion_matrix_MASS_lda)
 print(paste("Accuracy of MASS::lda:", round(accuracy_MASS_lda * 100, 2), "%"))
 
+###
+

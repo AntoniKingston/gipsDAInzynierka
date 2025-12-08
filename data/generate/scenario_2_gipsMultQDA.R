@@ -9,8 +9,8 @@
 cat("\n\n--- RUNNING SCENARIO 2: gipsMultQDA ---\n")
 
 # Data parameters
-p <- 8          # Number of features (data dimension)
-n_classes <- 6  # Number of classes
+p <- 5          # Number of features (data dimension)
+n_classes <- 3  # Number of classes
 n_per_class <- 50 # Number of observations per class
 
 # Wishart distribution parameters
@@ -21,7 +21,7 @@ psi <- 100.0       # Scaling factor for covariance matrices
 max_iterations <- 40           # Safety limit for the search loop
 target_train_accuracy <- 0.70  # Target accuracy for the training set
 target_test_accuracy  <- 0.50  # Target accuracy for the test set
-output_filename <- "scenario_2.csv" # Filename for the output data
+output_filename <- "scenario_gipsmultqda.csv" # Filename for the output data
 
 # Initialize variables to store results
 found_divisor <- FALSE
@@ -32,7 +32,7 @@ final_lda_test_accuracy <- NA
 final_qda_train_accuracy <- NA
 final_qda_test_accuracy <- NA
 
-perm <- "(2,3,4)(1,5,7)"
+perm <- "(2,3,4)(1,5)"
 
 #-----------------------------------------------------------------------
 #               ** AUTOMATED SEARCH LOOP FOR SCALING FACTOR **
@@ -43,7 +43,7 @@ cat(sprintf("Target LDA Accuracy -> Train: %.2f | Test: %.2f \n\n",
 
 for (i in 1:max_iterations) {
   
-  cat(sprintf("--- Iteration %d: Testing with divisor psi = %d ---\n", i, psi / 2**i))
+  cat(sprintf("--- Iteration %f: Testing with divisor psi = %f ---\n", i, psi / 2**i))
   
   # ** Generate synthetic data with the new covariance matrix **
   class_means <- matrix(runif(n_classes * p, min = 0, max = 1), nrow = p, ncol = n_classes)
