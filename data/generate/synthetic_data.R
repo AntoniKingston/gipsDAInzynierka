@@ -77,22 +77,35 @@ cat("=========================================================\n\n")
 # --- Scenario 1: gipsLDA ---
 # Same permutation, same covariance matrix, different means.
 source("generate/scenario_1_gipsLDA.R")
+generate_scenario_gipslda(5, 3, 50, perm = "(2,3,4)(1,5)",
+                          output_filename = "scenario_1_gipsLDA.csv")
 
 # --- Scenario 2: gipsMultQDA ---
 # Same permutation, DIFFERENT covariance matrices, different means.
 source("generate/scenario_2_gipsMultQDA.R")
+generate_scenario_gipsmultqda(5, 3, 50, perm = "(2,3,4)(1,5)",
+                              output_filename = "scenario_2_gipsMultQDA.csv")
 
 # --- Scenario 3: gipsQDA ---
 # DIFFERENT permutations, DIFFERENT covariance matrices, different means.
 source("generate/scenario_3_gipsQDA.R")
+generate_scenario_gipsqda(5, 3, 50,
+                          perms = list("(2,3,4)(1,5)",
+                                       "(1,2)(3,4)(5)",
+                                       "(1,3,5)(2,4)"),
+                          output_filename = "scenario_3_gipsQDA.csv")
 
 # --- Scenario 4: Classic LDA ---
 # Same covariance matrix (no projection), different means.
 source("generate/scenario_4_classicLDA.R")
+generate_scenario_lda(5, 3, 50,
+                      output_filename = "scenario_4_classicLDA.csv")
 
 # --- Scenario 5: Classic QDA ---
 # DIFFERENT covariance matrices (no projection), different means.
 source("generate/scenario_5_classicQDA.R")
+generate_scenario_qda(5, 3, 50,
+                      output_filename = "scenario_5_classicQDA.csv")
 
 
 cat("=========================================================\n")

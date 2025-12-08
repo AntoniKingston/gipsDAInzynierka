@@ -6,19 +6,26 @@
 # - DIFFERENT means for all classes.
 # =======================================================================
 
+generate_scenario_gipsqda <- function(
+  p, n_classes, n_per_class, perms, output_filename = "scenario_gipsqda.csv"
+) {
+
 cat("\n\n--- RUNNING SCENARIO 3: gipsQDA ---\n")
 
+  if (length(perms) < n_classes) {
+    stop("Number of permutations provided is less than the number of classes.")
+  }
 
 # Data parameters
-p <- 5          # Number of features (data dimension)
-n_classes <- 3  # Number of classes
-n_per_class <- 50 # Number of observations per class
-perms = list("(2,3,4)(1,5)",
-             "(1,2)(3,4)(5)",
-             "(1,3,5)(2,4)",
-             "(1,2,3)(4,5)",
-             "(1,4)(2,5)(3)",
-             "(1,5,2)(3)(4)")
+# p <- 5          # Number of features (data dimension)
+# n_classes <- 3  # Number of classes
+# n_per_class <- 50 # Number of observations per class
+# perms = list("(2,3,4)(1,5)",
+#              "(1,2)(3,4)(5)",
+#              "(1,3,5)(2,4)",
+#              "(1,2,3)(4,5)",
+#              "(1,4)(2,5)(3)",
+#              "(1,5,2)(3)(4)")
 
 # Wishart distribution parameters
 df <- p + 2     # Degrees of freedom (must be >= p)
@@ -28,7 +35,7 @@ psi <- 128.0       # Scaling factor for covariance matrices
 max_iterations <- 40           # Safety limit for the search loop
 target_train_accuracy <- 0.70  # Target accuracy for the training set
 target_test_accuracy  <- 0.50  # Target accuracy for the test set
-output_filename <- "scenario_gipsqda.csv" # Filename for the output data
+# output_filename <- "scenario_gipsqda.csv" # Filename for the output data
 
 # Initialize variables to store results
 found_divisor <- FALSE
@@ -50,16 +57,13 @@ for (i in 1:max_iterations) {
   
   cat(sprintf("--- Iteration %d: Testing with divisor psi = %d ---\n", i, psi / 2**i))
   
-  scaled_cov_matrix <- base_cov_matrix * psi / (2**i)
-  cov_matrix <- gips::project_matrix(scaled_cov_matrix, perm)
-  
   # ** Generate synthetic data with the new covariance matrix **
   class_means <- matrix(runif(n_classes * p, min = 0, max = 1), nrow = p, ncol = n_classes)
   data_list <- list()
   
   for (k in 1:n_classes) {
     # take random permutation
-    perm <- sample(perms, 1)[[1]]
+    perm <- perms[[k]]
     
     # Generate a different covariance matrix for each class
     A <- matrix(rnorm(p * p), nrow = p, ncol = p)
@@ -147,3 +151,4 @@ if (found_divisor) {
 }
 
 cat("--------------------------------\n")
+}

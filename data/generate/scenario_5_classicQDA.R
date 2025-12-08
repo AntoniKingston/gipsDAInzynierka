@@ -6,14 +6,18 @@
 # - DIFFERENT means for all classes.
 # =======================================================================
 
+generate_scenario_qda <- function(
+  p, n_classes, n_per_class, output_filename = "scenario_qda.csv"
+) {
+
 cat("\n\n--- RUNNING SCENARIO 5: Classic QDA ---\n")
 
 
 
 # Data parameters
-p <- 5          # Number of features (data dimension)
-n_classes <- 3  # Number of classes
-n_per_class <- 50 # Number of observations per class
+# p <- 5          # Number of features (data dimension)
+# n_classes <- 3  # Number of classes
+# n_per_class <- 50 # Number of observations per class
 
 # Wishart distribution parameters
 df <- p + 2     # Degrees of freedom (must be >= p)
@@ -23,7 +27,7 @@ psi <- 2.0       # Scaling factor for covariance matrices
 max_iterations <- 40           # Safety limit for the search loop
 target_train_accuracy <- 0.70  # Target accuracy for the training set
 target_test_accuracy  <- 0.50  # Target accuracy for the test set
-output_filename <- "scenario_qda.csv" # Filename for the output data
+# output_filename <- "scenario_qda.csv" # Filename for the output data
 
 # Initialize variables to store results
 found_divisor <- FALSE
@@ -134,3 +138,5 @@ if (found_divisor) {
 }
 
 cat("--------------------------------\n")
+
+}

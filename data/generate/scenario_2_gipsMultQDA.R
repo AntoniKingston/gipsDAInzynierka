@@ -6,12 +6,17 @@
 # - DIFFERENT means for all classes.
 # =======================================================================
 
+generate_scenario_gipsmultqda <- function(
+  p, n_classes, n_per_class, perm, output_filename = "scenario_gipsmultqda.csv"
+) {
+
+
 cat("\n\n--- RUNNING SCENARIO 2: gipsMultQDA ---\n")
 
 # Data parameters
-p <- 5          # Number of features (data dimension)
-n_classes <- 3  # Number of classes
-n_per_class <- 50 # Number of observations per class
+# p <- 5          # Number of features (data dimension)
+# n_classes <- 3  # Number of classes
+# n_per_class <- 50 # Number of observations per class
 
 # Wishart distribution parameters
 df <- p + 2     # Degrees of freedom (must be >= p)
@@ -21,7 +26,7 @@ psi <- 100.0       # Scaling factor for covariance matrices
 max_iterations <- 40           # Safety limit for the search loop
 target_train_accuracy <- 0.70  # Target accuracy for the training set
 target_test_accuracy  <- 0.50  # Target accuracy for the test set
-output_filename <- "scenario_gipsmultqda.csv" # Filename for the output data
+# output_filename <- "scenario_gipsmultqda.csv" # Filename for the output data
 
 # Initialize variables to store results
 found_divisor <- FALSE
@@ -31,8 +36,6 @@ final_lda_train_accuracy <- NA
 final_lda_test_accuracy <- NA
 final_qda_train_accuracy <- NA
 final_qda_test_accuracy <- NA
-
-perm <- "(2,3,4)(1,5)"
 
 #-----------------------------------------------------------------------
 #               ** AUTOMATED SEARCH LOOP FOR SCALING FACTOR **
@@ -135,3 +138,4 @@ if (found_divisor) {
 }
 
 cat("--------------------------------\n")
+}
