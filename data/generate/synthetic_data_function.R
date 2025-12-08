@@ -6,7 +6,7 @@ source("generate/scenario_4_classicLDA.R")
 source("generate/scenario_5_classicQDA.R")
 
 
-generate_synthetic_data <- function(p, n_classes, n_per_class, perm,da
+generate_synthetic_data <- function(p, n_classes, n_per_class, perm,
                                     perms, output_filename_prefix) {
 
 generate_scenario_gipslda(p, n_classes, n_per_class, perm = perm,
