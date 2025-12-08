@@ -1,4 +1,6 @@
 library(gipsDA)
+library(ggplot2)
+
 accuracy_experiment <- function(df, model, MAP = TRUE, opt = "BF", max_iter = 100, tr_ts_split = 0.7 ) {
   train_indexes = sample(1:nrow(df), size = tr_ts_split * nrow(df))
   train_data = df[train_indexes, ]
@@ -67,7 +69,7 @@ generate_multiple_plots_info <- function(data_path,
   data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
   #read in with shuffling
   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
-  multiple_plots_info <- lapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
+  multiple_plots_info <- parallel::mclapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
   names(multiple_plots_info) <- scenario_names
   return(multiple_plots_info)
 }
@@ -167,4 +169,60 @@ plot_multilevel <- function(
     cex = legend_cex,
     bty = "n"
   )
+}
+
+create_multilevel_plot <- function(
+  mult_plots_info,
+  ncol = NULL,
+  xlab = "Number of Observations",
+  ylab = "Accuracy",
+  line_size = 1,
+  point_size = 3
+) {
+  stopifnot(is.list(mult_plots_info))
+
+  data_list <- list()
+
+  for (dataset_name in names(mult_plots_info)) {
+    inner_list <- mult_plots_info[[dataset_name]]
+    for (model_name in names(inner_list)) {
+      data_points <- inner_list[[model_name]]
+
+      temp_df <- data.frame(
+        observations = data_points[[2]],
+        accuracy = data_points[[1]],
+        model = model_name,
+        dataset = dataset_name
+      )
+      data_list[[length(data_list) + 1]] <- temp_df
+    }
+  }
+
+  if (length(data_list) == 0) {
+    stop("Input 'mult_plots_info' is empty or has an invalid structure.")
+  }
+
+  plot_df <- do.call(rbind, data_list)
+
+  plot_df$dataset <- factor(plot_df$dataset, levels = names(mult_plots_info))
+
+  gg_plot <- ggplot(
+    plot_df,
+    aes(x = observations, y = accuracy, color = model, group = model)
+  ) +
+  geom_line(linewidth = line_size) +
+  facet_wrap(~ dataset, ncol = ncol) +
+  labs(
+    x = xlab,
+    y = ylab,
+    color = "Model"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    strip.background = element_rect(fill = "gray90"),
+    text = element_text(size = 12)
+  )
+
+  return(gg_plot)
 }
