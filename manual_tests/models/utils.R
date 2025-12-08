@@ -55,9 +55,10 @@ generate_multiple_plots_info <- function(data_path,
                              n_experiments = 5,
                              opt = "BF",
                              max_iter = 100,
-                             tr_ts_split = 0.7) {
+                             tr_ts_split = 0.7,
+                                  data_file_prefix) {
   set.seed(42)
-  data_paths <- paste(data_path, glue::glue("/scenario_{scenario_names}.csv"), sep = "")
+  data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
   #read in with shuffling
   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
   multiple_plots_info <- lapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split))
@@ -65,7 +66,7 @@ generate_multiple_plots_info <- function(data_path,
   return(multiple_plots_info)
 }
 ## przykładowe wywołanie (działa jak się dobrze dane wygeneruje)
-mult_plots_info <- generate_multiple_plots_info("data", granularity = 3, n_experiments = 1)
+# mult_plots_info <- generate_multiple_plots_info("data", granularity = 3, n_experiments = 1)
 
 plot_multilevel <- function(
   mult_plots_info,
@@ -96,10 +97,17 @@ plot_multilevel <- function(
   layout_mat <- matrix(seq_len(nrow * ncol), nrow, ncol, byrow = TRUE)
   layout_mat <- rbind(layout_mat, rep(nrow * ncol + 1, ncol))
 
+  if (dev.cur() == 1) {
+  dev.new()
+  } else {
+  graphics.off()
+  dev.new()
+  }
+
   layout(layout_mat, heights = c(rep(1, nrow), 0.25))
 
   old_par <- par(no.readonly = TRUE)
-  on.exit(par(old_par))
+  # on.exit(par(old_par))
 
   par(mar = c(4, 4, 3, 1) + 0.1)
 
