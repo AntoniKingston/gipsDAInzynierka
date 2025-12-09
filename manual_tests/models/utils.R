@@ -176,7 +176,7 @@ create_multilevel_plot <- function(
   ncol = NULL,
   xlab = "Number of Observations",
   ylab = "Accuracy",
-  line_size = 1,
+  line_size = 0.5,
   point_size = 3
 ) {
   stopifnot(is.list(mult_plots_info))
