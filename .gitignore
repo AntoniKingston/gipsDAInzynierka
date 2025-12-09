@@ -351,4 +351,7 @@ cython_debug/
 
 # csv files in data folder
 data/*.csv
+data/*.png
 
+data/real_world_datasets/
+!data/real_world_datasets/.gitkeep
