@@ -105,11 +105,11 @@ generate_accuracy_data <- function(df,
     rlang::abort("dataset has less rows than specified lower bound")
   }
 
-  accs <- lapply(splits_per_n, function(splits) {
+  accs <- as.numeric(unlist(lapply(splits_per_n, function(splits) {
     mean(vapply(splits, function(split) {
       accuracy_experiment(df, split, model, MAP = MAP, opt = opt, max_iter = max_iter)
     }, numeric(1)))
-  })
+  })))
 
   return(accs)
 }
