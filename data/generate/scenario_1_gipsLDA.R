@@ -7,7 +7,8 @@
 # =======================================================================
 
 generate_scenario_gipslda <- function(
-  p, n_classes, n_per_class, perm, output_filename = "scenario_gipslda.csv"
+  p, n_classes, n_per_class, perm, output_filename = "scenario_gipslda.csv",
+  sigma_generate = "classic", lambda_dist = "exp", ...
 ) {
 
 cat("++++++SCENARIO 1: gipsLDA MODEL++++++\n")
@@ -40,10 +41,19 @@ final_qda_test_accuracy <- NA
 #  ** STEP 1: GENERATE THE BASE COVARIANCE MATRIX (OUTSIDE THE LOOP) **
 #-----------------------------------------------------------------------
 cat("Generating the base Wishart covariance matrix once...\n")
+if (sigma_generate == "classic"){
 A <- matrix(rnorm(p * p), nrow = p, ncol = p)
 Sigma <- t(A) %*% A
 wishart_output <- rWishart(n = 1, df = df, Sigma = Sigma)
 base_cov_matrix <- wishart_output[,,1] # This matrix will be reused
+} else if (sigma_generate == "qr"){
+  source("generate/cov_mat_gen_met.R")
+  Sigma <- generate_lamb_q(n_matrices = 1, dim = p,
+                           lambda_dist = lambda_dist, ...)[[1]]
+  base_cov_matrix <- Sigma
+} else {
+  stop("Invalid sigma_generate method specified.")
+}
 cat("Base matrix generated successfully.\n\n")
 
 #-----------------------------------------------------------------------

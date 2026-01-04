@@ -7,9 +7,9 @@
 # =======================================================================
 
 generate_scenario_gipsmultqda <- function(
-  p, n_classes, n_per_class, perm, output_filename = "scenario_gipsmultqda.csv"
+  p, n_classes, n_per_class, perm, output_filename = "scenario_gipsmultqda.csv",
+  sigma_generate = "classic", lambda_dist = "exp", ...
 ) {
-
 
 cat("\n\n--- RUNNING SCENARIO 2: gipsMultQDA ---\n")
 
@@ -54,10 +54,19 @@ for (i in 1:max_iterations) {
   
   for (k in 1:n_classes) {
     # Generate a different covariance matrix for each class
+    if (sigma_generate == "classic"){
     A <- matrix(rnorm(p * p), nrow = p, ncol = p)
     Sigma <- t(A) %*% A
     wishart_output <- rWishart(n = 1, df = df, Sigma = Sigma)
     base_cov_matrix <- wishart_output[,,1]
+    } else if (sigma_generate == "qr"){
+      source("generate/cov_mat_gen_met.R")
+      Sigma <- generate_lamb_q(n_matrices = 1, dim = p,
+                               lambda_dist = lambda_dist, ...)[[1]]
+      base_cov_matrix <- Sigma
+    } else {
+      stop("Invalid sigma_generate method specified.")
+    }
     scaled_cov_matrix <- base_cov_matrix * psi / (2**i)
     cov_matrix <- gips::project_matrix(scaled_cov_matrix, perm)
     
