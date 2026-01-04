@@ -20,6 +20,7 @@ for (p in ps) {
         for (map_bool in map_bools) {
           map_bool_chr <- as.character(map_bool)
           filename <- glue::glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.png")
+          filename_plot_info <- glue::glue("saved_objects/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
 
           if (!file.exists(filename)) {
             plot_info <- generate_multiple_plots_info_qr("data/synthetic_datasets",
@@ -27,13 +28,14 @@ for (p in ps) {
                                                      n,
                                                      dist,
                                                      perm_type_name,
-                                                     granularity = 5,
+                                                     granularity = 3,
                                                      lb=16,
-                                                     n_experiments = 5,
+                                                     n_experiments = 2,
                                                      opt = opt,
                                                      max_iter = 100,
                                                      tr_ts_split = 0.7,
                                                      MAP = map_bool)
+            saveRDS(plot_info, filename_plot_info)
             campaign_plot <- create_multilevel_plot(plot_info)
             ggplot2::ggsave(filename, plot = campaign_plot, width = 16, height = 9, dpi = 500)
 
