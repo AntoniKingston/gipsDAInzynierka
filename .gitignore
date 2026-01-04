@@ -358,3 +358,6 @@ data/real_world_datasets/*
 
 plots/synthetic_data/*
 !plots/synthetic_data/.gitkeep
+
+saved_objects/synthetic_data/*
+!saved_objects/synthetic_data/.gitkeep
