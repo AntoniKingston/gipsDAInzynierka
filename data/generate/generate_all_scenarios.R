@@ -22,25 +22,103 @@ perm_type_names <- c("sparse_trans", "dense_trans", "full_cycle")
 # Test hyperparameters (small quantity so it can run fast)
 #-----------------------------------------------
 
-p_test <- c(2,3)
-n_classes_test <- c(2,3)
-perm_lists_test <- list(list("sparse_trans" = "()", "dense_trans" = "()", "full_cycle" = "(1,2)"),
-                          list("sparse_trans" = "(1,2)", "dense_trans" = "(1,3)", "full_cycle" =  "(1,2,3)"))
-n_per_class <- 30
+# p_test <- c(2,3)
+# n_classes_test <- c(2,3)
+# perm_lists_test <- list(list("sparse_trans" = "()", "dense_trans" = "()", "full_cycle" = "(1,2)"),
+#                           list("sparse_trans" = "(1,2)", "dense_trans" = "(1,3)", "full_cycle" =  "(1,2,3)"))
+# n_per_class <- 30
+#
+# # ----------------------------------------------
+# # Test call
+# # ----------------------------------------------
+#
+#
+# for (i in 1:length(p_test)) {
+#   p <- p_test[i]
+#
+#   perm_list <- perm_lists_test[[i]]
+#   perms_general <- perm_lists_test[[i]]
+#   names(perms_general) <- c()
+#   perms_general <- unlist(perms_general)
+#   for (n in n_classes_test) {
+#     perms <- perms_general[1:n]
+#     for (dist in dists) {
+#       for (perm_type_name in perm_type_names) {
+#         perm <- perm_list[[perm_type_name]]
+#
+#         path_prefix <- "data/synthetic_datasets/"
+#         output_filename_prefix <- paste0(path_prefix,
+#                                          "synth_",
+#                                          as.character(p),
+#                                          "_",
+#                                          as.character(n),
+#                                          "_",
+#                                          dist,
+#                                          "_",
+#                                          perm_type_name
+#         )
+#
+#         generate_all_scenarios_data(p,
+#                                     n,
+#                                     n_per_class,
+#                                     perm,
+#                                     perms,
+#                                     output_filename_prefix,
+#                                     lambda_dist = dist
+#         )
+#       }
+#     }
+#   }
+# }
+
+
+#-----------------------------------------------
+# Proper hyperparameters (target quantity, will run somewhat longer)
+#-----------------------------------------------
+p_prop <- c(5,10)
+n_classes_prop <- c(2,5,10)
+perm_lists_prop <- list(
+  # For p=5 (5 dimensions)
+  list(
+    "sparse_trans" = "(1,2)",
+    "dense_trans" = "(1,2)(3,4)",
+    "full_cycle" = "(1,2,3,4,5)",
+    "perm_4" = "(1,3)(2,4)",
+    "perm_5" = "(1,2,3)(4,5)",
+    "perm_6" = "(1,4)(2,5)",
+    "perm_7" = "(1,2,3,4)",
+    "perm_8" = "(1,5)(2,3)",
+    "perm_9" = "(1,2)(3,5)",
+    "perm_10" = "(1,3,5)(2,4)"
+  ),
+  # For p=10 (10 dimensions)
+  list(
+    "sparse_trans" = "(1,2)(5,6)(8,9)",
+    "dense_trans" = "(1,2)(3,4)(5,6)(7,8)(9,10)",
+    "full_cycle" = "(1,2,3,4,5,6,7,8,9,10)",
+    "perm_4" = "(1,3)(2,4)(7,9)",
+    "perm_5" = "(1,2,3,4)(5,6,7)",
+    "perm_6" = "(1,5)(2,6)(3,7)(4,8)",
+    "perm_7" = "(1,2,3,4,5,6)",
+    "perm_8" = "(1,10)(2,9)(3,8)(4,7)",
+    "perm_9" = "(1,2)(3,4)(5,6)(7,8)",
+    "perm_10" = "(1,3,5,7,9)(2,4,6,8,10)"
+  )
+)
+n_per_class <- 50
 
 #----------------------------------------------
-# Test call
+# Proper call
 #----------------------------------------------
 
+for (i in 1:length(p_prop)) {
+  p <- p_prop[i]
 
-for (i in 1:length(p_test)) {
-  p <- p_test[i]
-
-  perm_list <- perm_lists_test[[i]]
-  perms_general <- perm_lists_test[[i]]
+  perm_list <- perm_lists_prop[[i]]
+  perms_general <- perm_lists_prop[[i]]
   names(perms_general) <- c()
   perms_general <- unlist(perms_general)
-  for (n in n_classes_test) {
+  for (n in n_classes_prop) {
     perms <- perms_general[1:n]
     for (dist in dists) {
       for (perm_type_name in perm_type_names) {
@@ -70,8 +148,3 @@ for (i in 1:length(p_test)) {
     }
   }
 }
-
-
-#-----------------------------------------------
-# Proper hyperparameters (target quantity, will run somewhat longer)
-#-----------------------------------------------
