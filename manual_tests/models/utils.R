@@ -21,25 +21,68 @@ accuracy_experiment <- function(df, split, model,
   train_data <- df[split$train, , drop = FALSE]
   test_data  <- df[split$test,  , drop = FALSE]
 
-  if (model == "lda") {
-    classifier <- MASS::lda(Y ~ ., data = train_data, method = "moment")
-  } else if (model == "qda") {
-    classifier <- MASS::qda(Y ~ ., data = train_data, method = "moment")
-  } else if (model == "gipsldacl") {
-    classifier <- gipslda(Y ~ ., data = train_data,
-                          weighted_avg = FALSE,
-                          MAP = MAP, optimizer = opt, max_iter = max_iter)
-  } else if (model == "gipsldawa") {
-    classifier <- gipslda(Y ~ ., data = train_data,
-                          weighted_avg = TRUE,
-                          MAP = MAP, optimizer = opt, max_iter = max_iter)
-  } else if (model == "gipsqda") {
-    classifier <- gipsqda(Y ~ ., data = train_data,
-                          MAP = MAP, optimizer = opt, max_iter = max_iter)
-  } else {
-    classifier <- gipsmultqda(Y ~ ., data = train_data,
-                              MAP = MAP, optimizer = opt, max_iter = max_iter)
-  }
+  classifier <- tryCatch({
+    if (model == "lda") {
+      MASS::lda(Y ~ ., data = train_data, method = "moment")
+    } else if (model == "qda") {
+      MASS::qda(Y ~ ., data = train_data, method = "moment")
+    } else if (model == "gipsldacl") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = FALSE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsldawa") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = TRUE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsqda") {
+      gipsqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else {
+      gipsmultqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    }
+  }, error = function(e) {
+    warning(sprintf("Error fitting model: %s ", model))
+    NULL
+  })
+
+  # if (model == "lda") {
+  #   classifier <- MASS::lda(Y ~ ., data = train_data, method = "moment")
+  # } else if (model == "qda") {
+  #   classifier <- MASS::qda(Y ~ ., data = train_data, method = "moment")
+  # } else if (model == "gipsldacl") {
+  #   classifier <- gipslda(Y ~ ., data = train_data,
+  #                         weighted_avg = FALSE,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else if (model == "gipsldawa") {
+  #   classifier <- gipslda(Y ~ ., data = train_data,
+  #                         weighted_avg = TRUE,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else if (model == "gipsqda") {
+  #   classifier <- gipsqda(Y ~ ., data = train_data,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else {
+  #   classifier <- gipsmultqda(Y ~ ., data = train_data,
+  #                             MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # }
+
+
+  # if (model == "gipsldacl") {
+  #   classifier <- gipslda(Y ~ ., data = train_data,
+  #                         weighted_avg = FALSE,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else if (model == "gipsldawa") {
+  #   classifier <- gipslda(Y ~ ., data = train_data,
+  #                         weighted_avg = TRUE,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else if (model == "gipsqda") {
+  #   classifier <- gipsqda(Y ~ ., data = train_data,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else if (model == "gipsmultqda") {
+  #   classifier <- gipsmultqda(Y ~ ., data = train_data,
+  #                             MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # }
+  # else {
+  #   return(0.5)
+  # }
+
+  # if (is.null(classifier)) {
+  #   return(0)
+  # }
 
   pred <- predict(classifier, test_data)$class
   mean(pred == test_data$Y)
@@ -81,9 +124,9 @@ accuracy_experiment <- function(df, split, model,
 #   }
 #
 #
-#   if (is.null(classifier)) {
-#     return(0)
-#   }
+  # if (is.null(classifier)) {
+  #   return(0)
+  # }
 #
 #   pred <- predict(classifier, test_data)$class
 #   y_true <- test_data$Y
@@ -191,6 +234,28 @@ generate_multiple_plots_info <- function(data_path,
                              data_file_prefix) {
   set.seed(42)
   data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
+  #read in with shuffling
+  datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
+  multiple_plots_info <- parallel::mclapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
+  names(multiple_plots_info) <- scenario_names
+  return(multiple_plots_info)
+}
+
+generate_multiple_plots_info_qr <- function(data_path,
+                             p,
+                             n_classes,
+                             dist,
+                             perm_type_name,
+                             scenario_names = c("lda", "qda", "gipslda", "gipsqda", "gipsmultqda"),
+                             model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
+                             granularity = 25,
+                             lb = 16,
+                             n_experiments = 5,
+                             opt = "BF",
+                             max_iter = 100,
+                             tr_ts_split = 0.7,
+                             MAP = TRUE) {
+  data_paths <- paste(data_path, glue::glue("/synth_{p}_{n_classes}_{dist}_{perm_type_name}_scenario_{scenario_names}.csv"), sep = "")
   #read in with shuffling
   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
   multiple_plots_info <- parallel::mclapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
