@@ -21,24 +21,47 @@ accuracy_experiment <- function(df, split, model,
   train_data <- df[split$train, , drop = FALSE]
   test_data  <- df[split$test,  , drop = FALSE]
 
-  if (model == "lda") {
-    classifier <- MASS::lda(Y ~ ., data = train_data, method = "moment")
-  } else if (model == "qda") {
-    classifier <- MASS::qda(Y ~ ., data = train_data, method = "moment")
-  } else if (model == "gipsldacl") {
-    classifier <- gipslda(Y ~ ., data = train_data,
-                          weighted_avg = FALSE,
-                          MAP = MAP, optimizer = opt, max_iter = max_iter)
-  } else if (model == "gipsldawa") {
-    classifier <- gipslda(Y ~ ., data = train_data,
-                          weighted_avg = TRUE,
-                          MAP = MAP, optimizer = opt, max_iter = max_iter)
-  } else if (model == "gipsqda") {
-    classifier <- gipsqda(Y ~ ., data = train_data,
-                          MAP = MAP, optimizer = opt, max_iter = max_iter)
-  } else {
-    classifier <- gipsmultqda(Y ~ ., data = train_data,
-                              MAP = MAP, optimizer = opt, max_iter = max_iter)
+  classifier <- tryCatch({
+    if (model == "lda") {
+      MASS::lda(Y ~ ., data = train_data, method = "moment")
+    } else if (model == "qda") {
+      MASS::qda(Y ~ ., data = train_data, method = "moment")
+    } else if (model == "gipsldacl") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = FALSE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsldawa") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = TRUE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsqda") {
+      gipsqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else {
+      gipsmultqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    }
+  }, error = function(e) {
+    warning(sprintf("Error fitting model: %s ", model))
+    NULL
+  })
+
+  # if (model == "lda") {
+  #   classifier <- MASS::lda(Y ~ ., data = train_data, method = "moment")
+  # } else if (model == "qda") {
+  #   classifier <- MASS::qda(Y ~ ., data = train_data, method = "moment")
+  # } else if (model == "gipsldacl") {
+  #   classifier <- gipslda(Y ~ ., data = train_data,
+  #                         weighted_avg = FALSE,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else if (model == "gipsldawa") {
+  #   classifier <- gipslda(Y ~ ., data = train_data,
+  #                         weighted_avg = TRUE,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else if (model == "gipsqda") {
+  #   classifier <- gipsqda(Y ~ ., data = train_data,
+  #                         MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # } else {
+  #   classifier <- gipsmultqda(Y ~ ., data = train_data,
+  #                             MAP = MAP, optimizer = opt, max_iter = max_iter)
+  # }
+
+  if (is.null(classifier)) {
+    return(0)
   }
 
   pred <- predict(classifier, test_data)$class
