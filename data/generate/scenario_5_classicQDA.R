@@ -7,7 +7,8 @@
 # =======================================================================
 
 generate_scenario_qda <- function(
-  p, n_classes, n_per_class, output_filename = "scenario_qda.csv"
+  p, n_classes, n_per_class, output_filename = "scenario_qda.csv",
+  sigma_generate = "classic", lambda_dist = "exp", ...
 ) {
 
 cat("\n\n--- RUNNING SCENARIO 5: Classic QDA ---\n")
@@ -55,10 +56,19 @@ for (i in 1:max_iterations) {
   
   for (k in 1:n_classes) {
     # Generate a different covariance matrix for each class
+    if (sigma_generate == "classic"){
     A <- matrix(rnorm(p * p), nrow = p, ncol = p)
     Sigma <- t(A) %*% A
     wishart_output <- rWishart(n = 1, df = df, Sigma = Sigma)
     base_cov_matrix <- wishart_output[,,1]
+    } else if (sigma_generate == "qr"){
+      source("generate/cov_mat_gen_met.R")
+      Sigma <- generate_lamb_q(n_matrices = 1, dim = p,
+                               lambda_dist = lambda_dist, ...)[[1]]
+      base_cov_matrix <- Sigma
+    } else {
+      stop("Invalid sigma_generate method specified.")
+    }
     cov_matrix <- base_cov_matrix * psi / (2**i)
     
     class_data <- MASS::mvrnorm(n = n_per_class, mu = class_means[, k], Sigma = cov_matrix)
