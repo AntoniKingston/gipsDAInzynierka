@@ -48,7 +48,7 @@ Sigma <- t(A) %*% A
 wishart_output <- rWishart(n = 1, df = df, Sigma = Sigma)
 base_cov_matrix <- wishart_output[,,1] # This matrix will be reused
 } else if (sigma_generate == "qr"){
-  source("generate/cov_mat_gen_met.R")
+  source("data/generate/cov_mat_gen_met.R")
   Sigma <- generate_lamb_q(n_matrices = 1, dim = p,
                            lambda_dist = lambda_dist, ...)[[1]]
   base_cov_matrix <- Sigma

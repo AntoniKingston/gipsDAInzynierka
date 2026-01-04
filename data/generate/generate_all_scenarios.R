@@ -135,15 +135,31 @@ for (i in 1:length(p_prop)) {
                                          "_",
                                          perm_type_name
         )
-
-        generate_all_scenarios_data(p,
+        if (dist == "chisq") {
+          generate_all_scenarios_data(p,
                                     n,
                                     n_per_class,
                                     perm,
                                     perms,
                                     output_filename_prefix,
+                                    sigma_generate = "qr",
+                                    lambda_dist = dist,
+                                    5
+          )
+        }
+        else {
+          generate_all_scenarios_data(p,
+                                    n,
+                                    n_per_class,
+                                    perm,
+                                    perms,
+                                    output_filename_prefix,
+                                    sigma_generate = "qr",
                                     lambda_dist = dist
-        )
+          )
+        }
+
+
       }
     }
   }

@@ -48,7 +48,7 @@ cat(sprintf("Target LDA Accuracy -> Train: %.2f | Test: %.2f \n\n",
 
 for (i in 1:max_iterations) {
   
-  cat(sprintf("--- Iteration %d: Testing with divisor psi = %d ---\n", i, psi / 2**i))
+  cat(sprintf("--- Iteration %f: Testing with divisor psi = %f ---\n", i, psi / 2**i))
   
   # ** Generate synthetic data with the new covariance matrix **
   class_means <- matrix(runif(n_classes * p, min = 0, max = 1), nrow = p, ncol = n_classes)
@@ -62,7 +62,7 @@ for (i in 1:max_iterations) {
     wishart_output <- rWishart(n = 1, df = df, Sigma = Sigma)
     base_cov_matrix <- wishart_output[,,1]
     } else if (sigma_generate == "qr"){
-      source("generate/cov_mat_gen_met.R")
+      source("data/generate/cov_mat_gen_met.R")
       Sigma <- generate_lamb_q(n_matrices = 1, dim = p,
                                lambda_dist = lambda_dist, ...)[[1]]
       base_cov_matrix <- Sigma
