@@ -1,10 +1,10 @@
 # setwd("data")
 
-source("generate/scenario_1_gipsLDA.R")
-source("generate/scenario_2_gipsMultQDA.R")
-source("generate/scenario_3_gipsQDA.R")
-source("generate/scenario_4_classicLDA.R")
-source("generate/scenario_5_classicQDA.R")
+source("data/generate/scenario_1_gipsLDA.R")
+source("data/generate/scenario_2_gipsMultQDA.R")
+source("data/generate/scenario_3_gipsQDA.R")
+source("data/generate/scenario_4_classicLDA.R")
+source("data/generate/scenario_5_classicQDA.R")
 
 # sigma_generate can be classic or qr,
 # It determines the method for generating covariance matrices:
