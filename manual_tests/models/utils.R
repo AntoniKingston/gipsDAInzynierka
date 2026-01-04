@@ -83,6 +83,9 @@ accuracy_experiment <- function(df, split, model,
   # if (is.null(classifier)) {
   #   return(0)
   # }
+  if (is.null(classifier)) {
+    return(0)
+  }
 
   pred <- predict(classifier, test_data)$class
   mean(pred == test_data$Y)
