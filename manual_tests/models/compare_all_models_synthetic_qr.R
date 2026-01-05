@@ -28,11 +28,11 @@ for (p in ps) {
                                                      n,
                                                      dist,
                                                      perm_type_name,
-                                                     granularity = 3,
+                                                     granularity = 13,
                                                      lb=16,
-                                                     n_experiments = 2,
+                                                     n_experiments = 8,
                                                      opt = opt,
-                                                     max_iter = 100,
+                                                     max_iter = 500,
                                                      tr_ts_split = 0.7,
                                                      MAP = map_bool)
             saveRDS(plot_info, filename_plot_info)
