@@ -361,3 +361,6 @@ plots/synthetic_data/*
 
 saved_objects/synthetic_data/*
 !saved_objects/synthetic_data/.gitkeep
+
+data/synthetic_datasets/*
+!data/synthetic_datasets/.gitkeep
