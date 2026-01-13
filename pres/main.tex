@@ -1,0 +1,408 @@
+%----------------------------------------------------------------------------------------
+%    PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass[aspectratio=169,xcolor=dvipsnames]{beamer}
+\usetheme{SimpleDarkBlue}
+\useoutertheme{miniframes}
+
+\usepackage{hyperref}
+\usepackage{graphicx} 
+\usepackage{booktabs} 
+\usepackage{tabularx}
+\usepackage{amssymb}
+\usepackage{amsmath, amsfonts, amsthm, latexsym, bbm}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins} % Biblioteki tcolorbox do obsługi kodu i skórek
+
+
+\usepackage[utf8]{inputenc}   
+\usepackage[T1]{fontenc}      
+% \usepackage[polish]{babel}    
+
+% ============================================================
+% STYL DLA RConsole
+% ============================================================
+
+% 1. Definicja kolorów (Styl podobny do VS Code / RStudio)
+\definecolor{codegreen}{rgb}{0.25,0.5,0.35}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{HTML}{F2F2F2}  % Bardzo jasny szary tło
+\definecolor{framecolour}{HTML}{2E3440} % Ciemny kolor ramki (Nord theme style)
+\definecolor{keywordcolour}{HTML}{81A1C1}
+
+% 2. Styl listingu (sam tekst kodu)
+\lstdefinestyle{myRstyle}{
+    language=R,
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\itshape\color{codegreen},
+    keywordstyle=\bfseries\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize, % Czcionka maszynowa
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=8pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    morekeywords={TRUE, FALSE, NULL, NA, Inf, NaN} % Dodatkowe słowa kluczowe R
+}
+
+% 3. Definicja nowego środowiska "RCode" (Ramka + Listing)
+\newtcblisting[auto counter]{RCode}[2][]{%
+    enhanced,                     % Włącza zaawansowane opcje rysowania
+    listing engine=listings,      % Używamy silnika listings
+    listing only,                 % Tylko kod, bez wykonania
+    listing options={style=myRstyle}, % Użyj stylu zdefiniowanego wyżej
+    title={\textbf{Listing \thetcbcounter:} #2}, % Tytuł ramki (np. Listing 1: Nazwa)
+    colback=backcolour,           % Kolor tła w środku
+    colframe=framecolour,         % Kolor ramki
+    coltitle=white,               % Kolor tekstu w tytule
+    fonttitle=\bfseries\footnotesize, % Czcionka tytułu
+    sharp corners=downhill,       % Zaokrąglone tylko górne rogi (wygląda jak zakładka)
+    arc=3mm,                      % Promień zaokrąglenia
+    boxrule=0.5mm,                % Grubość ramki
+    drop shadow,                  % Cień pod ramką (efekt 3D)
+    top=1mm, bottom=1mm,          % Marginesy wewnątrz
+    #1                            % Miejsce na dodatkowe opcje przy wywołaniu
+}
+
+% Aktywacja stylu
+\lstset{style=myRstyle}
+
+
+% ============================================================
+% STYL DLA OUTPUTU Z KONSOLI (R OUTPUT)
+% ============================================================
+
+% Kolory dla outputu (neutralne szarości)
+\definecolor{outbg}{HTML}{FAFAFA}      % Prawie białe tło
+\definecolor{outframe}{HTML}{707070}    % Szara ramka (neutralna)
+
+% Styl listingu (czysty tekst, bez kolorowania składni)
+\lstdefinestyle{outputStyle}{
+    basicstyle=\ttfamily\scriptsize,
+    backgroundcolor=\color{outbg},
+    breaklines=true,                    % Zwijanie wierszy
+    showstringspaces=false,
+    tabsize=2,
+    frame=none,
+    numbers=none,                       % Brak numerów linii w outpucie
+    columns=fullflexible                % Lepsze kopiowanie tekstu
+}
+
+% Nowe środowisko "ROutput"
+\newtcblisting{ROutput}[1][]{
+    enhanced,
+    listing only,
+    listing options={style=outputStyle},
+    colback=outbg,
+    colframe=outframe,
+    coltitle=white,
+    fonttitle=\bfseries\footnotesize,
+    title={Console Output},             % Domyślny tytuł
+    arc=2mm,                            % Lekko zaokrąglone rogi
+    boxrule=0.5mm,
+    drop shadow,                        % Cień
+    #1
+}
+
+
+
+%----------------------------------------------------------------------------------------
+%    TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title{Adapting the \texttt{gips} library for classification utilizing discriminant analysis – \texttt{gipsDA}}
+
+\author{Norbert Frydrysiak \and Antoni Kingston}
+
+\institute
+{
+    Faculty of Mathematics and Information Sciences \\
+    Warsaw University of Technology \\
+    \vspace{0.2cm}
+    \textit{Supervisors:} \\
+    MSc Eng. Adam Chojecki \\
+    PhD Bartosz Kołodziejek, Assoc. Prof.
+}
+
+%----------------------------------------------------------------------------------------
+%    PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Overview}
+    \tableofcontents
+\end{frame}
+
+%------------------------------------------------
+\section{Introduction \& Motivation}
+%------------------------------------------------
+\begin{frame}{Motivation}
+
+    \begin{alertblock}{The Bottleneck: High-Dimensional Data}
+    The performance of many classical classifiers becomes suboptimal in high-dimensional settings. This issue arises when the number of features ($p$) is large and becomes particularly severe when $p$ approaches or exceeds the number of samples ($n$).
+    \end{alertblock}
+
+    \begin{block}{Our Goal}
+    To create new, more robust classifiers that maintain high performance in high-dimensional environments, ranging from cases with many features to the extreme "$p > n$" setting, by introducing structural constraints on the covariance matrix.
+    \end{block}
+    
+\end{frame}
+
+\begin{frame}{Literature Overview}
+    Our work builds upon the following literature:
+    \begin{itemize}
+        \item \textbf{Discriminant Analysis:} Classical LDA and QDA as described by Hastie, Tibshirani, and Friedman (2009) in \textit{The Elements of Statistical Learning}. \cite{elemstats}
+        \item \textbf{Permutation Symmetry:} The \texttt{gips} methodology introduced by Chojecki, Morgen, and Kołodziejek (2025), which allows for learning hidden symmetries in Gaussian vectors. \cite{JSSv112i07}
+        \item \textbf{Building package}: Good practices for writing R packages.
+        \cite{wickham-bryan-r-packages-2e}
+    \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\section{Theoretical Overview}
+%------------------------------------------------
+
+\begin{frame}{Generative Classification: LDA vs. QDA}
+    
+    % 1. Główny wzór (Delta)
+    \begin{block}{Discriminant Function (via Bayes' Theorem)}
+        We classify $\mathbf{x}$ to class $g$ maximizing the log-posterior $\delta_g(\mathbf{x})$:
+        \[ \delta_g(\mathbf{x}) = -\frac{1}{2}\log|\boldsymbol{\Sigma}_g| - \frac{1}{2}(\mathbf{x}-\boldsymbol{\mu}_g)^T \boldsymbol{\Sigma}_g^{-1} (\mathbf{x}-\boldsymbol{\mu}_g) + \log(\pi_g) \]
+    \end{block}
+
+    \vspace{0.5em}
+
+    % 2. Porównanie w kolumnach
+    \begin{columns}[t]
+        \column{.48\textwidth}
+        \textbf{\textcolor{blue}{Linear (LDA)}}
+        \begin{itemize}
+            \item \textbf{Assumption:} Homoscedasticity \\ ($\boldsymbol{\Sigma}_g = \boldsymbol{\Sigma}$ for all classes).
+            \item \textbf{Effect:} Quadratic term cancels out $\to$ \textbf{Linear} boundary.
+            \item \textbf{Trade-off:} Low Variance / High Bias.
+            \item \textit{Robust on small datasets.}
+        \end{itemize}
+
+        \column{.48\textwidth}
+        \textbf{\textcolor{red}{Quadratic (QDA)}}
+        \begin{itemize}
+            \item \textbf{Assumption:} Heteroscedasticity \\ ($\boldsymbol{\Sigma}_g$ is unique).
+            \item \textbf{Effect:} Quadratic term remains $\to$ \textbf{Curved} boundary.
+            \item \textbf{Trade-off:} High Variance / Low Bias.
+            \item \textit{Flexible, but prone to overfitting.}
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{gipsDA}
+    \texttt{gipsDA} stands for '\texttt{gips} discriminant analysis'. It is an R package that offers trained LDA/QDA models enhanced by the application of the \texttt{gips} methodology.
+
+    \begin{block}{gipsLDA}
+        Assumes a constraint on the \textbf{shared} covariance matrix with a \textbf{single} permutation $c \in \Gamma$.
+    \end{block}
+    \begin{block}{gipsQDA}
+        Assumes constraints on \textbf{different} matrices for each class using \textbf{different} permutations $c_g \in \Gamma$.
+    \end{block}
+    \begin{block}{gipsmultQDA}
+        Assumes constraints on \textbf{different} matrices for each class, constrained by a \textbf{single, shared} permutation $c \in \Gamma$.
+    \end{block}
+\end{frame}
+
+\begin{frame}{gipsmult}
+    Unlike the standard \texttt{gips} package, which operates on a single matrix, \texttt{gipsmult} estimates the most probable permutation group shared across \textbf{multiple} data groups. 
+    \newline \newline
+    In this setting, we assume $m$ independent groups, each following a Gaussian distribution with its own precision matrix $K_g$, but all invariant under the same permutation group $c$:
+    \begin{block}{a Posteriori Probability}
+        \begin{equation*}
+                \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto \prod_{g=1}^m \frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)}
+        \end{equation*}
+    \end{block}
+    This allows for heteroscedasticity (different scales) while preserving a common structural dependency.
+\end{frame}
+
+%------------------------------------------------
+\section{Implementation}
+%------------------------------------------------
+\begin{frame}{R Package Structure}
+    The project is organized into a modular structure to ensure maintainability:
+    \begin{itemize}
+        \item \textbf{\texttt{gipsmult} module:} Contains the core optimization logic, supporting Brute-Force (for $p \le 9$) and Metropolis-Hastings (for $p > 9$) search algorithms.
+        \item \textbf{\texttt{models} module:} Provides a user-friendly API consistent with R standards (\texttt{fit()}, \texttt{predict()}, \texttt{print()}).
+        \item \textbf{Serialization:} A custom JSON engine (\texttt{gipsDA\_to\_json}) to handle complex R objects like formulas and permutation groups for production deployment.
+        \item \textbf{Tests:} Comprehensive suite using the \texttt{testthat} framework, achieving approximately 80\% code coverage.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{\texttt{gipsDA} Models Implementation}
+    The package leverages the S3 method dispatch system:
+    \begin{itemize}
+        \item \textbf{Familiar Interface:} \texttt{gipslda.formula()} and \texttt{gipsqda.formula()} allow users to switch from \texttt{MASS} with zero changes to their workflow.
+        \item \textbf{Estimation Strategies:}
+        \begin{itemize}
+            \item \textbf{MAP (Maximum A Posteriori):} Projects the matrix onto the single most probable permutation.
+            \item \textbf{Bayesian Model Averaging:} A weighted average of covariance matrices over the entire posterior distribution of permutations.
+        \end{itemize}
+        \item \textbf{Optimization Info:} Fitted objects store convergence history and discovered symmetries for inspection.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Example}
+\begin{RCode}{Training gipsQDA}
+# MAP = FALSE uses the weighted posterior estimator
+fit_qda <- gipsqda(Species ~ ., data = iris, MAP = FALSE)
+
+print(fit_qda)
+\end{RCode}
+\end{frame}
+
+\begin{frame}[fragile]{Example}
+\begin{ROutput}
+Prior probabilities of groups:
+    setosa versicolor  virginica
+ 0.3333333  0.3333333  0.3333333
+
+Group means:
+           Sepal.Length Sepal.Width Petal.Length Petal.Width
+setosa            5.006       3.428        1.462       0.246
+versicolor        5.936       2.770        4.260       1.326
+virginica         6.588       2.974        5.552       2.026
+
+Permutations with their estimated probabilities:
+(1,3)(2,4)         ()      (2,4)      (1,3)
+0.69108586 0.17759118 0.10792401 0.02339895
+\end{ROutput}
+\end{frame}
+
+%------------------------------------------------
+\section{Testing}
+%------------------------------------------------
+\begin{frame}{Synthetic Data Results}
+    Testing across 5 scenarios (LDA, QDA, gipsLDA, gipsQDA, gipsmultQDA) revealed:
+    \begin{itemize}
+        \item \textbf{Regularization Benefit:} In data-scarce regimes ($n$ small), \texttt{gipsQDA} outperformed standard \texttt{QDA}.
+        \item \textbf{Convergence:} As sample size increases, the gap between \texttt{gips}-based models and classical models narrows, as empirical estimates become more reliable.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Synthetic Data Results}
+    \begin{figure}
+    \centering
+    
+    \includegraphics[width = 0.85\linewidth]{seminarium_png/synth_10_10_chisq_sparse_trans_TRUE.png}
+    \caption*{Testing results synth\_10\_10\_chisq\_sparse\_trans\_TRUE scenario}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Real-World Data Performance}
+    \begin{itemize}
+        \item \textbf{Heart Failure Prediction:} \texttt{gips}-based models demonstrated superior data efficiency, reaching their accuracy plateau significantly faster than standard LDA/QDA.
+        \item \textbf{Breast Cancer (Diagnostic):} \texttt{gipsLDA classic} achieved robust performance with as few as 30 observations, whereas standard \texttt{QDA} required nearly 200 observations to reach a similar level.
+        \item \textbf{Robustness:} Despite violations of multivariate normality (categorical features), the models proved stable and effective.
+    \end{itemize}
+\end{frame}
+
+    
+\begin{frame}{Real-World Data Performance}
+    \begin{figure}
+    \centering
+    
+    \includegraphics[width = 0.8\linewidth]{seminarium_png/breast.jpg}
+    \caption*{Testing results for breast\cite{breast} dataset}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Real-World Data Performance}
+    \begin{figure}
+    \centering
+    
+    \includegraphics[width = 0.8\linewidth]{seminarium_png/heart.png}
+    \caption*{Testing results for heart\cite{heart} dataset}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Encountered Problems}
+The main problem of testing was big number of hyperparameters.
+    \begin{alertblock}{Large grid}
+        Big number of hyperparameters is equivalent to a high-dimensional grid. Total number of combinations skyrocketed, which combined with limited computational power forced us to limit individual dimensions' sizes.
+    \end{alertblock}
+    \begin{alertblock}{Visualisation and interpretation problems}
+        It is hard to visualise any data of dimension 3 or higher. As such we found it difficult to describe the influence of individual hyperparameters on the result.
+    \end{alertblock}
+\end{frame}
+
+%------------------------------------------------
+\section{Miscellaneous}
+%------------------------------------------------
+\begin{frame}{Opportunities for Further Development}
+    \begin{itemize}
+        \item \textbf{Extended Models:} Adapting permutation symmetry constraints to Cluster Analysis e.g. Gaussian Mixture Models.
+        \item \textbf{Symmetry Groups:} Expanding the library to support more complex symmetry structures beyond cyclic subgroups.
+        \item \textbf{CRAN Submission:} Finalizing the package structure for official release to the Comprehensive R Archive Network.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Division of Labor}
+    \begin{table}[]
+        \centering
+        \small
+        % Zwiększenie odstępów między wierszami dla lepszej czytelności
+        \renewcommand{\arraystretch}{1.1}
+        
+        \begin{tabularx}{\textwidth}{l X c c}
+            \toprule
+            \textbf{Category} & \textbf{Task / Responsibility} & \textbf{Antoni} & \textbf{Norbert} \\ 
+            \midrule
+            \textbf{Theory} & Mathematical derivation of the \texttt{gipsmult} posterior & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Package} & \texttt{gipsmult} module: Optimization engines (MH, BF) & \textcolor{teal}{$\checkmark$} & \textcolor{gray}{$\times$} \\
+            \addlinespace
+            \textbf{Package} & \texttt{models} module: S3 methods, API consistency & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Package} & Model serialization (JSON engine) & \textcolor{teal}{$\checkmark$} & \textcolor{gray}{$\times$} \\
+            \addlinespace
+            \textbf{Testing} & Unit testing framework and "Negative Testing" suite & \textcolor{gray}{$\times$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Experiments} & Synthetic data generation and benchmarking & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Experiments} & Real-world dataset benchmarking & \textcolor{gray}{$\times$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Documentation} & Technical reports, User's Manual, and Thesis Writing & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \bottomrule
+        \end{tabularx}
+        \caption{Summary of individual and shared contributions.}
+    \end{table}
+\end{frame}
+
+\begin{frame}{References}
+    \tiny
+    \bibliography{references.bib}
+    \bibliographystyle{apalike}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \Huge{\centerline{\textbf{Koniec}}}
+    \Huge{\centerline{\textbf{Dziękujemy za uwagę}}}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

@@ -364,3 +364,7 @@ saved_objects/synthetic_data/*
 
 data/synthetic_datasets/*
 !data/synthetic_datasets/.gitkeep
+
+pres/*
+!pres/main.tex
+!pres/references.bib
