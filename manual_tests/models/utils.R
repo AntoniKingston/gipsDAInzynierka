@@ -235,7 +235,6 @@ generate_multiple_plots_info <- function(data_path,
                              tr_ts_split = 0.7,
                              MAP = TRUE,
                              data_file_prefix) {
-  set.seed(42)
   data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
   #read in with shuffling
   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
