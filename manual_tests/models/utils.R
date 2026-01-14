@@ -25,7 +25,7 @@ accuracy_experiment <- function(df, split, model,
     if (model == "lda") {
       MASS::lda(Y ~ ., data = train_data, method = "moment")
     } else if (model == "qda") {
-      MASS::qda(Y ~ ., data = train_data, method = "moment")
+      gipsDA:::qdamod.formula(Y ~ ., data = train_data, method = "moment")
     } else if (model == "gipsldacl") {
       gipslda(Y ~ ., data = train_data, weighted_avg = FALSE, MAP = MAP, optimizer = opt, max_iter = max_iter)
     } else if (model == "gipsldawa") {
@@ -86,8 +86,11 @@ accuracy_experiment <- function(df, split, model,
   if (is.null(classifier)) {
     return(0)
   }
-
-  pred <- predict(classifier, test_data)$class
+  if (model == "qda") {
+    pred <- gipsDA:::predict.qdamod(classifier, test_data)$class
+  } else {
+    pred <- predict(classifier, test_data)$class
+  }
   mean(pred == test_data$Y)
 }
 
@@ -248,7 +251,7 @@ generate_multiple_plots_info_qr <- function(data_path,
                              n_classes,
                              dist,
                              perm_type_name,
-                             scenario_names = c("lda", "qda", "gipslda", "gipsqda", "gipsmultqda"),
+                             scenario_names = c("qda", "gipsqda", "gipsmultqda", "lda", "gipslda"),
                              model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
                              granularity = 25,
                              lb = 16,
@@ -260,7 +263,7 @@ generate_multiple_plots_info_qr <- function(data_path,
   data_paths <- paste(data_path, glue::glue("/synth_{p}_{n_classes}_{dist}_{perm_type_name}_scenario_{scenario_names}.csv"), sep = "")
   #read in with shuffling
   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
-  multiple_plots_info <- parallel::mclapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
+  multiple_plots_info <- lapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
   names(multiple_plots_info) <- scenario_names
   return(multiple_plots_info)
 }
@@ -413,7 +416,8 @@ create_multilevel_plot <- function(
     legend.position = "bottom",
     strip.background = element_rect(fill = "gray90"),
     text = element_text(size = 12)
-  )
+  ) +
+  coord_cartesian(ylim = c(0, 1))
 
   return(gg_plot)
 }
