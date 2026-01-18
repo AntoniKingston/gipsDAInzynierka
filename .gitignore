@@ -359,8 +359,11 @@ data/real_world_datasets/*
 plots/synthetic_data/*
 !plots/synthetic_data/.gitkeep
 
-saved_objects/synthetic_data/*
-!saved_objects/synthetic_data/.gitkeep
+saved_objects/synthetic_data_plot_info/*
+!saved_objects/synthetic_data_plot_info/.gitkeep
+
+saved_objects/synthetic_data_matrices_and_means/*
+!saved_objects/synthetic_data_matrices_and_means/.gitkeep
 
 data/synthetic_datasets/*
 !data/synthetic_datasets/.gitkeep

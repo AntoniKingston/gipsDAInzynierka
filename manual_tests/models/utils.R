@@ -50,11 +50,6 @@ generate_accuracy_data <- function(cov_mats,
                                    MAP = TRUE,
                                    opt = "BF",
                                    max_iter = 100) {
-
-  if (nrow(df) < lb) {
-    rlang::abort("dataset has less rows than specified lower bound")
-  }
-
   accs <- as.numeric(unlist(lapply(ns_obs, function(n_obs) {
     n_per_class <- floor(n_obs / ncol(means))
     mean(replicate(n_experiments, accuracy_experiment(cov_mats, means, n_per_class, model, tr_ts_split, MAP, opt, max_iter)))
@@ -63,55 +58,31 @@ generate_accuracy_data <- function(cov_mats,
   return(accs)
 }
 
-generate_single_plot_info <- function(scenario_data,
+generate_single_plot_info <- function(scenario_metadata,
                                       model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
-                                      granularity = 25,
-                                      lb = 50,
+                                      ns_obs,
+                                      tr_ts_split = 0.7,
                                       n_experiments = 5,
                                       MAP = TRUE,
                                       opt = "BF",
-                                      max_iter = 100,
-                                      tr_ts_split = 0.7) {
+                                      max_iter = 100
+                                      ) {
 
-  ns_obs <- round(exp(seq(log(lb), log(nrow(scenario_data)), length.out = granularity)))
-
-
-  splits_per_n <- lapply(ns_obs, function(n_obs) {
-    generate_splits(n_obs, tr_ts_split, n_experiments)
-  })
+  cov_mats <- scenario_metadata$matrices
+  means <- scenario_metadata$means
 
   plot_info <- lapply(model_names, function(model) {
-    list("accs" = generate_accuracy_data(scenario_data, model, splits_per_n, granularity, lb, n_experiments, MAP, opt, max_iter), "ns_obs" = ns_obs)
+    list("accs" = generate_accuracy_data(cov_mats, means, ns_obs, model, tr_ts_split, n_experiments, MAP, opt, max_iter), "ns_obs" = ns_obs)
   })
   names(plot_info) <- model_names
   plot_info
 }
 
-
-# generate_multiple_plots_info <- function(data_path,
-#                              scenario_names = c("lda", "qda", "gipslda", "gipsqda", "gipsmultqda"),
-#                              model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
-#                              granularity = 25,
-#                              lb = 50,
-#                              n_experiments = 5,
-#                              opt = "BF",
-#                              max_iter = 100,
-#                              tr_ts_split = 0.7,
-#                              MAP = TRUE,
-#                              data_file_prefix) {
-#   data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
-#   #read in with shuffling
-#   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
-#   multiple_plots_info <- parallel::mclapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
-#   names(multiple_plots_info) <- scenario_names
-#   return(multiple_plots_info)
-# }
-
-generate_multiple_plots_info_qr <- function(data_path,
-                             p,
+generate_multiple_plots_info_qr <- function(p,
                              n_classes,
-                             dist,
-                             perm_type_name,
+                             perms,
+                             lambda_dist,
+                             n_per_class = 50,
                              scenario_names = c("qda", "gipsqda", "gipsmultqda", "lda", "gipslda"),
                              model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
                              granularity = 25,
@@ -121,12 +92,19 @@ generate_multiple_plots_info_qr <- function(data_path,
                              max_iter = 100,
                              tr_ts_split = 0.7,
                              MAP = TRUE) {
-  data_paths <- paste(data_path, glue::glue("/synth_{p}_{n_classes}_{dist}_{perm_type_name}_scenario_{scenario_names}.csv"), sep = "")
-  #read in with shuffling
-  datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
-  multiple_plots_info <- lapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
+  source("data/generate/generate_cov_mat_means_scenario_given.R")
+
+  scenarios_metadata <- lapply(scenario_names, function(scenario) {
+    generate_cov_mat_means_scenario_given(scenario, p, n_classes, perms, lambda_dist, n_per_class)
+  })
+  ns_obs <- round(exp(seq(log(lb), log(n_classes*n_per_class), length.out = granularity)))
+  multiple_plots_info <- lapply(scenarios_metadata, function(scenario_metadata) {
+    generate_single_plot_info(scenario_metadata, model_names, ns_obs, tr_ts_split, n_experiments, MAP, opt, max_iter)
+  })
+
   names(multiple_plots_info) <- scenario_names
-  return(multiple_plots_info)
+  names(scenarios_metadata) <- scenario_names
+  return(list("plot" = multiple_plots_info, "meta" = scenarios_metadata))
 }
 
 
@@ -186,3 +164,23 @@ create_multilevel_plot <- function(
 
   return(gg_plot)
 }
+
+
+# generate_multiple_plots_info <- function(data_path,
+#                              scenario_names = c("lda", "qda", "gipslda", "gipsqda", "gipsmultqda"),
+#                              model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
+#                              granularity = 25,
+#                              lb = 50,
+#                              n_experiments = 5,
+#                              opt = "BF",
+#                              max_iter = 100,
+#                              tr_ts_split = 0.7,
+#                              MAP = TRUE,
+#                              data_file_prefix) {
+#   data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
+#   #read in with shuffling
+#   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
+#   multiple_plots_info <- parallel::mclapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
+#   names(multiple_plots_info) <- scenario_names
+#   return(multiple_plots_info)
+# }
