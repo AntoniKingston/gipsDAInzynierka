@@ -369,9 +369,18 @@ pres/*
 !pres/main.tex
 !pres/references.bib
 
-thesis/title_page/
+# Thesis files
+thesis/*
+
+!thesis/README.md
+
+!thesis/title_page/
+!thesis/thesis/
+
+thesis/title_page/*
+thesis/thesis/*
+
 !thesis/title_page/titlepage-en.tex
 !thesis/title_page/arial.ttf
-!thesis/title_page/img/*
-thesis/thesis/*
+!thesis/title_page/img/
 !thesis/thesis/thesis-en.tex
