@@ -160,10 +160,11 @@
 
 % -------------------------- USER SETTINGS ---------------------------
 
-\newcommand{\tytul}{POLISH TITLE}
-\renewcommand{\title}{ENGLISH TITLE}
-\newcommand{\type}{Master} % Master OR Engineer
-\newcommand{\supervisor}{dr inż. Promotor X} % TITLE AND NAME OF THE SUPERVISOR
+\newcommand{\tytul}{Dostosowanie biblioteki gips do zadania klasyfikacji przy pomocy analizy dyskryminacyjnej –- gipsDA}
+\renewcommand{\title}{Adapting the gips library for classification problem utilizing discriminant analysis –- gipsDA}
+\newcommand{\type}{Engineer} % Master OR Engineer
+\newcommand{\supervisor}{MSc Eng. Adam Chojecki\\
+    PhD Bartosz Kołodziejek, Assoc. Prof.} % TITLE AND NAME OF THE SUPERVISOR
 
 
 
@@ -265,249 +266,67 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod t
 \markboth{}{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
-What is the thesis about? What is the content of it? What is the Author's contribution to it?
-\par
-WARNING!  In a diploma thesis which is a team project: Description of the work division in the team, including the scope of each co-author’s contribution to the practical part (Team Programming Project) and the descriptive part of the diploma thesis.
-\par
+\section{General description of QDA and LDA}
+\textcolor{red}{Chyba tej sekcji nie bedzie ale na razie ja daje}
 
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+\section{Why do we expect symmetry?}
+\textcolor{red}{Tutaj jakies gadanie o tym ze hehe robimy jakas symetrie}
 
-\chapter{Example chapter}
+\section{Motivation for the thesis}
+\textcolor{red}{Moze ta sekcja bedzie pierwsza ale ja widze ze zajmujemy sie problemem gdzie p>n albo p duze tak jak na prezentacji}
+
+\chapter{Related Work}
 
 This \TeX~file is to be compiled with pdfLaTeX (it's just quick build in TeXMaker).
 
 
-\section{Example section}
+\section{Theoretical description of LDA and QDA}
 
-\begin{definition}[Definition]
-	%
-	A \emph{definition} is a statement of the meaning of a term (a word, phrase, or other set of symbols).
-	%
-\end{definition}
+\textcolor{red}{Tutaj sie ja tym zajme i ladnie dokladnie opisz na podstawie lmstatsa}
 
 \subsection{Example subsection}
 
-It's the deepest deph of sectioning allowed by rector.
 
-\begin{definition}[Equation]
-	%
-	In mathematics, an \emph{equation} is a statement of an equality containing one or more variables.
-	%
-\end{definition}
-%
-\begin{example}
-This is an example of an equation:
-\begin{equation}
-	%
-	2+2=4.
-	%
-\end{equation}
-%
-Equation without a number:
-\begin{equation*}
-	%
-	2+2=4,
-	%
-\end{equation*}
-or:
-\[
-2+2=4.
-\]
+\section{General description of gips}
+\textcolor{red}{Tutaj opis gipsa, na podstawie artykulu itd}
 
-It is worthwhile to peruse other mathematical environments like  \emph{multline}, \emph{align} and their versions with a star (, i.e. without numeration). The description of their use can be found at  \url{https://texdoc.org/serve/amsldoc.pdf/0} starting from the end of the third page.
+\chapter{Our Approach}
+\testcolor{red}{Tutaj opis naszego rozwiazania}
 
-Equation \eqref{equation} is false. References (and some other things) work properly after compliling \TeX ~ file twice.
+\section{Connecting related work with our contribution}
 
-\begin{equation}\label{equation}
-	%
-	\int \limits_{0}^{1} x \; dx = \frac{3}{2}.
-	%
-\end{equation}
+\section{Description of machine learning models}
 
-\end{example}
+\section{Theoretical aspects and pseudocode}
 
-Theorem \ref{Pitagoras} is a very interensting result.
+\chapter{Implementation (Package Description)}
 
-\begin{theorem}[Pythagoras' Theorem]\label{Pitagoras}
-	%
-	Let $c$ represent the length of the hypotenuse and $a$ and $b$ the lengths of the triangle's other two sides. Then:
-	%
-\begin{equation*}
-	%
-	a^2 + b^2 = c^2.
-	%
-\end{equation*}
-%
-\end{theorem}
+\section{Package structure and dependencies}
 
-\begin{proof}
-	%
-	The proof has been presented in \cite{Ktos} and \cite{Innyktos}. We can write then \cite{Ktos, Innyktos}.
-	%
-\end{proof}
+\section{Documentation}
 
-\begin{corollary}
-	%
-	The use of the term \emph{corollary}, rather than \emph{proposition} or \emph{theorem}, is intrinsically subjective.
-	%
-\end{corollary}
+\section{Usage of S3 classes}
 
+\section{Usage example}
+\textcolor{red}{Tutaj chyba tak jak na prezentacji by sie to przedstawilo}
 
+\chapter{Testing Methodology}
+\textcolor{red}{tutaj opis jak testujemy itd jak dane przygotowujemy}
 
+\section{Synthetic data}
+\textcolor{red}{opis dokladny generowania danych, mozna podobnie jak w deliverable}
 
-\begin{remark}
-	%
-	You can find a rather comprehensive list of available symbols at \url{https://www3.nd.edu/~nmark/UsefulFacts/LaTeX_symbols.pdf}.
+\section{Real data}
+\textcolor{red}{Tutaj opis danych id mozna podobnie jak w deliverable}
 
-	If you want to find a symbol by its shape, you can use the following site: \url{https://detexify.kirelabs.org/classify.html}.
-	%
-\end{remark}
+\chapter{Experimental Results}
 
-\begin{lemma}[Someone's Lemma]
-	%
-	Ten lemat jest nie na temat.
-	%
-\end{lemma}
-\begin{proof} Dowód przez indukcję.
-\end{proof}
+\section{Plots and Tables}
 
+\section{Comments and interpretation of results}
 
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-
-
-
-\section{Floats -- tables and figures}
-
-\begin{table}% label has to be after caption, otherwise numeration is wrong
-\caption[Short caption]{Additional options}
-\label{opcje}
-\centering
-\begin{tabular}{|c|p{0.8\textwidth}|}
-\hline
-symbol & effect \\ \hline
-\texttt{h} & Place the float here, i.e., approximately at the same point it occurs in the source text (however, not exactly at the spot) \\
-\texttt{t} & Position at the top of the page \\
-\texttt{b} & Position at the bottom of the page \\
-\texttt{p} & Put on a special page for floats only \\
-\texttt{!} & Override internal parameters LaTeX uses for determining "good" float positions \\
-\texttt{H} & Places the float at precisely the location in the \LaTeX ~ code. Requires the float package,[1] i.e., \texttt{\textbackslash usepackage\{float\}}. This is somewhat equivalent to !ht.\\ \hline
-\end{tabular}
-\end{table}
-
-Place labels after captions or you get the wrong labelling.
-
-In Table \ref{opcje} there are additional options for \texttt{table} and \texttt{figure} environments.
-
-\begin{figure}[h!]
-
-\begin{center}
-    \setlength{\unitlength}{1mm}
-
-    \begin{picture}(40, 30)
-        \put(20,1){\line(0,1){20}} % line
-
-        % bottom
-        \put(20,1){\circle*{2}}
-        \put(25,1){0}
-
-        % top
-        \put(20,21){\circle*{2}}
-        \put(25,21){1}
-    \end{picture}
-
-\end{center}
-\caption{Example figure -- it has been drawn by \LaTeX ~default tools}
-\end{figure}
-
-
-Lorem ipsum dolor sit amet, consetetur sadipscing elit, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-
-
-
-
-\chapter{The next chapter}
-
-Lorem ipsum dolor sit amet, consetetur sadipscing elit, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-
-
-\section{Matrices}
-
-Simple matrix:
-\begin{equation*}
-	\begin{matrix}
-	a & b & c & d \\
-	d & e & f & g \\
-	1 & 1 & 1 & 1
-	\end{matrix}
-\end{equation*}
-%
-Matrix with parentheses:
-%
-\begin{equation*}
-	A =
-	\begin{pmatrix}
-	a & b & c & d \\
-	d & e & f & g \\
-	1 & 1 & 1 & 1
-	\end{pmatrix}
-\end{equation*}
-%
-Matrix with brackets:
-%
-\begin{equation*}
-	\begin{bmatrix}
-	a & b & c & d \\
-	d & e & f & g \\
-	1 & 1 & 1 & 1
-	\end{bmatrix}
-\end{equation*}
-%
-You can also use more general environment:
-%
-\begin{equation*}
-	\renewcommand{\arraystretch}{0.8}
-	\begin{array}{ccc}
-	1 & 0 & 0 \\
-	0 & 1 & 0 \\
-	0 & 0 & 1 \\
-	\end{array}
-\end{equation*}
-%
-Matrix with braces:
-%
-\begin{equation*}
-	\left\{
-	\renewcommand{\arraystretch}{0.8}
-	\begin{array}{ccc}
-	1 & 0 & 0 \\
-	0 & 1 & 0 \\
-	0 & 0 & 1 \\
-	\end{array}\right\}
-\end{equation*}
-
-\begin{definition}
-	%
-	Let $A\neq \emptyset$, $n \in \mathbb{N}$. Every function $f\colon A^n \to A$ is called an \emph{$n$-ary operation} or \emph{działaniem} określonym na $A$.
-	$0$-ary operations are constant functions.
-	%
-\end{definition}
-
-
-\begin{definition}[Algebra]
-	%
-	The ordered pair $(A,F)$, where $A\neq \emptyset$ is a set and $F$ is a family of operations defined on $A$, shall be called an \emph{algebra} (or \emph{$F$-algebra}). The set $A$ is called \emph{the set of elements}, \emph{support} or \emph{universe} of an algebra $(A,F)$ and $F$ is called \emph{the set of elementary operations}.
-	%
-\end{definition}
-
-\begin{proposition}
-	%
-	I state that, having passed to the limit, the only thing left me me is to camp at said limit or return, or, maybe, search for a pass or an exit to other areas.
-	%
-\end{proposition}
-
-
-
-
+\chapter{Division of Work}
+\textcolor{red}{mozna tabelke z prezentacji ogarnac}
 
 % ------------------------------- BIBLIOGRAPHY ---------------------------
 % LEXICOGRAPHICAL ORDER BY AUTHORS' LAST NAMES
@@ -557,8 +376,7 @@ If you don't need it, delete it.
 \item Appendix 1
 \item Appendix 2
 \item In case of no appendices, delete this part.
-\end{enumerate}
-\chapter{texy probabilistyczne}
+\item texy probabilistyczne
 ogólny ogólnik
 \begin{equation*}
 \mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
@@ -577,7 +395,7 @@ uszczegółowienie ogólnego ogólnika (ogólnik)
 \mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \overset{m}{\idotsint} f(\mathbbm{x})\, d\mathbbm{x}
 \end{equation*}
 
-
+\end{enumerate}
 
 \thispagestyle{empty}
 
