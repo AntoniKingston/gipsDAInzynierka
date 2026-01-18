@@ -1,5 +1,6 @@
 generate_cov_mat_means_scenario_given <- function(scenario, p, n_classes, perms, lambda_dist, n_per_class = 50,  max_iterations = 40) {
   source("data/generate/cov_mat_gen_met.R")
+  df <- p + 2
   psi <- 2.0
   max_iterations <- 40
   target_train_accuracy <- 0.70
@@ -19,7 +20,12 @@ generate_cov_mat_means_scenario_given <- function(scenario, p, n_classes, perms,
   }
 
   n_matrices <- ifelse(is_lda, 1, n_classes)
-  base_cov_matrices <- generate_lamb_q(n_matrices = n_matrices, dim = p, lambda_dist = lambda_dist)
+  if (lambda_dist == "chisq") {
+    base_cov_matrices <- generate_lamb_q(n_matrices = n_matrices, dim = p, lambda_dist = lambda_dist, df = df)
+  }
+  else {
+    base_cov_matrices <- generate_lamb_q(n_matrices = n_matrices, dim = p, lambda_dist = lambda_dist)
+  }
 
   if (is_gips) {
     base_cov_matrices <- mapply(gips::project_matrix, base_cov_matrices, perms, SIMPLIFY = FALSE)
@@ -56,5 +62,3 @@ generate_cov_mat_means_scenario_given <- function(scenario, p, n_classes, perms,
   }
   return(list("matrices" = scaled_cov_matrices, "means" = class_means))
 }
-
-obje <- generate_cov_mat_means_scenario_given("gipsmultqda", 6, 4, "(2136)", "exp")
