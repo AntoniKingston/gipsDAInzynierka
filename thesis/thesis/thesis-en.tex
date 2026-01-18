@@ -283,6 +283,7 @@ This \TeX~file is to be compiled with pdfLaTeX (it's just quick build in TeXMake
 \section{Theoretical description of LDA and QDA}
 
 \textcolor{red}{Tutaj sie ja tym zajme i ladnie dokladnie opisz na podstawie lmstatsa}
+\cite{elemstats}
 
 \subsection{Example subsection}
 
@@ -340,13 +341,20 @@ This \TeX~file is to be compiled with pdfLaTeX (it's just quick build in TeXMake
 % FOR AMBITIOUS ONES - USE BIBTEX
 
 
-\begin{thebibliography}{20} % IF YOU HAVE MORE REFERENCES, WRITE THE BIGGER NUMBER
+%\begin{thebibliography}{20} % IF YOU HAVE MORE REFERENCES, WRITE THE BIGGER NUMBER
+%
+%\bibitem[1]{Ktos} A. Author, \emph{Title of a book}, Publisher, year, page--page.
+%\bibitem[2]{Innyktos} J. Bobkowski, S. Dobkowski, Title of an article, \emph{Magazine X, No. 7}, year, PAGE--PAGE.
+%\bibitem[3]{B} C. Brink, Power structures, \emph{Algebra Universalis 30(2)}, 1993, 177--216.
+%\bibitem[4]{H} F. Burris, H. P. Sankappanavar, \emph{A Course of Universal Algebra}, Springer-Verlag, New York, 1981.
+%\end{thebibliography}
 
-\bibitem[1]{Ktos} A. Author, \emph{Title of a book}, Publisher, year, page--page.
-\bibitem[2]{Innyktos} J. Bobkowski, S. Dobkowski, Title of an article, \emph{Magazine X, No. 7}, year, PAGE--PAGE.
-\bibitem[3]{B} C. Brink, Power structures, \emph{Algebra Universalis 30(2)}, 1993, 177--216.
-\bibitem[4]{H} F. Burris, H. P. Sankappanavar, \emph{A Course of Universal Algebra}, Springer-Verlag, New York, 1981.
-\end{thebibliography}
+% Wybór stylu bibliografii (np. plain, abbrv, alpha, unsrt)
+\bibliographystyle{plain}
+
+% Wskazanie pliku z bazą danych (bez rozszerzenia .bib)
+\bibliography{thesis-en}
+
 \pagenumbering{gobble}
 \thispagestyle{empty}
 

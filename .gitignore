@@ -384,3 +384,4 @@ thesis/thesis/*
 !thesis/title_page/arial.ttf
 !thesis/title_page/img/
 !thesis/thesis/thesis-en.tex
+!thesis/thesis/thesis-en.bib
