@@ -368,3 +368,10 @@ data/synthetic_datasets/*
 pres/*
 !pres/main.tex
 !pres/references.bib
+
+thesis/title_page/
+!thesis/title_page/titlepage-en.tex
+!thesis/title_page/arial.ttf
+!thesis/title_page/img/*
+thesis/thesis/*
+!thesis/thesis/thesis-en.tex
