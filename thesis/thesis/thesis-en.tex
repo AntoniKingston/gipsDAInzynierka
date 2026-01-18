@@ -5,10 +5,8 @@
 
 % ------------------------ ENCODING & LANGUAGES ----------------------
 
-\usepackage[utf8]{inputenc}
-%\usepackage[MeX]{polski} % Not needed unless You have a name with polish symbols or sth
-\usepackage[T1]{fontenc}
-\usepackage[english, polish]{babel}
+\usepackage{fontspec}
+\usepackage[polish, english]{babel} % Ostatni język to język GŁÓWNY pracy (English)
 \usepackage{bbm}
 
 
@@ -17,6 +15,7 @@
 \usepackage[final]{pdfpages} % INPUTING TITLE PDF PAGE - GENERATE IT FIRST!
 %\usepackage[backend=bibtex, style=verbose-trad2]{biblatex}
 
+\usepackage{tabularx, booktabs, xcolor, float} % FOR TABLES
 
 \usepackage{commath} % various commands which can make writing math expressions easier --- documentation available at: https://ctan.gust.org.pl/tex-archive/macros/latex/contrib/commath/commath.pdf
 
@@ -160,8 +159,8 @@
 
 % -------------------------- USER SETTINGS ---------------------------
 
-\newcommand{\tytul}{Dostosowanie biblioteki gips do zadania klasyfikacji przy pomocy analizy dyskryminacyjnej –- gipsDA}
-\renewcommand{\title}{Adapting the gips library for classification problem utilizing discriminant analysis –- gipsDA}
+\newcommand{\tytul}{Dostosowanie biblioteki gips do zadania klasyfikacji przy pomocy analizy dyskryminacyjnej – gipsDA}
+\renewcommand{\title}{Adapting the gips library for classification problem utilizing discriminant analysis – gipsDA}
 \newcommand{\type}{Engineer} % Master OR Engineer
 \newcommand{\supervisor}{MSc Eng. Adam Chojecki\\
     PhD Bartosz Kołodziejek, Assoc. Prof.} % TITLE AND NAME OF THE SUPERVISOR
@@ -277,22 +276,41 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod t
 
 \chapter{Related Work}
 
-This \TeX~file is to be compiled with pdfLaTeX (it's just quick build in TeXMaker).
+This chapter establishes the theoretical framework and reviews the existing literature fundamental to the project.
+The discussion is structured around two pivotal domains that form the basis of our proposed solution.
 
+First, we revisit classical statistical machine learning algorithms for classification, specifically focusing on Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA).
+These well-established methods serve as the foundation for the predictive models developed in this work\cite{elemstats}.
+
+Second, we introduce the methodology underlying the \texttt{gips} (Gaussian model Invariant by Permutation Symmetry) package.
+We explore the mathematical principles of identifying invariant structures within covariance matrices and how this approach can be utilized for parameter estimation in high-dimensional settings\cite{JSSv112i07}.
+The integration of these two distinct areas, classical discriminant analysis and permutation symmetry discovery, constitutes the core contribution of this thesis.
 
 \section{Theoretical description of LDA and QDA}
 
-\textcolor{red}{Tutaj sie ja tym zajme i ladnie dokladnie opisz na podstawie lmstatsa}
-\cite{elemstats}
+Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) are generative classifiers that model the probability density of each class, $g$, using a multivariate Gaussian distribution, $\mathbbm{P}(x|g) = \mathcal{N}(x | \mu_g, \Sigma_g)$. The key difference between them lies in their assumptions regarding the class covariance matrices, $\Sigma_g$.
 
-\subsection{Example subsection}
+\begin{itemize}
+    \item \textbf{Linear Discriminant Analysis (LDA)} assumes that all classes share a single, common covariance matrix, i.e., $\Sigma_g = \Sigma$ for all $g$. This assumption of homoscedasticity leads to a decision boundary that is a linear function of the input features $x$.
+    \item \textbf{Quadratic Discriminant Analysis (QDA)} relaxes this assumption, allowing each class $g$ to have its own distinct covariance matrix, $\Sigma_g$. This assumption of heteroscedasticity results in a decision boundary that is a quadratic function of $x$, providing greater flexibility.
+\end{itemize}
+
+Prediction for a new observation $x$ is made by assigning it to the class $g$ that maximizes the posterior probability $\mathbbm{P}(g|x)$. Using Bayes' theorem, this is equivalent to maximizing the discriminant function, $\delta_g(x)$:
+\begin{equation}
+    \delta_g(x) = -\frac{1}{2} \log |\Sigma_g| - \frac{1}{2} (x - \mu_g)^T \Sigma_g^{-1} (x - \mu_g) + \log \pi_g,
+\end{equation}
+where $\mu_g$ is the mean vector for class $g$, $\Sigma_g$ is its covariance matrix, and $\pi_g$ is the prior probability of the class. In practice, these parameters are estimated from the training data. For a more detailed treatment of these methods, we refer the reader to "The Elements of Statistical Learning" \cite{elemstats}. Our work focuses on novel estimation techniques for the $\Sigma_g$ matrices.
 
 
 \section{General description of gips}
 \textcolor{red}{Tutaj opis gipsa, na podstawie artykulu itd}
 
-\chapter{Our Approach}
-\testcolor{red}{Tutaj opis naszego rozwiazania}
+\chapter{Solution Proposal}
+The central theme of our proposed solution is the enhancement of classical discriminant analysis methods by introducing a novel approach to estimating covariance matrices.
+We modify the standard Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) algorithms by leveraging the methodology of the \texttt{gips} R package\cite{JSSv112i07}.
+The core functionality of the \texttt{gips} library is to identify the most probable permutation group under which a given covariance matrix remains approximately invariant.
+By imposing such a symmetry constraint, we effectively introduce a form of model-based regularization.
+This reduces the number of free parameters that need to be estimated, which can be particularly advantageous when dealing with high-dimensional data or limited sample sizes, potentially leading to more stable and robust classifiers.
 
 \section{Connecting related work with our contribution}
 
@@ -334,7 +352,36 @@ This \TeX~file is to be compiled with pdfLaTeX (it's just quick build in TeXMake
 \textcolor{red}{Tutaj wiem co napisac, troche jak w prezentacji}
 
 \chapter{Division of Work}
-\textcolor{red}{mozna tabelke z prezentacji ogarnac}
+
+\begin{table}[H]
+        \centering
+        \small
+        % Zwiększenie odstępów między wierszami dla lepszej czytelności
+        \renewcommand{\arraystretch}{1.1}
+
+        \begin{tabularx}{\textwidth}{l X c c}
+            \toprule
+            \textbf{Category} & \textbf{Task / Responsibility} & \textbf{Antoni} & \textbf{Norbert} \\
+            \midrule
+            \textbf{Theory} & Mathematical derivation of the \texttt{gipsmult} posterior & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Package} & \texttt{gipsmult} module: Optimization engines (MH, BF) & \textcolor{teal}{$\checkmark$} & \textcolor{gray}{$\times$} \\
+            \addlinespace
+            \textbf{Package} & \texttt{models} module: S3 methods, API consistency & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Package} & Model serialization (JSON engine) & \textcolor{teal}{$\checkmark$} & \textcolor{gray}{$\times$} \\
+            \addlinespace
+            \textbf{Testing} & Unit testing framework and "Negative Testing" suite & \textcolor{gray}{$\times$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Experiments} & Synthetic data generation and benchmarking & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Experiments} & Real-world dataset benchmarking & \textcolor{gray}{$\times$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Documentation} & Technical reports, User's Manual, and Thesis Writing & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \bottomrule
+        \end{tabularx}
+        \caption{Summary of individual and shared contributions.}
+    \end{table}
 
 % ------------------------------- BIBLIOGRAPHY ---------------------------
 % LEXICOGRAPHICAL ORDER BY AUTHORS' LAST NAMES
