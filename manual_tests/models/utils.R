@@ -2,6 +2,8 @@ library(gipsDA)
 library(ggplot2)
 
 source("data/generate/generate_scenario_cov_mat_means_given.R")
+source("manual_tests/models/LDAmod.R")
+source("manual_tests/models/QDAmod.R")
 
 accuracy_experiment <- function(cov_mats, means, n_per_class, model, tr_ts_split = 0.7,
                                 MAP = TRUE, opt = "BF", max_iter = 100) {
@@ -12,9 +14,9 @@ accuracy_experiment <- function(cov_mats, means, n_per_class, model, tr_ts_split
 
   classifier <- tryCatch({
     if (model == "lda") {
-      MASS::lda(Y ~ ., data = train_data, method = "moment")
+      ldamod(Y ~ ., data = train_data)
     } else if (model == "qda") {
-      gipsDA:::qdamod.formula(Y ~ ., data = train_data, method = "moment")
+      qdamod(Y ~ ., data = train_data)
     } else if (model == "gipsldacl") {
       gipslda(Y ~ ., data = train_data, weighted_avg = FALSE, MAP = MAP, optimizer = opt, max_iter = max_iter)
     } else if (model == "gipsldawa") {
@@ -32,11 +34,9 @@ accuracy_experiment <- function(cov_mats, means, n_per_class, model, tr_ts_split
   if (is.null(classifier)) {
     return(0)
   }
-  if (model == "qda") {
-    pred <- gipsDA:::predict.qdamod(classifier, test_data)$class
-  } else {
-    pred <- predict(classifier, test_data)$class
-  }
+
+  pred <- predict(classifier, test_data)$class
+
   mean(pred == test_data$Y)
 }
 
