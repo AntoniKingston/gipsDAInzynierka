@@ -1,0 +1,578 @@
+\documentclass[a4paper,11pt,twoside]{report}
+% THIS FILE SHOULD BE COMPILED BY pdfLaTeX
+
+% ----------------------   PREAMBLE PART ------------------------------
+
+% ------------------------ ENCODING & LANGUAGES ----------------------
+
+\usepackage{fontspec}
+\usepackage[polish, english]{babel} % Ostatni język to język GŁÓWNY pracy (English)
+\usepackage{bbm}
+
+
+\usepackage{amsmath, amsfonts, amsthm, latexsym} % MOSTLY MATHEMATICAL SYMBOLS
+
+\usepackage[final]{pdfpages} % INPUTING TITLE PDF PAGE - GENERATE IT FIRST!
+%\usepackage[backend=bibtex, style=verbose-trad2]{biblatex}
+
+\usepackage{tabularx, booktabs, xcolor, float} % FOR TABLES
+
+\usepackage{commath} % various commands which can make writing math expressions easier --- documentation available at: https://ctan.gust.org.pl/tex-archive/macros/latex/contrib/commath/commath.pdf
+
+\usepackage[hidelinks]{hyperref} % for hyperlinks, for example, urls, references to equations, entries in a bibliography --- hidelinks option removes rectangles around hiperlinks
+
+
+% ---------------- MARGINS, INDENTATION, LINESPREAD ------------------
+
+\usepackage[inner=20mm, outer=20mm, bindingoffset=10mm, top=25mm, bottom=25mm]{geometry} % MARGINS
+
+
+\linespread{1.5}
+\allowdisplaybreaks         % ALLOWS BREAKING PAGE IN MATH MODE
+
+\usepackage{indentfirst}    % IT MAKES THE FIRST PARAGRAPH INDENTED; NOT NEEDED
+\setlength{\parindent}{5mm} % WIDTH OF AN INDENTATION
+
+
+%---------------- RUNNING HEAD - CHAPTER NAMES, PAGE NUMBERS ETC. -------------------
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+% PAGINATION: LEFT ALIGNMENT ON EVEN PAGES, RIGHT ALIGNMENT ON ODD PAGES
+\fancyfoot[LE,RO]{\thepage}
+% RIGHT HEADER: zawartość \rightmark do lewego, wewnętrznego (marginesu)
+\fancyhead[LO]{\sc \nouppercase{\rightmark}}
+% lewa pagina: zawartość \leftmark do prawego, wewnętrznego (marginesu)
+\fancyhead[RE]{\sc \leftmark}
+
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+
+% HEAD RULE - IT'S A LINE WHICH SEPARATES HEADER AND FOOTER FROM CONTENT
+\renewcommand{\headrulewidth}{0 pt} % 0 MEANS NO RULE, 0.5 MEANS FINE RULE, THE BIGGER VALUE THE THICKER RULE
+
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[LE,RO]{\thepage}
+
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.0pt}
+}
+
+
+
+% --------------------------- CHAPTER HEADERS ---------------------
+
+\usepackage{titlesec}
+\titleformat{\chapter}
+  {\normalfont\Large \bfseries}
+  {\thechapter.}{1ex}{\Large}
+
+\titleformat{\section}
+  {\normalfont\large\bfseries}
+  {\thesection.}{1ex}{}
+\titlespacing{\section}{0pt}{30pt}{20pt}
+
+
+\titleformat{\subsection}
+  {\normalfont \bfseries}
+  {\thesubsection.}{1ex}{}
+
+
+% ----------------------- TABLE OF CONTENTS SETUP ---------------------------
+
+\def\cleardoublepage{\clearpage\if@twoside
+\ifodd\c@page\else\hbox{}\thispagestyle{empty}\newpage
+\if@twocolumn\hbox{}\newpage\fi\fi\fi}
+
+
+% THIS MAKES DOTS IN TOC FOR CHAPTERS
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\l@chapter}
+  {\hfil}
+  {\leaders\hbox{\normalfont$\m@th\mkern \@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hfill}
+  {}{}
+\makeatother
+
+\usepackage{titletoc}
+\makeatletter
+\titlecontents{chapter}% <section-type>
+  [0pt]% <left>
+  {}% <above-code>
+  {\bfseries \thecontentslabel.\quad}% <numbered-entry-format>
+  {\bfseries}% <numberless-entry-format>
+  {\bfseries\leaders\hbox{\normalfont$\m@th\mkern \@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hfill\contentspage}% <filler-page-format>
+
+\titlecontents{section}
+  [1em]
+  {}
+  {\thecontentslabel.\quad}
+  {}
+  {\leaders\hbox{\normalfont$\m@th\mkern \@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hfill\contentspage}
+
+\titlecontents{subsection}
+  [2em]
+  {}
+  {\thecontentslabel.\quad}
+  {}
+  {\leaders\hbox{\normalfont$\m@th\mkern \@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hfill\contentspage}
+\makeatother
+
+
+
+% ---------------------- TABLES AD FIGURES NUMBERING ----------------------
+
+\renewcommand*{\thetable}{\arabic{chapter}.\arabic{table}}
+\renewcommand*{\thefigure}{\arabic{chapter}.\arabic{figure}}
+
+
+% ------------- DEFINING ENVIRONMENTS FOR THEOREMS, DEFINITIONS ETC. ---------------
+
+\makeatletter
+\newtheoremstyle{definition}
+{3ex}%                           % Space above
+{3ex}%                           % Space below
+{\upshape}%                      % Body font
+{}%                              % Indent amount
+{\bfseries}%                     % Theorem head font
+{.}%                             % Punctuation after theorem head
+{.5em}%                          % Space after theorem head, ' ', or \newline
+{\thmname{#1}\thmnumber{ #2}\thmnote{ (#3)}}
+\makeatother
+
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+% --------------------- END OF PREAMBLE PART (MOSTLY) --------------------------
+
+
+
+
+
+% -------------------------- USER SETTINGS ---------------------------
+
+\newcommand{\tytul}{Dostosowanie biblioteki gips do zadania klasyfikacji przy pomocy analizy dyskryminacyjnej – gipsDA}
+\renewcommand{\title}{Adapting the gips library for classification problem utilizing discriminant analysis – gipsDA}
+\newcommand{\type}{Engineer} % Master OR Engineer
+\newcommand{\supervisor}{MSc Eng. Adam Chojecki\\
+    PhD Bartosz Kołodziejek, Assoc. Prof.} % TITLE AND NAME OF THE SUPERVISOR
+
+
+
+\begin{document}
+\sloppy
+\selectlanguage{english}
+
+\includepdf[pages=-]{titlepage-en} % THIS INPUTS THE TITLE PAGE
+
+\null\thispagestyle{empty}\newpage
+
+% ------------------ PAGE WITH SIGNATURES --------------------------------
+
+%\thispagestyle{empty}\newpage
+%\null
+%
+%\vfill
+%
+%\begin{center}
+%\begin{tabular}[t]{ccc}
+%............................................. & \hspace*{100pt} & .............................................\\
+%supervisor's signature & \hspace*{100pt} & author's signature
+%\end{tabular}
+%\end{center}
+%
+
+
+% ---------------------------- ABSTRACTS -----------------------------
+
+{  \fontsize{12}{14} \selectfont
+\begin{abstract}
+
+\begin{center}
+\title
+\end{center}
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\\
+
+\noindent \textbf{Keywords:} keyword1, keyword2, ...
+\end{abstract}
+}
+
+\null\thispagestyle{empty}\newpage
+
+
+{\selectlanguage{polish} \fontsize{12}{14}\selectfont
+\begin{abstract}
+
+\begin{center}
+\tytul
+\end{center}
+
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumyeirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diamvoluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\\
+
+\noindent \textbf{Słowa kluczowe:} słowo klucz 1, słowo klucz 2, zażółć gęślą jaźń...
+\end{abstract}
+}
+
+
+%% --------------------------- DECLARATIONS ------------------------------------
+%
+%%
+%%	IT IS NECESSARY OT ATTACH FILLED-OUT AUTORSHIP DEECLRATION. SCAN (IN PDF FORMAT) NEEDS TO BE PLACED IN scans FOLDER AND IT SHOULD BE CALLED, FOR EXAMPLE, DECLARATION_OF_AUTORSHIP.PDF. IF THE FILENAME OR FILEPATH IS DIFFERENT, THE FILEPATH IN THE NEXT COMMAND HAS TO BE ADJUSTED ACCORDINGLY.
+%%
+%%	command attacging the declarations of autorship
+%%
+%\includepdf[pages=-]{scans/declaration-of-autorship}
+%\null\thispagestyle{empty}\newpage
+%
+%% optional declaration
+%%
+%%	command attaching the declaataration on granting a license
+%%
+%\includepdf[pages=-]{scans/declaration-on-granting-a-license}
+%%
+%%	.tex corresponding to the above PDF files are present in the 3. declarations folder
+%
+\null\thispagestyle{empty}\newpage
+% ------------------- TABLE OF CONTENTS ---------------------
+% \selectlanguage{english} - for English
+\pagenumbering{gobble}
+\tableofcontents
+\thispagestyle{empty}
+\newpage % IF YOU HAVE EVEN QUANTITY OD PAGES OF TOC, THEN REMOVE IT OR ADD \null\newpage FOR DOUBLE BLANK PAGE BEFORE INTRODUCTION
+
+
+% -------------------- THE BODY OF THE THESIS --------------------------------
+
+\null\thispagestyle{empty}\newpage
+\pagestyle{fancy}
+\pagenumbering{arabic}
+\setcounter{page}{11}
+
+% ======================================================================
+%                          Introduction
+% ======================================================================
+
+\chapter{Introduction}
+
+Statistical classification is a fundamental problem in machine learning and data analysis, with applications ranging from genomic sequencing and medical diagnosis to financial forecasting. Among the vast landscape of classification algorithms, generative models such as Linear and Quadratic Discriminant Analysis (LDA and QDA) remain cornerstones of the field due to their rigorous statistical foundations, interpretability, and computational efficiency. However, the modern era of data science frequently confronts these classical methods with high-dimensional datasets—scenarios where the number of features rivals or exceeds the number of observations. In such environments, standard estimation techniques often fail, necessitating the development of more robust, regularized approaches.
+
+This thesis proposes a novel solution to this challenge by integrating the principles of invariant theory with discriminant analysis. Specifically, we explore how identifying and enforcing permutation symmetries within the data can serve as a powerful form of model-based regularization, stabilizing covariance estimation without resorting to arbitrary shrinkage.
+
+This chapter provides the necessary context for the project and is organized into four main sections:
+\begin{itemize}
+    \item \textbf{Section \ref{sec:motivation}: Motivation and Goal} identifies the specific limitations of classical classifiers in high-dimensional settings, particularly the issues of parameter instability and singularity, and defines the primary objective of this thesis.
+    \item \textbf{Section \ref{sec:symmetry}: Why do we expect symmetry?} provides the rationale behind the proposed solution, explaining why permutation invariance is a plausible and valuable assumption in many real-world datasets.
+    \item \textbf{Section \ref{sec:da_desc}: General Description of Discriminant Analysis} briefly establishes the theoretical baseline, outlining the mechanics of LDA and QDA that will be modified in our work.
+    \item \textbf{Section \ref{sec:contribution}: Contribution} summarizes the specific achievements of this project, including the development of the \texttt{gipsDA} package and the implementation of novel estimators.
+\end{itemize}
+
+\section{Motivation and Goal}
+\label{sec:motivation}
+
+Classical generative classifiers, such as Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA), remain fundamental tools in statistical machine learning\cite{elemstats} due to their interpretability and closed-form solutions.
+However, the performance of these methods is critically dependent on the accurate estimation of the class-conditional covariance matrices, denoted as $\boldsymbol{\Sigma}$.
+In the era of \("\)Big Data\("\), researchers frequently encounter high-dimensional datasets where the number of features ($p$) is large relative to the number of available observations ($n$).
+In such settings, standard estimators often fail, rendering classical methods suboptimal or entirely inapplicable.
+
+The bottleneck of these algorithms lies in the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$.
+For a dataset with $p$ features, the covariance matrix contains $p(p+1)/2$ unique parameters that must be estimated.
+This implies that the model complexity grows quadratically with the dimension of the feature space ($\Theta(p^2)$).
+This phenomenon leads to two primary challenges:
+
+\begin{enumerate}
+    \item \textbf{Parameter Instability:} When $p$ is large, the number of parameters to estimate can easily exceed the information content available in the training data. This results in estimates with high variance, leading to overfitting and poor generalization performance on unseen data.
+    \item \textbf{Estimator Singularity:} In the extreme regime where the number of features exceeds the sample size ($p > n$), the sample covariance matrix $\hat{\boldsymbol{\Sigma}}$ becomes rank-deficient. Consequently, it is no longer positive definite and, crucially, not invertible. Since the decision functions for both LDA and QDA require the computation of the precision matrix $\hat{\boldsymbol{\Sigma}}^{-1}$, classical algorithms mathematically break down in these \("\)small $n$, large $p$\("\) scenarios.
+\end{enumerate}
+
+To mitigate these issues, regularization techniques are necessary.
+While standard approaches often involve scalar shrinkage (e.g., shrinking towards the identity matrix)\cite{friedman1989regularized, ledoit2004well}, this project explores a structural approach.
+We posit that by identifying and enforcing permutation symmetries within the data—where certain variables are exchangeable—we can significantly reduce the number of free parameters required to estimate the covariance structure.
+
+\subsection*{Goal of the Thesis}
+
+The primary objective of this project is to develop \texttt{gipsDA}, a novel R library that adapts discriminant analysis for high-dimensional environments.
+By integrating the methodology of the \texttt{gips} (Gaussian model Invariant by Permutation Symmetry) package, we aim to construct robust classifiers that impose statistically justified symmetry constraints on the covariance matrix.
+
+Specifically, the goal is to provide a solution that:
+\begin{itemize}
+    \item Maintains high classification accuracy in high-dimensional settings where standard LDA/QDA overfit.
+    \item Remains mathematically valid and computationally stable in the $p > n$ regime by ensuring the estimated matrices are positive definite through symmetry projection.
+    \item Offers a user-friendly interface compatible with the standard R ecosystem, bridging the gap between advanced theoretical statistics and practical data science applications.
+\end{itemize}
+
+\section{Why do we expect symmetry?}
+\label{sec:symmetry}
+
+At first glance, the assumption that distinct features in a dataset share a permutation symmetry—meaning they remain invariant under specific reorderings—may appear overly restrictive\cite{andersson1998symmetry}. In classical multivariate analysis, features are often treated as distinct entities with unique variances and pairwise correlations. However, in the context of high-dimensional data, the assumption of symmetry is not only mathematically convenient but often empirically justified by the underlying nature of the data generation process.
+
+The core justification lies in the concept of \textit{exchangeability}. In many modern datasets, features are not arbitrary measurements but rather collections of comparable units. Consider the following domains where symmetry naturally arises:
+
+\begin{itemize}
+    \item \textbf{Genomics and Bioinformatics:} In gene expression data, thousands of genes are measured simultaneously \cite{dudoit2002comparison}. Genes belonging to the same biological pathway or functional group often exhibit similar behavior. It is statistically plausible to assume that the correlation between any pair of genes within such a functional cluster is roughly equivalent, regardless of their specific labels.
+
+    \item \textbf{Medical Diagnostics and Imaging:} Consider the analysis of digitized images for cancer diagnosis, such as the Breast Cancer Wisconsin dataset used in this work\cite{breast}. Features are computed from the characteristics of cell nuclei present in the image (e.g., radius, texture, smoothness) \cite{street1993nuclear}. While each feature measures a distinct geometric property, groups of features derived from similar morphological aspects often display strong, structured correlations. Assuming a symmetric covariance structure among these related biometrics allows the model to capture the general "shape" of malignant cells without overfitting to the noise inherent in individual sample measurements.
+
+    \item \textbf{Industrial Sensor Systems:} In predictive maintenance and fault detection, systems are often monitored by multiple sensors recording analogous physical quantities. A prime example is the Sensorless Drive Diagnosis dataset\cite{dataset_for_sensorless_drive_diagnosis_325}, which involves electric current signals from different phases of a motor \cite{seera2014classification}. In a balanced three-phase system, the physical properties of the phases are designed to be identical. Consequently, the statistical relationship between Phase A and Phase B should theoretically be invariant to the relationship between Phase B and Phase C. Treating these signals as exchangeable via permutation symmetry reflects the physical reality of the hardware design.
+\end{itemize}
+
+Furthermore, the approach proposed in this thesis does not require prior knowledge of these specific relationships. Unlike rigid regularization methods that force the covariance matrix towards a specific target (such as the identity matrix), the \texttt{gips} methodology is designed to \textit{discover} the optimal symmetry structure from the data itself\cite{JSSv112i07}.
+
+By allowing the data to reveal its own invariant structure, we adhere to the principle of parsimony (Occam's razor). If a complex covariance matrix with $\Theta(p^2)$ parameters can be accurately approximated by a symmetric structure requiring only $\Theta(p)$ parameters, the latter model is preferred. It reduces the variance of the estimator and mitigates the risk of overfitting, which is the primary enemy in high-dimensional classification. Thus, expecting symmetry is not about imposing an artificial constraint, but rather about recognizing and exploiting the redundancy inherent in large-scale systems.
+
+\section{General description of Discriminant Analysis}
+\label{sec:da_desc}
+\textcolor{red}{jakis wprowadzenie ze mozna klasyfikacje robic na podstawie tego ze widzimy symetrie w macierzy kowariancji}
+
+\section{Contribution}
+\label{sec:contribution}
+
+The central contribution of this thesis is the proposal and implementation of a novel regularization framework for Discriminant Analysis, specifically designed for the "High Dimension, Low Sample Size" (HDLSS) regime where $p \gg n$. In such settings, classical estimators for the covariance matrix become singular and unstable \cite{bickel2004some}.
+
+While numerous modifications to LDA and QDA have been proposed to address this instability—ranging from the scalar shrinkage parameters of Regularized Discriminant Analysis (RDA) \cite{friedman1989regularized} to sparsity-enforcing methods like Penalized LDA \cite{witten2011penalized} or independence assumptions in Diagonal LDA \cite{dudoit2002comparison}—these approaches often impose arbitrary constraints. They typically force the covariance structure towards a diagonal matrix or sparse representation, potentially discarding significant correlations between features.
+
+In contrast, our approach introduces a paradigm shift by utilizing \textit{permutation symmetry} as a form of model-based regularization. Instead of assuming correlations are zero (sparsity) or uniform (scalar shrinkage), we assume that groups of features may be exchangeable. This allows the data to dictate its own complexity through the discovery of invariant structures.
+
+The specific contributions of this work are as follows:
+
+\begin{itemize}
+    \item \textbf{Development of the \texttt{gipsDA} Package:} We provide a fully functional R package that integrates the \texttt{gips} methodology with the standard discriminant analysis workflow. The package is designed to be API-compatible with the widely used \texttt{MASS} library, ensuring immediate accessibility for practitioners.
+
+    \item \textbf{Novel Covariance Estimators:} We introduce three distinct classification models that leverage symmetry in different ways:
+    \begin{itemize}
+        \item \texttt{gipsLDA}: Adapts the homoscedastic assumption of LDA by projecting the pooled covariance matrix onto a symmetric permutation group.
+        \item \texttt{gipsQDA}: Allows for full heteroscedasticity, optimizing a unique permutation structure for each class independently.
+        \item \texttt{gipsMultQDA}: A hybrid approach that allows for different covariance matrices per class but constrains them to share the \textit{same} underlying permutation symmetry. This required the development of the \texttt{gipsmult} module to optimize a joint posterior probability across multiple groups.
+    \end{itemize}
+
+    \item \textbf{Empirical Validation in Data-Scarce Regimes:} Through extensive simulation studies and benchmarks on real-world datasets (e.g., biomedical and industrial sensor data), we demonstrate that imposing symmetry constraints significantly reduces the estimation error and improves classification accuracy compared to standard QDA, particularly when the sample size is critically low relative to the dimensionality.
+\end{itemize}
+
+% ======================================================================
+%                          Related Work
+% ======================================================================
+
+\chapter{Related Work}
+
+This chapter establishes the theoretical framework and reviews the existing literature fundamental to the project.
+The discussion is structured around two pivotal domains that form the basis of our proposed solution.
+
+First, we revisit classical statistical machine learning algorithms for classification, specifically focusing on Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA).
+These well-established methods serve as the foundation for the predictive models developed in this work\cite{elemstats}.
+
+Second, we introduce the methodology underlying the \texttt{gips} (Gaussian model Invariant by Permutation Symmetry) package.
+We explore the mathematical principles of identifying invariant structures within covariance matrices and how this approach can be utilized for parameter estimation in high-dimensional settings\cite{JSSv112i07}.
+The integration of these two distinct areas, classical discriminant analysis and permutation symmetry discovery, constitutes the core contribution of this thesis.
+
+\section{Theoretical description of LDA and QDA}
+
+Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) are generative classifiers that model the probability density of each class, $g$, using a multivariate Gaussian distribution, $\mathbbm{P}(x|g) = \mathcal{N}(x | \mu_g, \Sigma_g)$. The key difference between them lies in their assumptions regarding the class covariance matrices, $\Sigma_g$.
+
+\begin{itemize}
+    \item \textbf{Linear Discriminant Analysis (LDA)} assumes that all classes share a single, common covariance matrix, i.e., $\Sigma_g = \Sigma$ for all $g$. This assumption of homoscedasticity leads to a decision boundary that is a linear function of the input features $x$.
+    \item \textbf{Quadratic Discriminant Analysis (QDA)} relaxes this assumption, allowing each class $g$ to have its own distinct covariance matrix, $\Sigma_g$. This assumption of heteroscedasticity results in a decision boundary that is a quadratic function of $x$, providing greater flexibility.
+\end{itemize}
+
+Prediction for a new observation $x$ is made by assigning it to the class $g$ that maximizes the posterior probability $\mathbbm{P}(g|x)$. Using Bayes' theorem, this is equivalent to maximizing the discriminant function, $\delta_g(x)$:
+\begin{equation}
+    \delta_g(x) = -\frac{1}{2} \log |\Sigma_g| - \frac{1}{2} (x - \mu_g)^T \Sigma_g^{-1} (x - \mu_g) + \log \pi_g,
+\end{equation}
+where $\mu_g$ is the mean vector for class $g$, $\Sigma_g$ is its covariance matrix, and $\pi_g$ is the prior probability of the class. In practice, these parameters are estimated from the training data. For a more detailed treatment of these methods, we refer the reader to "The Elements of Statistical Learning" \cite{elemstats}. Our work focuses on novel estimation techniques for the $\Sigma_g$ matrices.
+
+
+\section{General description of gips}
+\textcolor{red}{Tutaj opis gipsa, na podstawie artykulu itd}
+
+% ======================================================================
+%                          Solution Proposal
+% ======================================================================
+
+\chapter{Solution Proposal}
+The central theme of our proposed solution is the enhancement of classical discriminant analysis methods by introducing a novel approach to estimating covariance matrices.
+We modify the standard Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) algorithms by leveraging the methodology of the \texttt{gips} R package\cite{JSSv112i07}.
+The core functionality of the \texttt{gips} library is to identify the most probable permutation group under which a given covariance matrix remains approximately invariant.
+By imposing such a symmetry constraint, we effectively introduce a form of model-based regularization.
+This reduces the number of free parameters that need to be estimated, which can be particularly advantageous when dealing with high-dimensional data or limited sample sizes, potentially leading to more stable and robust classifiers.
+
+\section{Connecting related work with our contribution}
+
+\section{Description of machine learning models}
+
+\section{Theoretical aspects and pseudocode}
+
+% ======================================================================
+%                          Implementation
+% ======================================================================
+
+\chapter{Implementation (Package Description)}
+
+\section{Package structure and dependencies}
+
+\section{Documentation}
+
+\section{Usage of S3 classes}
+
+\section{Usage example}
+\textcolor{red}{Tutaj chyba tak jak na prezentacji by sie to przedstawilo}
+
+% ======================================================================
+%                          Testing
+% ======================================================================
+
+\chapter{Testing Methodology}
+\textcolor{red}{tutaj opis jak testujemy itd jak dane przygotowujemy}
+
+\section{Synthetic data}
+\textcolor{red}{opis dokladny generowania danych, mozna podobnie jak w deliverable}
+
+\section{Real data}
+\textcolor{red}{Tutaj opis danych id mozna podobnie jak w deliverable}
+
+% ======================================================================
+%                          Experiments
+% ======================================================================
+
+\chapter{Experimental Results}
+
+\section{Plots and Tables}
+
+\section{Comments and interpretation of results}
+
+% ======================================================================
+%                          Conclusion
+% ======================================================================
+
+\chapter{Conclusion and Discussion}
+
+\section{Reflection on the approach}
+
+\section{Future Work}
+\textcolor{red}{Tutaj wiem co napisac, troche jak w prezentacji}
+
+% ======================================================================
+%                          Rest
+% ======================================================================
+
+\chapter{Division of Work}
+
+\begin{table}[H]
+        \centering
+        \small
+        % Zwiększenie odstępów między wierszami dla lepszej czytelności
+        \renewcommand{\arraystretch}{1.1}
+
+        \begin{tabularx}{\textwidth}{l X c c}
+            \toprule
+            \textbf{Category} & \textbf{Task / Responsibility} & \textbf{Antoni} & \textbf{Norbert} \\
+            \midrule
+            \textbf{Theory} & Mathematical derivation of the \texttt{gipsmult} posterior & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Package} & \texttt{gipsmult} module: Optimization engines (MH, BF) & \textcolor{teal}{$\checkmark$} & \textcolor{gray}{$\times$} \\
+            \addlinespace
+            \textbf{Package} & \texttt{models} module: S3 methods, API consistency & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Package} & Model serialization (JSON engine) & \textcolor{teal}{$\checkmark$} & \textcolor{gray}{$\times$} \\
+            \addlinespace
+            \textbf{Testing} & Unit testing framework and "Negative Testing" suite & \textcolor{gray}{$\times$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Experiments} & Synthetic data generation and benchmarking & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Experiments} & Real-world dataset benchmarking & \textcolor{gray}{$\times$} & \textcolor{teal}{$\checkmark$} \\
+            \addlinespace
+            \textbf{Documentation} & Technical reports, User's Manual, and Thesis Writing & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
+            \bottomrule
+        \end{tabularx}
+        \caption{Summary of individual and shared contributions.}
+    \end{table}
+
+% ------------------------------- BIBLIOGRAPHY ---------------------------
+% LEXICOGRAPHICAL ORDER BY AUTHORS' LAST NAMES
+% FOR AMBITIOUS ONES - USE BIBTEX
+
+
+%\begin{thebibliography}{20} % IF YOU HAVE MORE REFERENCES, WRITE THE BIGGER NUMBER
+%
+%\bibitem[1]{Ktos} A. Author, \emph{Title of a book}, Publisher, year, page--page.
+%\bibitem[2]{Innyktos} J. Bobkowski, S. Dobkowski, Title of an article, \emph{Magazine X, No. 7}, year, PAGE--PAGE.
+%\bibitem[3]{B} C. Brink, Power structures, \emph{Algebra Universalis 30(2)}, 1993, 177--216.
+%\bibitem[4]{H} F. Burris, H. P. Sankappanavar, \emph{A Course of Universal Algebra}, Springer-Verlag, New York, 1981.
+%\end{thebibliography}
+
+% Wybór stylu bibliografii (np. plain, abbrv, alpha, unsrt)
+\bibliographystyle{plain}
+
+% Wskazanie pliku z bazą danych (bez rozszerzenia .bib)
+\bibliography{thesis-en}
+
+\pagenumbering{gobble}
+\thispagestyle{empty}
+
+
+
+% ----------------------- LIST OF SYMBOLS AND ABBREVIATIONS ------------------
+\chapter*{List of symbols and abbreviations}
+
+\begin{tabular}{cl}
+nzw. & nadzwyczajny \\
+* & star operator \\
+$\widetilde{}$ & tilde
+\end{tabular}
+\\
+If you don't need it, delete it.
+\thispagestyle{empty}
+
+
+% ----------------------------  LIST OF FIGURES --------------------------------
+\listoffigures
+\thispagestyle{empty}
+If you don't need it, delete it.
+
+
+% -----------------------------  LIST OF TABLES --------------------------------
+\renewcommand{\listtablename}{Spis tabel}
+\listoftables
+\thispagestyle{empty}
+If you don't need it, delete it.
+
+% -----------------------------  LIST OF APPENDICES ---------------------------
+\chapter*{List of appendices}
+\begin{enumerate}
+\item Appendix 1
+\item Appendix 2
+\item In case of no appendices, delete this part.
+\item texy probabilistyczne
+ogólny ogólnik
+\begin{equation*}
+\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
+\frac{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto \mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)
+\end{equation*}
+wzór japońcowy
+\begin{equation*}
+I_c\left(\delta, D\right) = \int \limits_{P_c} |k|^{\frac{\delta - 2}{2}} \exp\left(-\frac{1}{2} Tr\left(Dk\right)\right) \; dk
+\end{equation*}
+powiązanie rozkładu z japańcem
+\begin{equation*}
+\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}\right) \propto \frac{I_c\left(\delta + n, D+U\right)}{I_c\left(\delta, D\right)}
+\end{equation*}
+uszczegółowienie ogólnego ogólnika (ogólnik)
+\begin{equation*}
+\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \overset{m}{\idotsint} f(\mathbbm{x})\, d\mathbbm{x}
+\end{equation*}
+
+\end{enumerate}
+
+\thispagestyle{empty}
+
+
+\end{document}
