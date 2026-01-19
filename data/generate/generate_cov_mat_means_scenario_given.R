@@ -3,8 +3,13 @@ generate_cov_mat_means_scenario_given <- function(scenario, p, n_classes, perms,
   df <- p + 2
   psi <- 2.0
   max_iterations <- 40
-  target_train_accuracy <- 0.70
-  target_test_accuracy  <- 0.50
+
+  # Target Accuracies
+  signal_strength <- 0.6
+  baseline_accuracy <- 1 / n_classes
+  target_test_accuracy <- baseline_accuracy + (1 - baseline_accuracy) * signal_strength
+  target_train_accuracy <- min(0.90, target_test_accuracy + 0.10)
+
   train_ratio <- 0.6
   n_tot <- n_classes * n_per_class
   train_indices <- sample(1:n_tot, size = floor(train_ratio * n_tot))
