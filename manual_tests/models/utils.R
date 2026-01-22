@@ -228,5 +228,218 @@ perm_test_blocked <- function(acc_info,
   return(p_value)
 }
 
+# ======================================================================
+#                          Real Data Part
+# ======================================================================
 
+generate_single_plot_info_real_data <- function(scenario_data,
+                                                model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
+                                                granularity = 25,
+                                                lb = 50,
+                                                n_experiments = 5,
+                                                MAP = TRUE,
+                                                opt = "BF",
+                                                max_iter = 100,
+                                                tr_ts_split = 0.7,
+                                                n_cores = parallel::detectCores() - 1) {
 
+  ns_obs <- round(exp(seq(log(lb), log(nrow(scenario_data)), length.out = granularity)))
+
+  # Generate splits sequentially (fast operation)
+  splits_by_n <- lapply(ns_obs, function(n) {
+    generate_splits_real_data(n, nrow(scenario_data),
+                              tr_ts_split, n_experiments)
+  })
+
+  # Flatten tasks into a single queue (Model x N x Split)
+  task_queue <- list()
+  for (model in model_names) {
+    for (i in seq_along(ns_obs)) {
+      current_n <- ns_obs[i]
+      for (split in splits_by_n[[i]]) {
+        task_queue[[length(task_queue) + 1]] <- list(
+          model = model,
+          n_obs = current_n,
+          split = split
+        )
+      }
+    }
+  }
+
+  # Shuffle tasks for load balancing
+  task_queue <- task_queue[sample(length(task_queue))]
+
+  # Run parallel execution using dynamic scheduling
+  results_flat <- parallel::mclapply(task_queue, function(task) {
+    acc <- accuracy_experiment_real_data(
+      df = scenario_data,
+      split = task$split,
+      model = task$model,
+      MAP = MAP,
+      opt = opt,
+      max_iter = max_iter
+    )
+    list(model = task$model, n_obs = task$n_obs, acc = acc)
+  }, mc.cores = n_cores, mc.preschedule = FALSE)
+
+  # Aggregate results back to the original structure
+  plot_info <- setNames(vector("list", length(model_names)), model_names)
+
+  for (m in model_names) {
+    model_results <- Filter(function(x) x$model == m, results_flat)
+
+    vals <- unlist(lapply(model_results, function(x) x$acc))
+    ns   <- unlist(lapply(model_results, function(x) x$n_obs))
+
+    # Calculate means and ensure correct order
+    agg_means <- tapply(vals, ns, mean)
+    sorted_means <- agg_means[as.character(ns_obs)]
+
+    plot_info[[m]] <- list(
+      "accs" = as.numeric(sorted_means),
+      "ns_obs" = ns_obs
+    )
+  }
+
+  return(plot_info)
+}
+
+generate_splits_real_data <- function(n, total_rows, tr_ts_split, n_experiments) {
+  replicate(n_experiments, {
+    subset_idx <- sample(seq_len(total_rows), size = n)
+
+    train_size <- floor(tr_ts_split * n)
+    train_idx <- sample(subset_idx, size = train_size)
+    test_idx  <- setdiff(subset_idx, train_idx)
+
+    list(train = train_idx, test = test_idx)
+  }, simplify = FALSE)
+}
+
+accuracy_experiment_real_data <- function(df, split, model, MAP = TRUE, opt = "BF", max_iter = 100) {
+  train_data <- df[split$train, , drop = FALSE]
+  test_data  <- df[split$test,  , drop = FALSE]
+
+  classifier <- tryCatch({
+    if (model == "lda") {
+      ldamod(Y ~ ., data = train_data)
+    } else if (model == "qda") {
+      qdamod(Y ~ ., data = train_data)
+    } else if (model == "gipsldacl") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = FALSE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsldawa") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = TRUE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsqda") {
+      gipsqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else {
+      gipsmultqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    }
+  }, error = function(e) {
+    message(sprintf("⚠️ Error in model '%s': %s", model, e$message))
+    return(NULL)
+  })
+
+  if (is.null(classifier)) return(0)
+
+  pred <- predict(classifier, test_data)$class
+  mean(pred == test_data$Y)
+}
+
+remove_low_variance_columns <- function(df, threshold = 0.95, target_col = "Y") {
+  # Temporarily remove target column to protect it
+  target_data <- NULL
+  if (target_col %in% names(df)) {
+    target_data <- df[[target_col]]
+    df[[target_col]] <- NULL
+  }
+
+  # Check dominance ratio for each column
+  keep_col <- sapply(df, function(x) {
+    x <- na.omit(x)
+    if (length(x) == 0 || length(unique(x)) <= 1) return(FALSE)
+
+    # Calculate frequency of the most common value
+    (max(table(x)) / length(x)) < threshold
+  })
+
+  # Log and filter
+  dropped_count <- sum(!keep_col)
+  if (dropped_count > 0) {
+    message(sprintf("Dropped %d low-variance columns (dominance > %.0f%%).",
+                    dropped_count, threshold * 100))
+  }
+
+  df <- df[, keep_col, drop = FALSE]
+
+  # Restore target column
+  if (!is.null(target_data)) {
+    df[[target_col]] <- target_data
+  }
+
+  return(df)
+}
+
+fix_tiny_values <- function(df, target_col = "Y") {
+
+  # Identify numeric predictors to check
+  cols_to_check <- setdiff(names(df), target_col)
+  df_fixed <- df
+
+  for (col in cols_to_check) {
+    vals <- df[[col]]
+
+    # Skip non-numeric or empty columns
+    if (!is.numeric(vals) || length(vals) == 0) next
+
+    # Check the order of magnitude
+    avg_val <- mean(abs(vals), na.rm = TRUE)
+
+    # Scale up if values are too small (avoiding numerical underflow)
+    if (!is.na(avg_val) && avg_val > 0 && avg_val < 0.01) {
+      magnitude <- floor(log10(avg_val))
+      multiplier <- 10 ^ (-magnitude)
+
+      df_fixed[[col]] <- vals * multiplier
+    }
+  }
+
+  return(df_fixed)
+}
+
+remove_collinear_features <- function(df, target_col = "Y", cutoff = 0.99) {
+  y <- df[[target_col]]
+  x <- df[, setdiff(names(df), target_col)]
+
+  non_zero_var <- sapply(x, function(col) var(col, na.rm = TRUE) > 0)
+  x <- x[, non_zero_var]
+
+  corr_matrix <- cor(x, use = "pairwise.complete.obs")
+
+  diag(corr_matrix) <- 0
+
+  corr_matrix[lower.tri(corr_matrix)] <- 0
+
+  cols_to_remove_idx <- which(apply(corr_matrix,
+                                    2, function(col) any(abs(col) > cutoff)))
+
+  if (length(cols_to_remove_idx) > 0) {
+    message(sprintf("Removing %d collinear columns (corr > %.2f)",
+                    length(cols_to_remove_idx), cutoff))
+    x <- x[, -cols_to_remove_idx]
+  }
+
+  x[[target_col]] <- y
+  return(x)
+}
+
+clean_infinite_values <- function(df) {
+  df[] <- lapply(df, function(x) {
+    if(is.numeric(x)) {
+      x[is.infinite(x)] <- NA
+    }
+    return(x)
+  })
+  df <- na.omit(df)
+
+  return(df)
+}
