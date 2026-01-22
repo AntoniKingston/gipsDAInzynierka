@@ -70,7 +70,7 @@ qdamod.default <-
     lev <- levels(g)
     counts <- as.vector(table(g))
     names(counts) <- lev
-    if(any(counts < p+1)) stop("some group is too small for 'qdamod'")
+    # if(any(counts < p+1)) stop("some group is too small for 'qdamod'")
     proportions <- counts/length(g)
     ng <- length(proportions)
 # allow for supplied prior
