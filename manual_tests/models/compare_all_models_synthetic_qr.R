@@ -77,6 +77,7 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
   filename <- glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.png")
   filename_plot_info <- glue("saved_objects/synthetic_data_plot_info/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
   filename_scenarios_metadata <- glue("saved_objects/synthetic_data_matrices_and_means/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
+  filename_tests <- glue("saved_objects/tests/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
 
   if (file.exists(filename)) {
     return(invisible(NULL))
@@ -97,9 +98,11 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
 
   plot_info <- scenario_info[["plot"]]
   meta_info <- scenario_info[["meta"]]
+  test_info <- scenario_info[["test"]]
 
   saveRDS(plot_info, filename_plot_info)
   saveRDS(meta_info, filename_scenarios_metadata)
+  saveRDS(test_info, filename_tests)
 
   campaign_plot <- create_multilevel_plot(plot_info)
 

@@ -107,7 +107,23 @@ generate_multiple_plots_info_qr <- function(p,
 
   names(multiple_plots_info) <- scenario_names
   names(scenarios_metadata) <- scenario_names
-  return(list("plot" = multiple_plots_info, "meta" = scenarios_metadata))
+
+
+  test_pairs <- list(c("lda", "gipsldacl"), c("lda", "gipsldawa"), c("gipsldacl", "gipsldawa"), c("qda", "gipsqda"), c("qda", "gipsmultqda"))
+  test_info <- lapply(scenario_names, function(name) {
+    ret_list <- lapply(test_pairs, function(test_pair) {
+      perm_test_blocked(multiple_plots_info, name, test_pair[1], test_pair[2])
+    })
+    names(ret_list) <- lapply(test_pairs, function(pair) {
+        return(paste(pair, collapse = " vs "))
+      })
+    return(ret_list)
+  })
+
+  names(test_info) <- scenario_names
+
+
+  return(list("plot" = multiple_plots_info, "meta" = scenarios_metadata, "test" = test_info))
 }
 
 
@@ -172,22 +188,45 @@ create_multilevel_plot <- function(
   return(gg_plot)
 }
 
+perm_test_blocked <- function(acc_info,
+                              scenario,
+                              mod1,
+                              mod2,
+                              B = 5000) {
+  x <- acc_info[[scenario]][[mod1]]$accs
+  y <- acc_info[[scenario]][[mod2]]$accs
+  n_obs_vals <- acc_info[[scenario]][[mod1]]$ns_obs
 
-# generate_multiple_plots_info <- function(data_path,
-#                              scenario_names = c("lda", "qda", "gipslda", "gipsqda", "gipsmultqda"),
-#                              model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
-#                              granularity = 25,
-#                              lb = 50,
-#                              n_experiments = 5,
-#                              opt = "BF",
-#                              max_iter = 100,
-#                              tr_ts_split = 0.7,
-#                              MAP = TRUE,
-#                              data_file_prefix) {
-#   data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
-#   #read in with shuffling
-#   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
-#   multiple_plots_info <- parallel::mclapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
-#   names(multiple_plots_info) <- scenario_names
-#   return(multiple_plots_info)
-# }
+  K <- length(n_obs_vals)
+  stopifnot(length(x) == length(y))
+  stopifnot(length(x) %% K == 0)
+
+  n_exp <- length(x) / K
+  n_obs <- rep(n_obs_vals, each = n_exp)
+
+
+  obs_stat <- mean(tapply(y - x, n_obs, mean))
+
+
+  perm_stats <- replicate(B, {
+    y_perm <- y
+
+    for (n in n_obs_vals) {
+      idx <- which(n_obs == n)
+      swap <- rbinom(length(idx), 1, 0.5) == 1
+
+      tmp <- y_perm[idx][swap]
+      y_perm[idx][swap] <- x[idx][swap]
+      x[idx][swap] <- tmp
+    }
+
+    mean(tapply(y_perm - x, n_obs, mean))
+  })
+
+  p_value <- mean(perm_stats >= obs_stat)
+
+  return(p_value)
+}
+
+
+

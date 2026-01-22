@@ -365,6 +365,9 @@ saved_objects/synthetic_data_plot_info/*
 saved_objects/synthetic_data_matrices_and_means/*
 !saved_objects/synthetic_data_matrices_and_means/.gitkeep
 
+saved_objects/tests/*
+!saved_objects/tests/.gitkeep
+
 data/synthetic_datasets/*
 !data/synthetic_datasets/.gitkeep
 
