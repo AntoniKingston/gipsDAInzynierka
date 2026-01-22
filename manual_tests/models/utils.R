@@ -52,8 +52,11 @@ generate_accuracy_data <- function(cov_mats,
                                    max_iter = 100) {
   accs <- as.numeric(unlist(lapply(ns_obs, function(n_obs) {
     n_per_class <- floor(n_obs / ncol(means))
-    mean(replicate(n_experiments, accuracy_experiment(cov_mats, means, n_per_class, model, tr_ts_split, MAP, opt, max_iter)))
+    replicate(n_experiments, accuracy_experiment(cov_mats, means, n_per_class, model, tr_ts_split, MAP, opt, max_iter))
   })))
+
+
+
 
   return(accs)
 }
@@ -124,6 +127,10 @@ create_multilevel_plot <- function(
     inner_list <- mult_plots_info[[dataset_name]]
     for (model_name in names(inner_list)) {
       data_points <- inner_list[[model_name]]
+      le <- length(data_points[["ns_obs"]])
+      n_experiments <- length(data_points[["accs"]]) / le
+
+      data_points[["accs"]] <- tapply(data_points[["accs"]], rep(seq_len(le), each = n_experiments), mean)
 
       temp_df <- data.frame(
         observations = data_points[[2]],
