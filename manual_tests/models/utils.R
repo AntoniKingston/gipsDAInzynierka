@@ -107,7 +107,23 @@ generate_multiple_plots_info_qr <- function(p,
 
   names(multiple_plots_info) <- scenario_names
   names(scenarios_metadata) <- scenario_names
-  return(list("plot" = multiple_plots_info, "meta" = scenarios_metadata))
+
+
+  test_pairs <- list(c("lda", "gipsldacl"), c("lda", "gipsldawa"), c("gipsldacl", "gipsldawa"), c("qda", "gipsqda"), c("qda", "gipsmultqda"))
+  test_info <- lapply(scenario_names, function(name) {
+    ret_list <- lapply(test_pairs, function(test_pair) {
+      perm_test_blocked(multiple_plots_info, name, test_pair[1], test_pair[2])
+    })
+    names(ret_list) <- lapply(test_pairs, function(pair) {
+        return(paste(pair, collapse = " vs "))
+      })
+    return(ret_list)
+  })
+
+  names(test_info) <- scenario_names
+
+
+  return(list("plot" = multiple_plots_info, "meta" = scenarios_metadata, "test" = test_info))
 }
 
 
@@ -170,6 +186,46 @@ create_multilevel_plot <- function(
   coord_cartesian(ylim = c(0, 1))
 
   return(gg_plot)
+}
+
+perm_test_blocked <- function(acc_info,
+                              scenario,
+                              mod1,
+                              mod2,
+                              B = 5000) {
+  x <- acc_info[[scenario]][[mod1]]$accs
+  y <- acc_info[[scenario]][[mod2]]$accs
+  n_obs_vals <- acc_info[[scenario]][[mod1]]$ns_obs
+
+  K <- length(n_obs_vals)
+  stopifnot(length(x) == length(y))
+  stopifnot(length(x) %% K == 0)
+
+  n_exp <- length(x) / K
+  n_obs <- rep(n_obs_vals, each = n_exp)
+
+
+  obs_stat <- mean(tapply(y - x, n_obs, mean))
+
+
+  perm_stats <- replicate(B, {
+    y_perm <- y
+
+    for (n in n_obs_vals) {
+      idx <- which(n_obs == n)
+      swap <- rbinom(length(idx), 1, 0.5) == 1
+
+      tmp <- y_perm[idx][swap]
+      y_perm[idx][swap] <- x[idx][swap]
+      x[idx][swap] <- tmp
+    }
+
+    mean(tapply(y_perm - x, n_obs, mean))
+  })
+
+  p_value <- mean(perm_stats >= obs_stat)
+
+  return(p_value)
 }
 
 # ======================================================================
