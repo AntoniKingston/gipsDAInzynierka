@@ -165,22 +165,119 @@ create_multilevel_plot <- function(
   return(gg_plot)
 }
 
+# ======================================================================
+#                          Real Data Part
+# ======================================================================
 
-# generate_multiple_plots_info <- function(data_path,
-#                              scenario_names = c("lda", "qda", "gipslda", "gipsqda", "gipsmultqda"),
-#                              model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
-#                              granularity = 25,
-#                              lb = 50,
-#                              n_experiments = 5,
-#                              opt = "BF",
-#                              max_iter = 100,
-#                              tr_ts_split = 0.7,
-#                              MAP = TRUE,
-#                              data_file_prefix) {
-#   data_paths <- paste(data_path, glue::glue("/{data_file_prefix}_scenario_{scenario_names}.csv"), sep = "")
-#   #read in with shuffling
-#   datasets <- lapply(lapply(data_paths, read.csv), function(x) x[sample(nrow(x)),])
-#   multiple_plots_info <- parallel::mclapply(datasets, function(x) generate_single_plot_info(x, model_names, granularity, lb, n_experiments, opt, max_iter, tr_ts_split, MAP = MAP))
-#   names(multiple_plots_info) <- scenario_names
-#   return(multiple_plots_info)
-# }
+generate_single_plot_info_real_data <- function(scenario_data,
+                                                model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
+                                                granularity = 25,
+                                                lb = 50,
+                                                n_experiments = 5,
+                                                MAP = TRUE,
+                                                opt = "BF",
+                                                max_iter = 100,
+                                                tr_ts_split = 0.7,
+                                                n_cores = parallel::detectCores() - 1) {
+
+  ns_obs <- round(exp(seq(log(lb), log(nrow(scenario_data)), length.out = granularity)))
+
+  # Generate splits sequentially (fast operation)
+  splits_by_n <- lapply(ns_obs, function(n) {
+    generate_splits_real_data(n, nrow(scenario_data),
+                              tr_ts_split, n_experiments)
+  })
+
+  # Flatten tasks into a single queue (Model x N x Split)
+  task_queue <- list()
+  for (model in model_names) {
+    for (i in seq_along(ns_obs)) {
+      current_n <- ns_obs[i]
+      for (split in splits_by_n[[i]]) {
+        task_queue[[length(task_queue) + 1]] <- list(
+          model = model,
+          n_obs = current_n,
+          split = split
+        )
+      }
+    }
+  }
+
+  # Shuffle tasks for load balancing
+  task_queue <- task_queue[sample(length(task_queue))]
+
+  # Run parallel execution using dynamic scheduling
+  results_flat <- parallel::mclapply(task_queue, function(task) {
+    acc <- accuracy_experiment_real_data(
+      df = scenario_data,
+      split = task$split,
+      model = task$model,
+      MAP = MAP,
+      opt = opt,
+      max_iter = max_iter
+    )
+    list(model = task$model, n_obs = task$n_obs, acc = acc)
+  }, mc.cores = n_cores, mc.preschedule = FALSE)
+
+  # Aggregate results back to the original structure
+  plot_info <- setNames(vector("list", length(model_names)), model_names)
+
+  for (m in model_names) {
+    model_results <- Filter(function(x) x$model == m, results_flat)
+
+    vals <- unlist(lapply(model_results, function(x) x$acc))
+    ns   <- unlist(lapply(model_results, function(x) x$n_obs))
+
+    # Calculate means and ensure correct order
+    agg_means <- tapply(vals, ns, mean)
+    sorted_means <- agg_means[as.character(ns_obs)]
+
+    plot_info[[m]] <- list(
+      "accs" = as.numeric(sorted_means),
+      "ns_obs" = ns_obs
+    )
+  }
+
+  return(plot_info)
+}
+
+generate_splits_real_data <- function(n, total_rows, tr_ts_split, n_experiments) {
+  replicate(n_experiments, {
+    subset_idx <- sample(seq_len(total_rows), size = n)
+
+    train_size <- floor(tr_ts_split * n)
+    train_idx <- sample(subset_idx, size = train_size)
+    test_idx  <- setdiff(subset_idx, train_idx)
+
+    list(train = train_idx, test = test_idx)
+  }, simplify = FALSE)
+}
+
+accuracy_experiment_real_data <- function(df, split, model, MAP = TRUE, opt = "BF", max_iter = 100) {
+  train_data <- df[split$train, , drop = FALSE]
+  test_data  <- df[split$test,  , drop = FALSE]
+
+  classifier <- tryCatch({
+    if (model == "lda") {
+      ldamod(Y ~ ., data = train_data)
+    } else if (model == "qda") {
+      qdamod(Y ~ ., data = train_data)
+    } else if (model == "gipsldacl") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = FALSE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsldawa") {
+      gipslda(Y ~ ., data = train_data, weighted_avg = TRUE, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else if (model == "gipsqda") {
+      gipsqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    } else {
+      gipsmultqda(Y ~ ., data = train_data, MAP = MAP, optimizer = opt, max_iter = max_iter)
+    }
+  }, error = function(e) {
+    message(sprintf("⚠️ Error in model '%s': %s", model, e$message))
+    return(NULL)
+  })
+
+  if (is.null(classifier)) return(0)
+
+  pred <- predict(classifier, test_data)$class
+  mean(pred == test_data$Y)
+}
