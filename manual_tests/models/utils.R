@@ -288,3 +288,102 @@ accuracy_experiment_real_data <- function(df, split, model, MAP = TRUE, opt = "B
   pred <- predict(classifier, test_data)$class
   mean(pred == test_data$Y)
 }
+
+remove_low_variance_columns <- function(df, threshold = 0.95, target_col = "Y") {
+  # Temporarily remove target column to protect it
+  target_data <- NULL
+  if (target_col %in% names(df)) {
+    target_data <- df[[target_col]]
+    df[[target_col]] <- NULL
+  }
+
+  # Check dominance ratio for each column
+  keep_col <- sapply(df, function(x) {
+    x <- na.omit(x)
+    if (length(x) == 0 || length(unique(x)) <= 1) return(FALSE)
+
+    # Calculate frequency of the most common value
+    (max(table(x)) / length(x)) < threshold
+  })
+
+  # Log and filter
+  dropped_count <- sum(!keep_col)
+  if (dropped_count > 0) {
+    message(sprintf("Dropped %d low-variance columns (dominance > %.0f%%).",
+                    dropped_count, threshold * 100))
+  }
+
+  df <- df[, keep_col, drop = FALSE]
+
+  # Restore target column
+  if (!is.null(target_data)) {
+    df[[target_col]] <- target_data
+  }
+
+  return(df)
+}
+
+fix_tiny_values <- function(df, target_col = "Y") {
+
+  # Identify numeric predictors to check
+  cols_to_check <- setdiff(names(df), target_col)
+  df_fixed <- df
+
+  for (col in cols_to_check) {
+    vals <- df[[col]]
+
+    # Skip non-numeric or empty columns
+    if (!is.numeric(vals) || length(vals) == 0) next
+
+    # Check the order of magnitude
+    avg_val <- mean(abs(vals), na.rm = TRUE)
+
+    # Scale up if values are too small (avoiding numerical underflow)
+    if (!is.na(avg_val) && avg_val > 0 && avg_val < 0.01) {
+      magnitude <- floor(log10(avg_val))
+      multiplier <- 10 ^ (-magnitude)
+
+      df_fixed[[col]] <- vals * multiplier
+    }
+  }
+
+  return(df_fixed)
+}
+
+remove_collinear_features <- function(df, target_col = "Y", cutoff = 0.99) {
+  y <- df[[target_col]]
+  x <- df[, setdiff(names(df), target_col)]
+
+  non_zero_var <- sapply(x, function(col) var(col, na.rm = TRUE) > 0)
+  x <- x[, non_zero_var]
+
+  corr_matrix <- cor(x, use = "pairwise.complete.obs")
+
+  diag(corr_matrix) <- 0
+
+  corr_matrix[lower.tri(corr_matrix)] <- 0
+
+  cols_to_remove_idx <- which(apply(corr_matrix,
+                                    2, function(col) any(abs(col) > cutoff)))
+
+  if (length(cols_to_remove_idx) > 0) {
+    message(sprintf("Removing %d collinear columns (corr > %.2f)",
+                    length(cols_to_remove_idx), cutoff))
+    x <- x[, -cols_to_remove_idx]
+  }
+
+  x[[target_col]] <- y
+  return(x)
+}
+
+clean_infinite_values <- function(df) {
+  df[] <- lapply(df, function(x) {
+    if(is.numeric(x)) {
+      x[is.infinite(x)] <- NA
+    }
+    return(x)
+  })
+  df <- na.omit(df)
+
+  return(df)
+}
