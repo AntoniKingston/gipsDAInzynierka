@@ -236,6 +236,7 @@ generate_single_plot_info_real_data <- function(scenario_data,
                                                 model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
                                                 granularity = 25,
                                                 lb = 50,
+                                                up = 100,
                                                 n_experiments = 5,
                                                 MAP = TRUE,
                                                 opt = "BF",
@@ -243,7 +244,7 @@ generate_single_plot_info_real_data <- function(scenario_data,
                                                 tr_ts_split = 0.7,
                                                 n_cores = parallel::detectCores() - 1) {
 
-  ns_obs <- round(exp(seq(log(lb), log(nrow(scenario_data)), length.out = granularity)))
+  ns_obs <- round(exp(seq(log(lb), log(up), length.out = granularity)))
 
   # Generate splits sequentially (fast operation)
   splits_by_n <- lapply(ns_obs, function(n) {
