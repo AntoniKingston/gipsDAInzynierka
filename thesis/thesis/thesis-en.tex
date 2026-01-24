@@ -624,7 +624,7 @@ The core algorithm for defining the distributions consists of the following sequ
     For each of the $k$ classes, a mean vector $\boldsymbol{\mu}_k$ is sampled as a random point from a $p$-dimensional hypercube, $[0, 1]^p$. To prevent fortuitous overlap between classes, a minimum separation constraint is enforced. After sampling the set of $k$ vectors, the Euclidean distance between every pair of distinct means $(\boldsymbol{\mu}_i, \boldsymbol{\mu}_j)$ is calculated. If any pair satisfies $\|\boldsymbol{\mu}_i - \boldsymbol{\mu}_j\| \leq 0.05$, the entire set is discarded, and the sampling process is repeated. This safeguard prevents the generation of trivially difficult scenarios caused by nearly identical class centroids.
 
     \item \textbf{Covariance Matrix Construction (Spectral Decomposition):}
-    To rigorously stress-test the models under varied spectral conditions, we employ a method based on spectral decomposition rather than the standard Wishart distribution. This allows for direct control over the eigenvalues and the condition number of the matrix. The procedure is as follows:
+    To rigorously stress-test the models under varied spectral conditions, we employ a method based on spectral decomposition. This allows for direct control over the eigenvalues and the condition number of the matrix. The procedure is as follows:
     \begin{itemize}
         \item \textbf{Eigenvalue Generation:} A vector of eigenvalues $\boldsymbol{\lambda} = (\lambda_1, \dots, \lambda_p)$ is drawn from a specified distribution $\mathcal{D}$ (e.g., Exponential) and sorted such that $\lambda_1 \ge \dots \ge \lambda_p > 0$. Let $\Lambda = \text{diag}(\boldsymbol{\lambda})$.
         \item \textbf{Random Orthogonal Matrix:} A random matrix $\mathbf{Z} \in \mathbb{R}^{p \times p}$ is generated with entries $Z_{ij} \sim \mathcal{N}(0, 1)$. To obtain a uniformly distributed orthogonal matrix (Haar measure), we perform a QR decomposition: $\mathbf{Z} = \mathbf{Q}'\mathbf{R}$. The matrix $\mathbf{Q}'$ is adjusted by the signs of the diagonal elements of $\mathbf{R}$ to ensure uniqueness:
@@ -699,10 +699,167 @@ Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance mat
     \end{itemize}
 \end{description}
 
+
+\section{Real data}
+\label{sec:real_world_data}
+
+In addition to synthetic simulations, the proposed models were evaluated on a diverse collection of real-world datasets sourced from public repositories. These datasets span various domains, including medical diagnostics, finance, and industrial quality control, providing a robust test bed for assessing model performance under realistic conditions.
+
+The selected datasets present a wide range of challenges, including high dimensionality, class imbalance, and complex feature dependencies. Furthermore, several datasets contain binary and categorical features. By including these, we consciously accept the violation of the multivariate normality assumption inherent to Discriminant Analysis, allowing us to assess the practical robustness of the \texttt{gipsDA} framework in non-ideal settings.
+
+Below, we provide a detailed description of each dataset and the specific preprocessing pipelines applied to prepare the data for experimentation.
+
+\subsection{Heart Failure Prediction Dataset}
+
+\begin{itemize}
+    \item \textbf{Domain:} Medical Diagnostics
+    \item \textbf{Description:} Contains clinical features used to predict mortality caused by heart failure. It represents a classic binary classification problem.
+    \item \textbf{Target Variable:} \texttt{HeartDisease} (1: Heart Disease, 0: Normal).
+    \item \textbf{Dimensions:} 11 features, 918 observations.
+    \item \textbf{Class Balance:} Normal (410), Heart Disease (508).
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction} \cite{heart}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+Since this dataset contains categorical variables (e.g., \texttt{Sex}, \texttt{ChestPainType}), we applied \textbf{One-Hot Encoding} (dummy encoding), dropping one level per factor to avoid perfect multicollinearity. This transformation introduces binary features, explicitly violating the Gaussian assumption, but allows the models to utilize all available information. Following encoding, we removed 1 feature that exhibited near-zero variance (dominance ratio $> 0.9$).
+
+\subsection{Breast Cancer Wisconsin (Diagnostic)}
+
+\begin{itemize}
+    \item \textbf{Domain:} Medical Diagnostics
+    \item \textbf{Description:} Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass, describing characteristics of the cell nuclei.
+    \item \textbf{Target Variable:} \texttt{diagnosis} (M: Malignant, B: Benign).
+    \item \textbf{Dimensions:} 30 features, 569 observations.
+    \item \textbf{Class Balance:} Benign (357), Malignant (212).
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic} \cite{breast}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+The data was already in a clean, numerical format suitable for analysis. No additional encoding, imputation, or feature removal was required.
+
+\subsection{EEG Brainwave Dataset: Feeling Emotions}
+
+\begin{itemize}
+    \item \textbf{Domain:} Medical / Neuroscience
+    \item \textbf{Description:} Contains statistical features extracted from EEG brainwave signals collected from individuals in different emotional states.
+    \item \textbf{Target Variable:} \texttt{emotion} (Positive, Neutral, Negative).
+    \item \textbf{Dimensions:} 2548 features, 2132 observations.
+    \item \textbf{Class Balance:} Balanced ($\approx 700$ per class).
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/birdy654/eeg-brainwave-dataset-feeling-emotions} \cite{birdy654_eeg_emotions}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+Given the extremely high dimensionality ($p=2548$), feature selection was critical.
+\begin{enumerate}
+    \item \textbf{Low Variance Filtering:} We removed 2 columns where a single value dominated more than 90\% of the observations.
+    \item \textbf{Feature Selection:} We trained a Random Forest classifier on the full dataset and selected the \textbf{top 30 features} based on the Gini importance measure. This reduced the dimensionality to a manageable level while preserving the most predictive signals.
+\end{enumerate}
+
+\subsection{Credit Card Fraud Detection}
+
+\begin{itemize}
+    \item \textbf{Domain:} Rare-Event Detection / Finance
+    \item \textbf{Description:} A dataset of credit card transactions aimed at identifying fraudulent activity.
+    \item \textbf{Target Variable:} \texttt{Class} (1: Fraud, 0: Legitimate).
+    \item \textbf{Dimensions:} 30 features, $\approx 285,000$ observations.
+    \item \textbf{Class Balance:} Highly Imbalanced (only 492 fraud cases, $\approx 0.17\%$).
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud} \cite{ulb_creditcard_fraud}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+The extreme class imbalance poses a problem for standard classifiers. We applied a strict \textbf{undersampling} strategy to create a balanced subset for training:
+\begin{enumerate}
+    \item We retained all minority class samples (Fraud).
+    \item We sampled the majority class (Legitimate) such that the final dataset composition was 40\% Fraud and 60\% Legitimate.
+    \item This resulted in a dataset of 1230 observations.
+    \item Finally, we removed 2 collinear features using a correlation cutoff of 0.9.
+\end{enumerate}
+
+\subsection{Steel Plates Faults Dataset}
+
+\begin{itemize}
+    \item \textbf{Domain:} Industrial Quality Control
+    \item \textbf{Description:} Attributes of steel plates used to classify surface defects into 7 distinct fault types.
+    \item \textbf{Target Variable:} Fault Type (e.g., \texttt{Pastry}, \texttt{Z\_Scratch}, \texttt{K\_Scatch}).
+    \item \textbf{Dimensions:} 27 features, 1941 observations.
+    \item \textbf{Class Balance:} Multi-class, ranging from 55 to 673 samples per class.
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/198/steel-plates-faults} \cite{steel_plates_faults_198}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+\begin{enumerate}
+    \item \textbf{Infinite Value Handling:} We scanned the dataset for infinite values, replaced them with \texttt{NA}, and subsequently removed rows containing missing values.
+    \item \textbf{Scaling Small Values:} We applied the \texttt{fix\_tiny\_values} algorithm (described below) to prevent numerical underflow.
+    \item \textbf{Collinearity Removal:} We removed 6 features that exhibited a pairwise correlation greater than 0.9.
+\end{enumerate}
+
+\subsection{Sensorless Drive Diagnosis Data Set}
+
+\begin{itemize}
+    \item \textbf{Domain:} Industrial Quality Control
+    \item \textbf{Description:} Signals from a sensorless drive used to diagnose 11 different operating conditions (faults).
+    \item \textbf{Target Variable:} Condition (11 classes).
+    \item \textbf{Dimensions:} 48 features, 58,509 observations.
+    \item \textbf{Class Balance:} Perfectly Balanced (5,319 per class).
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/325/sensorless+drive+diagnosis} \cite{dataset_for_sensorless_drive_diagnosis_325}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+\begin{enumerate}
+    \item \textbf{Scaling Small Values:} Some features contained values with very small magnitudes (e.g., $10^{-5}$), which can cause numerical instability in covariance matrix calculations. We applied a custom \texttt{fix\_tiny\_values} algorithm: for any column with a mean absolute value $< 0.01$, we scaled the column by a factor of $10^k$ to bring the magnitude into the standard range ($[1, 10]$).
+    \item \textbf{Collinearity Removal:} We identified and removed 17 highly collinear features using a pairwise correlation threshold of 0.99.
+\end{enumerate}
+
+\section{Performance Evaluation and Visualization Strategy}
+\label{sec:visualization_methodology}
+
+To construct the performance curves, we employ a systematic evaluation protocol that assesses model accuracy across a range of sample sizes. This process is controlled by a specific set of hyperparameters designed to ensure both statistical reliability and computational feasibility.
+
+\subsection{Sample Size Sampling (The X-axis)}
+
+The performance of the classifiers is evaluated at discrete intervals of the sample size, denoted as $n$. To effectively capture the model behavior in the critical "small $n$" regime (where $p \approx n$ or $p > n$) while covering the convergence behavior at larger sample sizes, we do not sample $n$ linearly. Instead, we employ a \textbf{logarithmic spacing} strategy.
+
+Let $N_{\min}$ denote the lower bound (controlled by the parameter \texttt{lb}, typically set to 16) and $N_{\max}$ denote the upper bound (controlled by the parameter \texttt{ub}). The sequence of sample sizes is generated as follows:
+
+\begin{equation}
+    n_i = \left\lfloor \exp\left( \ln(N_{\min}) + \frac{i-1}{G-1} (\ln(N_{\max}) - \ln(N_{\min})) \right) \right\rceil, \quad \text{for } i = 1, \dots, G,
+\end{equation}
+where $G$ is the \texttt{granularity} parameter (typically set to 10 or more). This results in $G$ distinct evaluation points on the x-axis, densely clustered at the lower end where the regularization impact is most significant.
+
+\subsection{Monte Carlo Repetitions (The Y-axis)}
+
+Each data point plotted on the performance curve represents the \textbf{mean accuracy} calculated over a set of independent experiments, controlled by the parameter \texttt{n\_experiments} (typically 30).
+
+For a specific sample size $n_i$:
+\begin{enumerate}
+    \item We perform $M$ independent repetitions (where $M = \texttt{n\_experiments}$).
+    \item In each repetition $j$:
+    \begin{itemize}
+        \item \textbf{Synthetic Data:} Fresh training and testing sets are sampled directly from the underlying multivariate normal distributions $\mathcal{N}(\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$ defined by the saved scenario parameters. This ensures true independence between experiments.
+        \item \textbf{Real-World Data:} A subset of size $n_i$ is randomly sampled (without replacement) from the full dataset to form the training set, with the remaining data used for testing.
+    \end{itemize}
+    \item The data is split according to the \texttt{tr\_ts\_split} ratio (e.g., 0.7 for training).
+    \item The accuracy $A_{ij}$ is computed.
+\end{enumerate}
+
+\textbf{Handling Model Failures:} A crucial aspect of our benchmarking is robustness. If a model fails to fit (e.g., due to numerical instability or singularity that the regularization failed to handle), the experiment is not discarded. Instead, it is penalized by assigning an accuracy of $0$. The reported value for sample size $n_i$ is the arithmetic mean:
+\[ \bar{A}_i = \frac{1}{M} \sum_{j=1}^{M} A_{ij}. \]
+
+\subsection{Optimization Strategy}
+
+The \texttt{gips}-based models require finding the optimal permutation group. The search strategy is determined automatically based on the dimensionality $p$ of the data to balance precision and computation time:
+
+\begin{itemize}
+    \item \textbf{Small Dimension ($p \le 9$):} We utilize a \textbf{Brute Force} optimizer. This algorithm exhaustively searches the entire space of permutation groups, guaranteeing the discovery of the global maximum for the posterior probability.
+    \item \textbf{High Dimension ($p > 9$):} The permutation space becomes too large for exhaustive search. Here, we employ the \textbf{Metropolis-Hastings} (MH) algorithm, a stochastic Markov Chain Monte Carlo (MCMC) method. The depth of the search is controlled by the \texttt{max\_iter} parameter (typically set to 1000 iterations).
+\end{itemize}
+
+Additionally, the \texttt{MAP} parameter controls the estimation logic: if \texttt{TRUE}, the model projects covariance matrices onto the single best permutation found (Maximum A Posteriori); if \texttt{FALSE}, it utilizes Bayesian Model Averaging over the visited permutations.
+
 \subsection{Statistical Significance Testing}
 \label{sec:statistical_testing}
 
-To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a **Blocked Permutation Test** (also known as a Blocked Randomization Test).
+To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a Blocked Permutation Test (also known as a Blocked Randomization Test).
 
 This choice is motivated by the structure of our experiment. Since model performance varies drastically across different sample sizes ($n$), simply aggregating results would violate the exchangeability assumption required for standard tests. The "blocking" factor in our design is the sample size; we must ensure that comparisons are made strictly within the same regime of data availability.
 
@@ -751,161 +908,6 @@ To approximate the null distribution of the test statistic, we perform $B = 5000
 
 A low p-value (typically $< 0.05$) indicates that the observed performance improvement of Model B over Model A is statistically significant and unlikely to have occurred by chance.
 
-\section{Real data}
-\label{sec:real_world_data}
-\textcolor{red}{W tej sekcji trzeba mocno cytowania dodac i chyba te jawne pisanie linkow nie przejdzie}
-In addition to synthetic simulations, the proposed models were evaluated on a diverse collection of real-world datasets sourced from public repositories. These datasets span various domains, including medical diagnostics, finance, and industrial quality control, providing a robust test bed for assessing model performance under realistic conditions.
-
-The selected datasets present a wide range of challenges, including high dimensionality, class imbalance, and complex feature dependencies. Furthermore, several datasets contain binary and categorical features. By including these, we consciously accept the violation of the multivariate normality assumption inherent to Discriminant Analysis, allowing us to assess the practical robustness of the \texttt{gipsDA} framework in non-ideal settings.
-
-Below, we provide a detailed description of each dataset and the specific preprocessing pipelines applied to prepare the data for experimentation.
-
-\subsection{Heart Failure Prediction Dataset}
-
-\begin{itemize}
-    \item \textbf{Domain:} Medical Diagnostics
-    \item \textbf{Description:} Contains clinical features used to predict mortality caused by heart failure. It represents a classic binary classification problem.
-    \item \textbf{Target Variable:} \texttt{HeartDisease} (1: Heart Disease, 0: Normal).
-    \item \textbf{Dimensions:} 11 features, 918 observations.
-    \item \textbf{Class Balance:} Normal (410), Heart Disease (508).
-    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction}
-\end{itemize}
-
-\textbf{Preprocessing Pipeline:}
-Since this dataset contains categorical variables (e.g., \texttt{Sex}, \texttt{ChestPainType}), we applied \textbf{One-Hot Encoding} (dummy encoding), dropping one level per factor to avoid perfect multicollinearity. This transformation introduces binary features, explicitly violating the Gaussian assumption, but allows the models to utilize all available information. Following encoding, we removed 1 feature that exhibited near-zero variance (dominance ratio $> 0.9$).
-
-\subsection{Breast Cancer Wisconsin (Diagnostic)}
-
-\begin{itemize}
-    \item \textbf{Domain:} Medical Diagnostics
-    \item \textbf{Description:} Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass, describing characteristics of the cell nuclei.
-    \item \textbf{Target Variable:} \texttt{diagnosis} (M: Malignant, B: Benign).
-    \item \textbf{Dimensions:} 30 features, 569 observations.
-    \item \textbf{Class Balance:} Benign (357), Malignant (212).
-    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic}
-\end{itemize}
-
-\textbf{Preprocessing Pipeline:}
-The data was already in a clean, numerical format suitable for analysis. No additional encoding, imputation, or feature removal was required.
-
-\subsection{EEG Brainwave Dataset: Feeling Emotions}
-
-\begin{itemize}
-    \item \textbf{Domain:} Medical / Neuroscience
-    \item \textbf{Description:} Contains statistical features extracted from EEG brainwave signals collected from individuals in different emotional states.
-    \item \textbf{Target Variable:} \texttt{emotion} (Positive, Neutral, Negative).
-    \item \textbf{Dimensions:} 2548 features, 2132 observations.
-    \item \textbf{Class Balance:} Balanced ($\approx 700$ per class).
-    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/birdy654/eeg-brainwave-dataset-feeling-emotions}
-\end{itemize}
-
-\textbf{Preprocessing Pipeline:}
-Given the extremely high dimensionality ($p=2548$), feature selection was critical.
-\begin{enumerate}
-    \item \textbf{Low Variance Filtering:} We removed 2 columns where a single value dominated more than 90\% of the observations.
-    \item \textbf{Feature Selection:} We trained a Random Forest classifier on the full dataset and selected the \textbf{top 30 features} based on the Gini importance measure. This reduced the dimensionality to a manageable level while preserving the most predictive signals.
-\end{enumerate}
-
-\subsection{Credit Card Fraud Detection}
-
-\begin{itemize}
-    \item \textbf{Domain:} Rare-Event Detection / Finance
-    \item \textbf{Description:} A dataset of credit card transactions aimed at identifying fraudulent activity.
-    \item \textbf{Target Variable:} \texttt{Class} (1: Fraud, 0: Legitimate).
-    \item \textbf{Dimensions:} 30 features, $\approx 285,000$ observations.
-    \item \textbf{Class Balance:} Highly Imbalanced (only 492 fraud cases, $\approx 0.17\%$).
-    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud}
-\end{itemize}
-
-\textbf{Preprocessing Pipeline:}
-The extreme class imbalance poses a problem for standard classifiers. We applied a strict \textbf{undersampling} strategy to create a balanced subset for training:
-\begin{enumerate}
-    \item We retained all minority class samples (Fraud).
-    \item We sampled the majority class (Legitimate) such that the final dataset composition was 40\% Fraud and 60\% Legitimate.
-    \item This resulted in a dataset of 1230 observations.
-    \item Finally, we removed 2 collinear features using a correlation cutoff of 0.9.
-\end{enumerate}
-
-\subsection{Steel Plates Faults Dataset}
-
-\begin{itemize}
-    \item \textbf{Domain:} Industrial Quality Control
-    \item \textbf{Description:} Attributes of steel plates used to classify surface defects into 7 distinct fault types.
-    \item \textbf{Target Variable:} Fault Type (e.g., \texttt{Pastry}, \texttt{Z\_Scratch}, \texttt{K\_Scatch}).
-    \item \textbf{Dimensions:} 27 features, 1941 observations.
-    \item \textbf{Class Balance:} Multi-class, ranging from 55 to 673 samples per class.
-    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/198/steel-plates-faults}
-\end{itemize}
-
-\textbf{Preprocessing Pipeline:}
-\begin{enumerate}
-    \item \textbf{Infinite Value Handling:} We scanned the dataset for infinite values, replaced them with \texttt{NA}, and subsequently removed rows containing missing values.
-    \item \textbf{Scaling Small Values:} We applied the \texttt{fix\_tiny\_values} algorithm (described below) to prevent numerical underflow.
-    \item \textbf{Collinearity Removal:} We removed 6 features that exhibited a pairwise correlation greater than 0.9.
-\end{enumerate}
-
-\subsection{Sensorless Drive Diagnosis Data Set}
-
-\begin{itemize}
-    \item \textbf{Domain:} Industrial Quality Control
-    \item \textbf{Description:} Signals from a sensorless drive used to diagnose 11 different operating conditions (faults).
-    \item \textbf{Target Variable:} Condition (11 classes).
-    \item \textbf{Dimensions:} 48 features, 58,509 observations.
-    \item \textbf{Class Balance:} Perfectly Balanced (5,319 per class).
-    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/325/sensorless+drive+diagnosis}
-\end{itemize}
-
-\textbf{Preprocessing Pipeline:}
-\begin{enumerate}
-    \item \textbf{Scaling Small Values:} Some features contained values with very small magnitudes (e.g., $10^{-5}$), which can cause numerical instability in covariance matrix calculations. We applied a custom \texttt{fix\_tiny\_values} algorithm: for any column with a mean absolute value $< 0.01$, we scaled the column by a factor of $10^k$ to bring the magnitude into the standard range ($[1, 10]$).
-    \item \textbf{Collinearity Removal:} We identified and removed 17 highly collinear features using a pairwise correlation threshold of 0.99.
-\end{enumerate}
-
-\section{Performance Evaluation and Visualization Strategy}
-\label{sec:visualization_methodology}
-
-To construct the performance curves, we employ a systematic evaluation protocol that assesses model accuracy across a range of sample sizes. This process is controlled by a specific set of hyperparameters designed to ensure both statistical reliability and computational feasibility.
-
-\subsection{Sample Size Sampling (The X-axis)}
-
-The performance of the classifiers is evaluated at discrete intervals of the sample size, denoted as $n$. To effectively capture the model behavior in the critical "small $n$" regime (where $p \approx n$ or $p > n$) while covering the convergence behavior at larger sample sizes, we do not sample $n$ linearly. Instead, we employ a \textbf{logarithmic spacing} strategy.
-
-Let $N_{\min}$ be the lower bound (parameter \texttt{lb}, typically set to 16) and $N_{\max}$ be the maximum available sample size. The sequence of sample sizes is generated as follows:
-
-\begin{equation}
-    n_i = \left\lfloor \exp\left( \ln(N_{\min}) + \frac{i-1}{G-1} (\ln(N_{\max}) - \ln(N_{\min})) \right) \right\rceil, \quad \text{for } i = 1, \dots, G,
-\end{equation}
-where $G$ is the \texttt{granularity} parameter (typically set to 10 or more). This results in $G$ distinct evaluation points on the x-axis, densely clustered at the lower end where the regularization impact is most significant.
-
-\subsection{Monte Carlo Repetitions (The Y-axis)}
-
-Each data point plotted on the performance curve represents the \textbf{mean accuracy} calculated over a set of independent experiments, controlled by the parameter \texttt{n\_experiments} (typically 30).
-
-For a specific sample size $n_i$:
-\begin{enumerate}
-    \item We perform $M$ independent repetitions (where $M = \texttt{n\_experiments}$).
-    \item In each repetition $j$:
-    \begin{itemize}
-        \item \textbf{Synthetic Data:} Fresh training and testing sets are sampled directly from the underlying multivariate normal distributions $\mathcal{N}(\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$ defined by the saved scenario parameters. This ensures true independence between experiments.
-        \item \textbf{Real-World Data:} A subset of size $n_i$ is randomly sampled (without replacement) from the full dataset to form the training set, with the remaining data used for testing.
-    \end{itemize}
-    \item The data is split according to the \texttt{tr\_ts\_split} ratio (e.g., 0.7 for training).
-    \item The accuracy $A_{ij}$ is computed.
-\end{enumerate}
-
-\textbf{Handling Model Failures:} A crucial aspect of our benchmarking is robustness. If a model fails to fit (e.g., due to numerical instability or singularity that the regularization failed to handle), the experiment is not discarded. Instead, it is penalized by assigning an accuracy of $0$. The reported value for sample size $n_i$ is the arithmetic mean:
-\[ \bar{A}_i = \frac{1}{M} \sum_{j=1}^{M} A_{ij}. \]
-
-\subsection{Optimization Strategy}
-
-The \texttt{gips}-based models require finding the optimal permutation group. The search strategy is determined automatically based on the dimensionality $p$ of the data to balance precision and computation time:
-
-\begin{itemize}
-    \item \textbf{Small Dimension ($p \le 9$):} We utilize a \textbf{Brute Force} optimizer. This algorithm exhaustively searches the entire space of permutation groups, guaranteeing the discovery of the global maximum for the posterior probability.
-    \item \textbf{High Dimension ($p > 9$):} The permutation space becomes too large for exhaustive search. Here, we employ the \textbf{Metropolis-Hastings} (MH) algorithm, a stochastic Markov Chain Monte Carlo (MCMC) method. The depth of the search is controlled by the \texttt{max\_iter} parameter (typically set to 1000 iterations).
-\end{itemize}
-
-Additionally, the \texttt{MAP} parameter controls the estimation logic: if \texttt{TRUE}, the model projects covariance matrices onto the single best permutation found (Maximum A Posteriori); if \texttt{FALSE}, it utilizes Bayesian Model Averaging over the visited permutations.
 
 % ======================================================================
 %                          Experiments
