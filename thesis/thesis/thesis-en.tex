@@ -10,6 +10,7 @@
 \usepackage{bbm}
 
 
+
 \usepackage{amsmath, amsfonts, amsthm, latexsym, bm} % MOSTLY MATHEMATICAL SYMBOLS
 
 \usepackage[final]{pdfpages} % INPUTING TITLE PDF PAGE - GENERATE IT FIRST!
@@ -425,10 +426,10 @@ is cyclic that a matrix is \textit{invariant under} $\sigma$.
     \mathcal{P}_{\Gamma}:= Z_\Gamma \cap Sym^+(p;\mathbbm{R}).
 \end{equation}
 
-\subsection{\textt{gips} vs \texttt{gipsmult}}
+\subsection{\texttt{gips} vs \texttt{gipsmult}}
 \subsubsection{General comparision}
 In the setting from \cite{10.1214/22-AOS2174} a single symmetric SPD matrix $K \in \mathbb{R}^{p\times p}$ is invariant under $\sigma \in \mathfrak{S}$
-Let us set $m \in \mathbb{N}$, the model of \texttt{gipsmult} assumes entire set of symmetric SPD matrices $\mathcal{K} = \{K_1, K_2, \dots, K_m\}$ to be invariant under $\sigma$.
+Let us set $m \in \mathbb{N}$, the model of \texttt{gipsmult} assumes an entire set of symmetric SPD matrices $\mathcal{K} = \{K_1, K_2, \dots, K_m\}$ to be invariant under $\sigma$.
 \subsubsection{Bayesian procedure}
 Under assumption of uniform prior on the set
 $
@@ -450,6 +451,32 @@ We attach full derivation of \eqref{gipsmultposteriorformula} in the appendix A.
 
 
 \section{Description of machine learning models}
+\subsection{MAP vs average weighted by AP distribution}
+Each of models described down below:
+\begin{enumerate}
+    \item Estimates covariance matrix(ces)
+    \item Estimates most probable permutation(s) under which real covariance matrices are invariant
+    \item Projects matrix estimate(s) onto the space of those invariant under found permutation(s)
+\end{enumerate}
+MAP option means that our estimate is a single projection:
+\begin{equation}
+    \hat{\Sigma} = \Sigma_{c^*},
+\end{equation}
+where
+\begin{equation}
+    c^*=\operatorname*{argmax}_c \mathbb{P}(\Gamma=c \mid X=x, Y=y).
+\end{equation}
+Since both \texttt{gips} and \texttt{gipsmult} allow to estimate not only MAP but the entire AP distribution we have an alternative:
+\begin{equation}
+    \hat{\Sigma}=\sum_{c \in \sigma_P} \mathbb{P}(\Gamma=c \mid X=x, Y=y) \Sigma_c
+    \label{eq:weighted_avg_estimator}
+\end{equation}
+It potentially offers a more robust estimation by incorporating uncertainty about the true underlying symmetry.
+It should be noted that formulas above  are exact only when the entire space of permutations can be exhaustively searched,
+which is feasible in \texttt{gips(mult)} implementation for $p \le 9$, where $p$ denotes the number of features (columns).
+For a larger number of features, the Metropolis-Hastings algorithm, as described in \cite{JSSv112i07},
+is used to approximate these estimators, as the permutation space becomes too large to explore completely.
+
 \subsection{gipsQDA}
 The \texttt{gipsQDA} model represents the most flexible approach within our framework. In this method, the \texttt{gips} library is applied independently to the data of each class. This process yields a unique estimated covariance matrix, $\hat{\Sigma}_g$, and a unique optimal permutation group, $\hat{c}_g$, for each class $g$.
 \begin{equation}
@@ -462,9 +489,9 @@ The \texttt{gipsLDA} model adapts the core idea of LDA—a single, shared covari
 \begin{enumerate}
     \item For each class $g$, estimate the sample covariance matrix, $S_g$, using the standard unbiased estimator:
     \begin{equation}
-        S_g = \frac{1}{n_g-1} \sum^{n_g}_{i=1} (x_i^{(g)} -\overline{x}^{(g)})(x_i^{(g)} -\overline{x}^{(g)})^T,
+        S_g = \frac{1}{n_g-1} \sum^{n_g}_{i=1} (x_{g,i} -\overline{x}_g)(x_{g,i} -\overline{x}_g)^T,
     \end{equation}
-    where $n_g$ is the number of observations in class $g$, and $x_i^{(g)}$ and $\overline{x}^{(g)}$ are the $i$-th observation and the sample mean of class $g$, respectively.
+    where $n_g$ is the number of observations in class $g$, and $x_{g,i}$ and $\overline{x}_g$ are the $i$-th observation and the sample mean of class $g$, respectively.
     \item Combine the individual $S_g$ matrices into a single pooled matrix, $S$, using a specific averaging method.
     \item Supply the pooled matrix $S$ to the \texttt{gips} algorithm to find the optimal permutation group $\hat{c}$ and the projected covariance matrix $\hat{\Sigma}_{\text{gipsLDA}}$.
     \item Use the resulting matrix $\hat{\Sigma}_{\text{gipsLDA}}$ as the shared covariance matrix in the LDA classification framework, assuming each class has a different mean vector $\mu_g$.
@@ -478,7 +505,7 @@ This method uses the classic pooled covariance estimator, which is the standard 
 \end{equation}
 By substituting the formula for $S_g$ from Equation (3), this simplifies to the well-known pooled sample covariance matrix formula:
 \begin{equation}
-S = \frac{1}{n-m}\sum_{g=1}^m \sum^{n_g}_{i=1} (x_i^{(g)} -\overline{x}^{(g)})(x_i^{(g)} -\overline{x}^{(g)})^T.
+S = \frac{1}{n-m}\sum_{g=1}^m \sum^{n_g}_{i=1} (x_{g,i} -\overline{x}_g)(x_{g,i} -\overline{x}_g)^T.
 \end{equation}
 This estimator is an unbiased estimate of the common covariance matrix under the assumption of homoscedasticity.
 
@@ -496,9 +523,13 @@ It is supposed to serve the situation when each class has a unique covariance ma
 matrices share the same underlying permutation symmetry. This is useful for scenarios where classes  differ
 in scale or variance but are expected to share a common dependency structure.
 
+\subsection{Regularization}
+It should be also noted that all covariance estimates are regularized after being projected. The exact procedure is discussed in \autoref{sec:baseline_regularization}.
 
 
-\section{Theoretical aspects and pseudocode}
+
+
+
 
 % ======================================================================
 %                          Implementation
