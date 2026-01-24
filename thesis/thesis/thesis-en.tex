@@ -405,9 +405,98 @@ The core functionality of the \texttt{gips} library is to identify the most prob
 By imposing such a symmetry constraint, we effectively introduce a form of model-based regularization.
 This reduces the number of free parameters that need to be estimated, which can be particularly advantageous when dealing with high-dimensional data or limited sample sizes, potentially leading to more stable and robust classifiers.
 
-\section{Connecting related work with our contribution}
+\section{gipsmult}
+\subsection{Definitions}
+\subsubsection{Symmetric group}
+Let us set $p \in \mathbb{N}$. Let $\mathfrak{S}_p$ denote the symmetric group i.e. the set of all permutastions on $V = \{1,2, \dots, p\}$
+with function composition as the operation.
+\subsubsection{Invariance under action of a subgroup of the symmetric group}
+Let $K \in \mathbb{R}^{p\times p}$ and $\Gamma \leq \mathfrak{S}_p$. We say that matrix $K$ is invariant under action of subgroup $\Gamma$ i.i.f
+\begin{equation}
+    \forall_{\sigma \in \Gamma} \forall_{i,j\in V} K_{i,j} = K_{\sigma(i), \sigma(j)}
+\end{equation}
+For conciseness sake in the following sections we will say that a matrix is \textit{invariant under subgroup} or, if supgroup $\Gamma = \langle \sigma \rangle$
+is cyclic that a matrix is \textit{invariant under} $\sigma$.
+\subsubsection{Invariant space and cone}
+\begin{equation}
+    \mathcal{Z}_\Gamma := \left\{S \in Sym(p;\mathbbm{R}) : S \ is \ invariant \ under \ \Gamma \right\},
+\end{equation}
+\begin{equation}
+    \mathcal{P}_{\Gamma}:= Z_\Gamma \cap Sym^+(p;\mathbbm{R}).
+\end{equation}
+
+\subsection{\textt{gips} vs \texttt{gipsmult}}
+\subsubsection{General comparision}
+In the setting from \cite{10.1214/22-AOS2174} a single symmetric SPD matrix $K \in \mathbb{R}^{p\times p}$ is invariant under $\sigma \in \mathfrak{S}$
+Let us set $m \in \mathbb{N}$, the model of \texttt{gipsmult} assumes entire set of symmetric SPD matrices $\mathcal{K} = \{K_1, K_2, \dots, K_m\}$ to be invariant under $\sigma$.
+\subsubsection{Bayesian procedure}
+Under assumption of uniform prior on the set
+$
+\mathcal{C} := \{ \langle \sigma \rangle : \sigma \in \mathfrak{S}_p \}
+$
+of cyclic subgroups of $\mathfrak{S}_p$ and Diaconis-Ylvisacker\cite{diaconis1979conjugate} one on the precision
+matrix $K$, \cite{JSSv112i07} arrives at the following proportionality of posterior:
+\begin{equation}\label{gipsposteriorformula}
+    \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}\right) \propto \frac{I_c\left(\delta + n, D+U\right)}{I_c\left(\delta, D\right)}
+\end{equation}
+For more detailed explanation of this result see \cite{JSSv112i07}
+\\
+Under analogous assumptions the posterior in \texttt{gipsmult} setting is proportional to:
+\begin{equation}\label{gipsmultposteriorformula}
+    \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)},
+\end{equation}
+So the entire logic of Bayesian selection for \texttt{gipsmult} boils down to multiplication of results from \texttt{gips}.\\
+We attach full derivation of \eqref{gipsmultposteriorformula} in the appendix A.
+
 
 \section{Description of machine learning models}
+\subsection{gipsQDA}
+The \texttt{gipsQDA} model represents the most flexible approach within our framework. In this method, the \texttt{gips} library is applied independently to the data of each class. This process yields a unique estimated covariance matrix, $\hat{\Sigma}_g$, and a unique optimal permutation group, $\hat{c}_g$, for each class $g$.
+\begin{equation}
+    (\hat{\Sigma}_g, \hat{c}_g) = \texttt{gips}(\text{Data}_g) \quad \text{for each class } g=1, \dots, m
+\end{equation}
+This model is directly analogous to the classic QDA, as it allows for heteroscedasticity, but with the additional complexity that each class can exhibit its own distinct symmetry structure. Consequently, \texttt{gipsQDA} serves as a general model that contains all other proposed models as special, more constrained cases.
+
+\subsection{gipsLDA}
+The \texttt{gipsLDA} model adapts the core idea of LDA—a single, shared covariance matrix—to the \texttt{gips} framework. The general strategy is to first pool the covariance information from all classes into a single matrix, and then use \texttt{gips} to find a common symmetry structure for this pooled matrix. The process is as follows:
+\begin{enumerate}
+    \item For each class $g$, estimate the sample covariance matrix, $S_g$, using the standard unbiased estimator:
+    \begin{equation}
+        S_g = \frac{1}{n_g-1} \sum^{n_g}_{i=1} (x_i^{(g)} -\overline{x}^{(g)})(x_i^{(g)} -\overline{x}^{(g)})^T,
+    \end{equation}
+    where $n_g$ is the number of observations in class $g$, and $x_i^{(g)}$ and $\overline{x}^{(g)}$ are the $i$-th observation and the sample mean of class $g$, respectively.
+    \item Combine the individual $S_g$ matrices into a single pooled matrix, $S$, using a specific averaging method.
+    \item Supply the pooled matrix $S$ to the \texttt{gips} algorithm to find the optimal permutation group $\hat{c}$ and the projected covariance matrix $\hat{\Sigma}_{\text{gipsLDA}}$.
+    \item Use the resulting matrix $\hat{\Sigma}_{\text{gipsLDA}}$ as the shared covariance matrix in the LDA classification framework, assuming each class has a different mean vector $\mu_g$.
+\end{enumerate}
+We propose two methods for pooling the covariance matrices.
+
+\subsubsection{gipsLDA classic}
+This method uses the classic pooled covariance estimator, which is the standard approach in traditional LDA. The pooled matrix $S$ is defined as:
+\begin{equation}
+    S = \frac{1}{n-m}\sum_{g=1}^m (n_g-1)S_{g}.
+\end{equation}
+By substituting the formula for $S_g$ from Equation (3), this simplifies to the well-known pooled sample covariance matrix formula:
+\begin{equation}
+S = \frac{1}{n-m}\sum_{g=1}^m \sum^{n_g}_{i=1} (x_i^{(g)} -\overline{x}^{(g)})(x_i^{(g)} -\overline{x}^{(g)})^T.
+\end{equation}
+This estimator is an unbiased estimate of the common covariance matrix under the assumption of homoscedasticity.
+
+\subsubsection{gipsLDA weighted average}
+This method is named "weighted average" because the contribution of each class's covariance matrix, $S_g$, to the final pooled matrix is weighted by its sample size, $n_g$. However, this weighting scheme gives more influence to smaller classes compared to the \texttt{gipsLDA classic} approach. The pooled matrix $S$ is calculated as:
+\begin{equation}
+    S = \frac{1}{n}\sum_{g=1}^m n_g S_{g},
+\end{equation}
+where $n = \sum_{g=1}^m n_g$ is the total number of observations and $m$ is the number of classes.
+
+
+\subsection{gipsMultQDA}
+The \texttt{gipsMultQDA} model is an intermediate approach between the full flexibility of \texttt{gipsQDA} and the strong constraints of \texttt{gipsLDA}.
+It is supposed to serve the situation when each class has a unique covariance matrix (like QDA), but all these
+matrices share the same underlying permutation symmetry. This is useful for scenarios where classes  differ
+in scale or variance but are expected to share a common dependency structure.
+
+
 
 \section{Theoretical aspects and pseudocode}
 
@@ -899,6 +988,85 @@ Additionally, the \texttt{MAP} parameter controls the estimation logic: if \text
 \pagenumbering{gobble}
 \thispagestyle{empty}
 
+\appendix
+\chapter{Derivation of a posteriori distribution in \texttt{gipsmult} model}
+We examine m multidimensional gaussian samples $Z^{(1)}_{g},\dots Z_g^{(n_g)}$ under
+set $\{\mathcal{K}_g=\kappa_g, \Gamma=c\} $ consisting of i.i.d. random
+vectors $\mathcal{N}_p(0, \kappa_g^{-1})$.
+Let $\Gamma$ be a discrete random variable uniformly distributed over the set of
+$
+\mathcal{C} := \{ \langle \sigma \rangle : \sigma \in \mathfrak{S}_p \}
+$
+cyclic subgroups of $\mathfrak{S}_p$. We assume that each $\mathcal{K}_g$ under set $\Gamma = c$ follows conjugate Diaconis-Ylvisacker a priori distribution \cite{diaconis1979conjugate} defined by its PDF:
+\begin{equation}
+    f_{\mathcal{K}_g \mid \Gamma = c}(k_g)
+  = \frac{1}{I_{c}(\delta, D)}
+    \operatorname{Det}(k_g)^{(\delta - 2)/2}
+    e^{-\tfrac12 \operatorname{tr}[D^{-1} k_g] }
+    \mathbf{1}_{\mathcal{P}_{c}}(k_g),
+\end{equation}
+where $\delta>1$ and $D\in \mathcal{P}_c$ are hyperparameters and $I_c(\delta, D)$ is a normalizing constant.
+We start with standard bayesian reasoning linking the probability of any given permutation conditioned by data with probability of specific data conditioned by given permutation:
+\begin{equation}
+\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
+\frac{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right) \mathbbm{P}\left(\Gamma = c \right)}{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto \mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right).
+\end{equation}
+Writing this in more probabilistic terms and conditioning $\mathbbm{X}$ directly on precision matrices we get:
+\begin{equation}
+\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \idotsint\limits_{\mathcal{P}_c^m}
+    f_{\mathbbm{X} \mid \mathcal{K} = \kappa, \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x})\,
+    f_{\mathcal{K} \mid \Gamma = c}(\kappa)
+    \, d \kappa
+\end{equation}
+Let us now tackle the first factor under the integral:
+\begin{equation}
+    \begin{align}
+        f_{\mathbbm{X} \mid \mathcal{K} = \kappa, \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \prod_{i=i}^{n}(2\pi)^{-\frac{p}{2}}\left|K_{g_i}\right|^{\frac{1}{2}}
+        \exp \left(-\frac{1}{2}x_i^T K_{g_i}x_i\right) \propto \\ \propto \prod_{g=1}^m\left|K_g\right|^{\frac{n_g}{2}}\exp\left(-\frac{1}{2}\sum_{g=1}^m\sum_{j=1}^{n_g}
+        x_{g,j}^T K_g x_{g,j}\right)
+    \end{align}
+\end{equation}
+As inside exponential we are summing real numbers we can replace them by their trace:
+\begin{equation}
+    \begin{align}
+        \exp\left(-\frac{1}{2}\sum_{g=1}^m\sum_{j=1}^{n_g}
+        x_{g,j}^T K_g x_{g,j}\right) = \exp\left(-\frac{1}{2}\sum_{g=1}^m\sum_{j=1}^{n_g}
+        tr\left(x_{g,j}^T K_g x_{g,j}\right)\right) = \\ =
+        \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_g\sum_{j=1}^{n_g}
+        x_{g,j}x_{g,j}^T\right)\right) = \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right)
+    \end{align}
+\end{equation}
+Where:
+\begin{equation}
+    U_g = \sum_{j=1}^{n_g}
+        x_{g,j}x_{g,j}^T
+\end{equation}
+As for the second factor we assume precission matrices are independent:
+\begin{equation}
+    f_{\mathcal{K} \mid \Gamma = c}(\kappa) = \prod_{g=1}^m f_{K_g \mid \Gamma = c} (k_g)
+\end{equation}
+Combining all of these we get:
+\begin{equation}
+    \begin{align}
+        \idotsint\limits_{\mathcal{P}_c^m}
+    f_{\mathbbm{X} \mid \mathcal{K} = \kappa, \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x})\,
+    f_{\mathcal{K} \mid \Gamma = c}(\kappa)
+    \, d \kappa = \\ =\idotsint\limits_{\mathcal{P}_c^m} \prod_{g=1}^m \left|K_g\right|^{\frac{n_g}{2}}
+        \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right) f_{K_g \mid \Gamma = c}(k_g) \, d \kappa = \\ =
+        \prod_{g=1} ^m \int\limits_{\mathcal{P}_c} \left|K_g\right|^{\frac{n_g}{2}}
+        \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right) f_{K_g \mid \Gamma = c}(k_g) \, dk_g
+    \end{align}
+\end{equation}
+Applying results from \cite{JSSv112i07} for each factor we arrive at the result:
+\begin{equation}\label{UltimateAPosterioriFormula}
+    \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
+    f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) \propto
+    \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)},
+\end{equation}
+
+
+
+
 
 
 % ----------------------- LIST OF SYMBOLS AND ABBREVIATIONS ------------------
@@ -933,27 +1101,30 @@ If you don't need it, delete it.
 \item Appendix 2
 \item In case of no appendices, delete this part.
 \item texy probabilistyczne
-ogólny ogólnik
-\begin{equation*}
-\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
-\frac{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto \mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)
-\end{equation*}
-wzór japońcowy
-\begin{equation*}
-I_c\left(\delta, D\right) = \int \limits_{P_c} |k|^{\frac{\delta - 2}{2}} \exp\left(-\frac{1}{2} Tr\left(Dk\right)\right) \; dk
-\end{equation*}
-powiązanie rozkładu z japańcem
-\begin{equation*}
-\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}\right) \propto \frac{I_c\left(\delta + n, D+U\right)}{I_c\left(\delta, D\right)}
-\end{equation*}
-uszczegółowienie ogólnego ogólnika (ogólnik)
-\begin{equation*}
-\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \overset{m}{\idotsint} f(\mathbbm{x})\, d\mathbbm{x}
-\end{equation*}
+%ogólny ogólnik
+%\begin{equation*}
+%\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
+%\frac{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto \mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)
+%\end{equation*}
+%wzór japońcowy
+%\begin{equation*}
+%I_c\left(\delta, D\right) = \int \limits_{P_c} |k|^{\frac{\delta - 2}{2}} \exp\left(-\frac{1}{2} Tr\left(Dk\right)\right) \; dk
+%\end{equation*}
+%powiązanie rozkładu z japańcem
+%\begin{equation*}
+%\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}\right) \propto \frac{I_c\left(\delta + n, D+U\right)}{I_c\left(\delta, D\right)}
+%\end{equation*}
+%uszczegółowienie ogólnego ogólnika (ogólnik)
+%\begin{equation*}
+%\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \overset{m}{\idotsint} f(\mathbbm{x})\, d\mathbbm{x}
+%\end{equation*}
 
 \end{enumerate}
 
 \thispagestyle{empty}
+
+
+
 
 
 \end{document}
