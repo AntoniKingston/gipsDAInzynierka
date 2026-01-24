@@ -10,7 +10,7 @@
 \usepackage{bbm}
 
 
-\usepackage{amsmath, amsfonts, amsthm, latexsym} % MOSTLY MATHEMATICAL SYMBOLS
+\usepackage{amsmath, amsfonts, amsthm, latexsym, bm} % MOSTLY MATHEMATICAL SYMBOLS
 
 \usepackage[final]{pdfpages} % INPUTING TITLE PDF PAGE - GENERATE IT FIRST!
 %\usepackage[backend=bibtex, style=verbose-trad2]{biblatex}
@@ -431,13 +431,392 @@ This reduces the number of free parameters that need to be estimated, which can 
 % ======================================================================
 
 \chapter{Testing Methodology}
-\textcolor{red}{tutaj opis jak testujemy itd jak dane przygotowujemy}
+\label{ch:testing_methodology}
+
+This chapter presents the comprehensive evaluation methodology employed to assess the performance and robustness of the proposed \texttt{gipsDA} framework. To ensure a rigorous validation, the assessment strategy is twofold, encompassing controlled experiments on synthetic data and empirical benchmarking on diverse real-world datasets.
+
+First, we detail the procedures for the \textbf{synthetic data analysis}. This includes a description of the generative algorithms used to simulate high-dimensional data with specific covariance structures, the methodology for constructing performance visualization curves, and the statistical framework applied to quantify the significance of the results.
+
+Subsequently, we outline the approach for \textbf{real-world data benchmarking}. This section describes the necessary data preparation and preprocessing pipelines, explains the visualization techniques used to monitor model convergence, and provides a brief characterization of the specific datasets selected for this study.
+
+In both experimental scenarios, the comparative analysis focuses on the performance of six distinct classification models. These include four variants of the proposed framework:
+\begin{itemize}
+    \item \texttt{gipsLDA} with weighted averaging (denoted in plots as \texttt{gipsldawa}),
+    \item \texttt{gipsLDA} utilizing the classic estimator (\texttt{gipsldacl}),
+    \item \texttt{gipsQDA} (\texttt{gipsqda}),
+    \item \texttt{gipsMultQDA} (\texttt{gipsmultqda}).
+\end{itemize}
+These are benchmarked against two baseline models, referred to as \texttt{LDAmod} and \texttt{QDAmod}.
+These baselines represent standard Linear and Quadratic Discriminant Analysis, respectively, augmented with a specific regularization technique.
+This modification ensures numerical stability by constraining the smallest eigenvalue of the covariance matrix to a minimum threshold of $0.05$, a procedure that will be detailed in subsequent sections.
+
+To quantitatively assess and compare the predictive power of these models, we employ \textbf{Classification Accuracy} as the primary evaluation metric. For a given test dataset consisting of $N$ observations, let $y_i$ denote the true class label of the $i$-th sample, and $\hat{y}_i$ denote the corresponding label predicted by the model. The accuracy is formally defined as:
+
+\begin{equation}
+    \text{Accuracy} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{I}(y_i = \hat{y}_i),
+\end{equation}
+
+where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
+
+\section{Baseline Regularization Strategy}
+\label{sec:baseline_regularization}
+
+Standard estimators for Linear and Quadratic Discriminant Analysis (LDA and QDA) rely on the inversion of the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$. In high-dimensional settings, particularly when $p > n$, $\hat{\boldsymbol{\Sigma}}$ becomes singular or near-singular, possessing eigenvalues close to or equal to zero. This renders the standard precision matrix calculation unstable or impossible.
+
+To ensure a fair comparison between the proposed \texttt{gips}-based models and the classical approaches, we implemented a modified version of the standard algorithms, denoted as \texttt{LDAmod} and \texttt{QDAmod}. These models incorporate a deterministic regularization step—referred to as \textit{desingularization}—which guarantees that the covariance matrix is strictly positive-definite with a bounded condition number.
+
+\subsection{Mathematical Formulation}
+
+The objective of this procedure is to transform the empirical covariance matrix $\mathbf{A}$ into a regularized matrix $\tilde{\mathbf{A}}$ such that its smallest eigenvalue, $\lambda_{\min}(\tilde{\mathbf{A}})$, is no less than a specific target threshold $\tau$. For the purposes of this study, we set $\tau = 0.05$.
+
+If the smallest eigenvalue of the original matrix, denoted as $\lambda = \lambda_{\min}(\mathbf{A})$, already satisfies $\lambda \ge \tau$, no modification is performed. However, if $\lambda < \tau$, we apply a linear shrinkage towards the identity matrix $\mathbf{I}$. The regularized matrix is defined as:
+
+\begin{equation}
+    \tilde{\mathbf{A}} = \frac{\mathbf{A} + s\mathbf{I}}{1 + s},
+\end{equation}
+where $s$ is a non-negative scalar scaling factor.
+
+\subsection{Derivation of the Scaling Factor}
+
+The parameter $s$ is derived analytically to ensure the new smallest eigenvalue exactly matches the target $\tau$. The derivation proceeds as follows:
+
+\begin{enumerate}
+    \item Let the eigenvalues of $\mathbf{A}$ be denoted by $\lambda_i$. The smallest eigenvalue is $\lambda$.
+    \item Adding a multiple of the identity matrix shifts the spectrum. The eigenvalues of $\mathbf{A} + s\mathbf{I}$ are $\lambda_i + s$. Consequently, the smallest eigenvalue becomes $\lambda + s$.
+    \item Dividing by the scalar $(1+s)$ scales the eigenvalues. Thus, the smallest eigenvalue of the normalized matrix $\tilde{\mathbf{A}}$ is given by:
+    \begin{equation}
+        \lambda_{\min}(\tilde{\mathbf{A}}) = \frac{\lambda + s}{1 + s}.
+    \end{equation}
+\end{enumerate}
+
+To enforce the condition $\lambda_{\min}(\tilde{\mathbf{A}}) = \tau$, we solve the following equation for $s$:
+
+\begin{equation}
+    \frac{\lambda + s}{1 + s} = \tau.
+\end{equation}
+
+Rearranging the terms:
+\begin{align*}
+    \lambda + s &= \tau(1 + s) \\
+    \lambda + s &= \tau + \tau s \\
+    s - \tau s &= \tau - \lambda \\
+    s(1 - \tau) &= \tau - \lambda.
+\end{align*}
+
+This yields the closed-form solution for the scaling factor:
+\begin{equation}
+    s = \frac{\tau - \lambda}{1 - \tau}.
+\end{equation}
+
+This transformation ensures that \texttt{LDAmod} and \texttt{QDAmod} remain numerically solvable even in high-dimensional scenarios where standard implementations would fail due to singularity, providing a robust baseline for benchmarking the performance of \texttt{gipsDA}.
 
 \section{Synthetic data}
-\textcolor{red}{opis dokladny generowania danych, mozna podobnie jak w deliverable}
+\label{sec:synthetic_data}
+
+To rigorously evaluate the performance of the proposed classification models, a comprehensive simulation study was designed. This involved generating synthetic datasets with controlled and well-defined properties, allowing us to systematically explore different assumptions regarding the underlying covariance structures of the classes.
+
+\subsection{Experimental Workflow and Reproducibility}
+
+A critical aspect of our methodology is the separation of the \textit{distribution definition} from the \textit{data sampling} phase. To ensure that performance comparisons across different sample sizes ($n$) reflect true model characteristics rather than random variations in the ground-truth parameters, the simulation proceeds in two distinct stages:
+
+\begin{enumerate}
+    \item \textbf{Parameter Fixing:} First, the "ground truth" parameters—specifically the class mean vectors ($\boldsymbol{\mu}_k$) and the true covariance matrices ($\boldsymbol{\Sigma}_k$)—are generated according to specific scenarios (detailed in Section \ref{sec:scenarios}). These parameters are serialized and saved to disk.
+    \item \textbf{Monte Carlo Simulation:} Subsequently, for each defined sample size $n$, we conduct a series of independent experiments. In each experiment, training and test datasets are sampled from the distributions defined by the saved parameters.
+\end{enumerate}
+
+Consequently, each data point on the resulting performance curves represents the mean accuracy calculated over multiple independent repetitions (e.g., 20 or 50 runs). This approach minimizes the variance of the estimator and ensures that the observed trends are statistically robust.
+
+\subsection{Data Generation Algorithm}
+
+The core algorithm for defining the distributions consists of the following sequential steps:
+
+\begin{enumerate}
+    \item \textbf{Mean Vector Sampling:}
+    For each of the $k$ classes, a mean vector $\boldsymbol{\mu}_k$ is sampled as a random point from a $p$-dimensional hypercube, $[0, 1]^p$. To prevent fortuitous overlap between classes, a minimum separation constraint is enforced. After sampling the set of $k$ vectors, the Euclidean distance between every pair of distinct means $(\boldsymbol{\mu}_i, \boldsymbol{\mu}_j)$ is calculated. If any pair satisfies $\|\boldsymbol{\mu}_i - \boldsymbol{\mu}_j\| \leq 0.05$, the entire set is discarded, and the sampling process is repeated. This safeguard prevents the generation of trivially difficult scenarios caused by nearly identical class centroids.
+
+    \item \textbf{Covariance Matrix Construction (Spectral Decomposition):}
+    To rigorously stress-test the models under varied spectral conditions, we employ a method based on spectral decomposition rather than the standard Wishart distribution. This allows for direct control over the eigenvalues and the condition number of the matrix. The procedure is as follows:
+    \begin{itemize}
+        \item \textbf{Eigenvalue Generation:} A vector of eigenvalues $\boldsymbol{\lambda} = (\lambda_1, \dots, \lambda_p)$ is drawn from a specified distribution $\mathcal{D}$ (e.g., Exponential) and sorted such that $\lambda_1 \ge \dots \ge \lambda_p > 0$. Let $\Lambda = \text{diag}(\boldsymbol{\lambda})$.
+        \item \textbf{Random Orthogonal Matrix:} A random matrix $\mathbf{Z} \in \mathbb{R}^{p \times p}$ is generated with entries $Z_{ij} \sim \mathcal{N}(0, 1)$. To obtain a uniformly distributed orthogonal matrix (Haar measure), we perform a QR decomposition: $\mathbf{Z} = \mathbf{Q}'\mathbf{R}$. The matrix $\mathbf{Q}'$ is adjusted by the signs of the diagonal elements of $\mathbf{R}$ to ensure uniqueness:
+        \begin{equation}
+            \mathbf{Q} = \mathbf{Q}' \cdot \text{diag}\left(\text{sgn}(R_{11}), \dots, \text{sgn}(R_{pp})\right).
+        \end{equation}
+        \item \textbf{Reconstruction:} The base covariance matrix is constructed as $\boldsymbol{\Sigma}_{\text{raw}} = \mathbf{Q} \Lambda \mathbf{Q}^\top$.
+    \end{itemize}
+
+    \item \textbf{Covariance Matrix Projection:}
+    For scenarios involving the \texttt{gips} methodology, the raw covariance matrix $\boldsymbol{\Sigma}_{\text{raw}}$ is projected onto a specific permutation group structure. This step imposes the predefined symmetries required to test the specific hypotheses of our thesis (e.g., cyclic symmetry or block symmetry).
+
+    \item \textbf{Separability Control:}
+    To ensure a consistent level of classification difficulty across diverse scenarios, a scaling parameter $\psi$ is introduced. This parameter scales the covariance matrix ($\boldsymbol{\Sigma} = \boldsymbol{\Sigma}_{\text{base}} \cdot \psi$), where smaller values of $\psi$ reduce variance, making classes more compact and separable. The optimal value of $\psi$ is determined via an automated iterative search. Starting with an initial $\psi_{\text{init}}$, we iteratively test $\psi_{\text{new}} =\frac{\psi_{\text{init}}}{2^i}$ until a baseline LDA or QDA model achieves a predefined target accuracy on the generated data.
+
+    This target threshold is calculated dynamically to adapt to the number of classes, $K$. We define a fixed signal strength parameter $S = 0.6$ and the baseline random accuracy as $Acc_{\text{base}} =\frac{1}{K}$. The theoretical target test accuracy is defined as:
+    \begin{equation}
+        Acc_{\text{test}} = Acc_{\text{base}} + (1 - Acc_{\text{base}}) \cdot S.
+    \end{equation}
+    To account for estimation variance during the calibration phase, the actual stopping criterion for the search (target training accuracy) is set slightly higher, capped at a maximum of 0.90:
+    \begin{equation}
+        Acc_{\text{target}} = \min(0.90, Acc_{\text{test}} + 0.10).
+    \end{equation}
+    This calibration guarantees that all scenarios are normalized to a comparable difficulty level before the main evaluation begins.
+
+    \item \textbf{Final Data Generation:}
+    Finally, for a given experiment with sample size $n_k$ for class $k$, the observations are sampled from the multivariate normal distribution $\mathcal{N}_p(\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$.
+\end{enumerate}
+
+\subsection{Data Generation Scenarios}
+\label{sec:scenarios}
+
+To systematically evaluate the proposed models, we defined five distinct data generation scenarios. Each scenario corresponds to a specific set of assumptions regarding the covariance structure and symmetry of the underlying classes. These scenarios range from the most constrained (homoscedastic and symmetric) to the most flexible (heteroscedastic and unstructured), effectively creating "ideal" conditions for each of the tested algorithms.
+
+Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance matrix for class $g$, and $\Gamma$ a permutation group defining the symmetry.
+
+\begin{description}
+    \item[Scenario 1: gipsLDA (Homoscedastic / Symmetric)] \hfill \\
+    This scenario represents the strictest set of assumptions, targeting the \texttt{gipsLDA} model.
+    \begin{itemize}
+        \item \textbf{Covariance Structure:} We assume homoscedasticity, meaning all classes share a single, common covariance matrix:
+        \[ \boldsymbol{\Sigma}_1 = \boldsymbol{\Sigma}_2 = \dots = \boldsymbol{\Sigma}_K = \boldsymbol{\Sigma}_{\text{common}}. \]
+        \item \textbf{Symmetry:} This common matrix is projected onto a specific, non-trivial permutation group $\Gamma$. Consequently, the data exhibits a simplified dependency structure shared globally across the entire dataset.
+    \end{itemize}
+
+    \item[Scenario 2: gipsMultQDA (Heteroscedastic / Shared Symmetry)] \hfill \\
+    This scenario is designed to test the intermediate flexibility of the \texttt{gipsMultQDA} model.
+    \begin{itemize}
+        \item \textbf{Covariance Structure:} We assume heteroscedasticity. Each class $g$ possesses a unique covariance matrix $\boldsymbol{\Sigma}_g$ with distinct eigenvalues and variance scales ($\boldsymbol{\Sigma}_i \neq \boldsymbol{\Sigma}_j$ for $i \neq j$).
+        \item \textbf{Symmetry:} Crucially, while the matrices differ numerically, they are all constrained by the \textbf{same} underlying permutation group $\Gamma$. This implies that while the magnitude of correlations may vary between classes, the pattern of invariant relationships between features remains constant across the population.
+    \end{itemize}
+
+    \item[Scenario 3: gipsQDA (Heteroscedastic / Unique Symmetry)] \hfill \\
+    This is the most general and flexible scenario involving symmetry, targeting the \texttt{gipsQDA} model.
+    \begin{itemize}
+        \item \textbf{Covariance Structure:} The data is fully heteroscedastic; each class has a distinct covariance matrix $\boldsymbol{\Sigma}_g$.
+        \item \textbf{Symmetry:} Unlike the previous scenario, there is no shared structural constraint. Each class covariance matrix $\boldsymbol{\Sigma}_g$ is projected onto its own \textbf{unique} permutation group $\Gamma_g$. This models complex environments where the dependency structure of features changes fundamentally depending on the class label.
+    \end{itemize}
+
+    \item[Scenario 4: Classic LDA (Homoscedastic / Unstructured)] \hfill \\
+    This serves as the baseline for linear classification.
+    \begin{itemize}
+        \item \textbf{Covariance Structure:} All classes share a single covariance matrix $\boldsymbol{\Sigma}_{\text{common}}$.
+        \item \textbf{Symmetry:} No permutation symmetry is imposed (other than the trivial identity group). The covariance matrix is generated from a random spectral distribution without any projection, representing a standard, unstructured multivariate normal distribution.
+    \end{itemize}
+
+    \item[Scenario 5: Classic QDA (Heteroscedastic / Unstructured)] \hfill \\
+    This serves as the baseline for quadratic classification.
+    \begin{itemize}
+        \item \textbf{Covariance Structure:} Each class has a unique, distinct covariance matrix $\boldsymbol{\Sigma}_g$.
+        \item \textbf{Symmetry:} Similar to Scenario 4, no permutation constraints are applied. Each matrix is independently generated and unstructured. This represents the most difficult setting for estimation when $n$ is small, as the number of parameters to estimate is maximal ($\frac{Kp(p+1)}{2}$).
+    \end{itemize}
+\end{description}
+
+\subsection{Statistical Significance Testing}
+\label{sec:statistical_testing}
+
+To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a **Blocked Permutation Test** (also known as a Blocked Randomization Test).
+
+This choice is motivated by the structure of our experiment. Since model performance varies drastically across different sample sizes ($n$), simply aggregating results would violate the exchangeability assumption required for standard tests. The "blocking" factor in our design is the sample size; we must ensure that comparisons are made strictly within the same regime of data availability.
+
+\subsubsection{Hypothesis Definition}
+
+For a given pair of models, Model A (baseline, e.g., \texttt{QDAmod}) and Model B (proposed, e.g., \texttt{gipsQDA}), we define the following hypotheses:
+\begin{itemize}
+    \item $H_0$ (Null Hypothesis): There is no difference in performance between Model A and Model B. The assignment of accuracy scores to the models is arbitrary within each experimental block.
+    \item $H_1$ (Alternative Hypothesis): Model B performs significantly better than Model A (one-sided test).
+\end{itemize}
+
+\subsubsection{Test Statistic Construction}
+
+Let $G$ denote the number of sample size levels (granularity). For a specific sample size $n_k$ (where $k=1, \dots, G$), we perform $M$ independent experiments. Let $Acc_{k,j}^{(A)}$ and $Acc_{k,j}^{(B)}$ denote the accuracy of Model A and Model B, respectively, in the $j$-th experiment at sample size $n_k$.
+
+First, we calculate the mean difference in accuracy for each sample size block $k$:
+\begin{equation}
+    \bar{\delta}_k = \frac{1}{M} \sum_{j=1}^{M} \left( Acc_{k,j}^{(B)} - Acc_{k,j}^{(A)} \right).
+\end{equation}
+
+The observed test statistic, $T_{\text{obs}}$, is defined as the grand mean of these block-wise differences:
+\begin{equation}
+    T_{\text{obs}} = \frac{1}{G} \sum_{k=1}^{G} \bar{\delta}_k.
+\end{equation}
+This statistic effectively aggregates the performance gain across the entire learning curve, treating each sample size level as equally important.
+
+\subsubsection{Permutation Procedure}
+
+To approximate the null distribution of the test statistic, we perform $B = 5000$ Monte Carlo permutations. The procedure preserves the block structure of the data:
+
+\begin{enumerate}
+    \item \textbf{Within-Block Swapping:} For every specific sample size $n_k$ and every experiment $j$, we randomly swap the accuracy values of Model A and Model B with a probability of $0.5$. Formally, we define a Bernoulli variable $S_{k,j} \sim \text{Bern}(0.5)$.
+    \[
+    (X, Y) =
+    \begin{cases}
+    (Acc_{k,j}^{(A)}, Acc_{k,j}^{(B)}) & \text{if } S_{k,j} = 0 \\
+    (Acc_{k,j}^{(B)}, Acc_{k,j}^{(A)}) & \text{if } S_{k,j} = 1
+    \end{cases}
+    \]
+    \item \textbf{Statistic Recomputation:} Using these permuted labels, we calculate a new permuted statistic $T^*_b$.
+    \item \textbf{P-value Calculation:} After $B$ repetitions, the empirical p-value is calculated as the proportion of permuted statistics that are greater than or equal to the observed statistic:
+    \begin{equation}
+        p\text{-value} = \frac{1}{B} \sum_{b=1}^{B} \mathbb{I}(T^*_b \ge T_{\text{obs}}).
+    \end{equation}
+\end{enumerate}
+
+A low p-value (typically $< 0.05$) indicates that the observed performance improvement of Model B over Model A is statistically significant and unlikely to have occurred by chance.
 
 \section{Real data}
-\textcolor{red}{Tutaj opis danych id mozna podobnie jak w deliverable}
+\label{sec:real_world_data}
+\textcolor{red}{W tej sekcji trzeba mocno cytowania dodac i chyba te jawne pisanie linkow nie przejdzie}
+In addition to synthetic simulations, the proposed models were evaluated on a diverse collection of real-world datasets sourced from public repositories. These datasets span various domains, including medical diagnostics, finance, and industrial quality control, providing a robust test bed for assessing model performance under realistic conditions.
+
+The selected datasets present a wide range of challenges, including high dimensionality, class imbalance, and complex feature dependencies. Furthermore, several datasets contain binary and categorical features. By including these, we consciously accept the violation of the multivariate normality assumption inherent to Discriminant Analysis, allowing us to assess the practical robustness of the \texttt{gipsDA} framework in non-ideal settings.
+
+Below, we provide a detailed description of each dataset and the specific preprocessing pipelines applied to prepare the data for experimentation.
+
+\subsection{Heart Failure Prediction Dataset}
+
+\begin{itemize}
+    \item \textbf{Domain:} Medical Diagnostics
+    \item \textbf{Description:} Contains clinical features used to predict mortality caused by heart failure. It represents a classic binary classification problem.
+    \item \textbf{Target Variable:} \texttt{HeartDisease} (1: Heart Disease, 0: Normal).
+    \item \textbf{Dimensions:} 11 features, 918 observations.
+    \item \textbf{Class Balance:} Normal (410), Heart Disease (508).
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+Since this dataset contains categorical variables (e.g., \texttt{Sex}, \texttt{ChestPainType}), we applied \textbf{One-Hot Encoding} (dummy encoding), dropping one level per factor to avoid perfect multicollinearity. This transformation introduces binary features, explicitly violating the Gaussian assumption, but allows the models to utilize all available information. Following encoding, we removed 1 feature that exhibited near-zero variance (dominance ratio $> 0.9$).
+
+\subsection{Breast Cancer Wisconsin (Diagnostic)}
+
+\begin{itemize}
+    \item \textbf{Domain:} Medical Diagnostics
+    \item \textbf{Description:} Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass, describing characteristics of the cell nuclei.
+    \item \textbf{Target Variable:} \texttt{diagnosis} (M: Malignant, B: Benign).
+    \item \textbf{Dimensions:} 30 features, 569 observations.
+    \item \textbf{Class Balance:} Benign (357), Malignant (212).
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+The data was already in a clean, numerical format suitable for analysis. No additional encoding, imputation, or feature removal was required.
+
+\subsection{EEG Brainwave Dataset: Feeling Emotions}
+
+\begin{itemize}
+    \item \textbf{Domain:} Medical / Neuroscience
+    \item \textbf{Description:} Contains statistical features extracted from EEG brainwave signals collected from individuals in different emotional states.
+    \item \textbf{Target Variable:} \texttt{emotion} (Positive, Neutral, Negative).
+    \item \textbf{Dimensions:} 2548 features, 2132 observations.
+    \item \textbf{Class Balance:} Balanced ($\approx 700$ per class).
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/birdy654/eeg-brainwave-dataset-feeling-emotions}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+Given the extremely high dimensionality ($p=2548$), feature selection was critical.
+\begin{enumerate}
+    \item \textbf{Low Variance Filtering:} We removed 2 columns where a single value dominated more than 90\% of the observations.
+    \item \textbf{Feature Selection:} We trained a Random Forest classifier on the full dataset and selected the \textbf{top 30 features} based on the Gini importance measure. This reduced the dimensionality to a manageable level while preserving the most predictive signals.
+\end{enumerate}
+
+\subsection{Credit Card Fraud Detection}
+
+\begin{itemize}
+    \item \textbf{Domain:} Rare-Event Detection / Finance
+    \item \textbf{Description:} A dataset of credit card transactions aimed at identifying fraudulent activity.
+    \item \textbf{Target Variable:} \texttt{Class} (1: Fraud, 0: Legitimate).
+    \item \textbf{Dimensions:} 30 features, $\approx 285,000$ observations.
+    \item \textbf{Class Balance:} Highly Imbalanced (only 492 fraud cases, $\approx 0.17\%$).
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+The extreme class imbalance poses a problem for standard classifiers. We applied a strict \textbf{undersampling} strategy to create a balanced subset for training:
+\begin{enumerate}
+    \item We retained all minority class samples (Fraud).
+    \item We sampled the majority class (Legitimate) such that the final dataset composition was 40\% Fraud and 60\% Legitimate.
+    \item This resulted in a dataset of 1230 observations.
+    \item Finally, we removed 2 collinear features using a correlation cutoff of 0.9.
+\end{enumerate}
+
+\subsection{Steel Plates Faults Dataset}
+
+\begin{itemize}
+    \item \textbf{Domain:} Industrial Quality Control
+    \item \textbf{Description:} Attributes of steel plates used to classify surface defects into 7 distinct fault types.
+    \item \textbf{Target Variable:} Fault Type (e.g., \texttt{Pastry}, \texttt{Z\_Scratch}, \texttt{K\_Scatch}).
+    \item \textbf{Dimensions:} 27 features, 1941 observations.
+    \item \textbf{Class Balance:} Multi-class, ranging from 55 to 673 samples per class.
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/198/steel-plates-faults}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+\begin{enumerate}
+    \item \textbf{Infinite Value Handling:} We scanned the dataset for infinite values, replaced them with \texttt{NA}, and subsequently removed rows containing missing values.
+    \item \textbf{Scaling Small Values:} We applied the \texttt{fix\_tiny\_values} algorithm (described below) to prevent numerical underflow.
+    \item \textbf{Collinearity Removal:} We removed 6 features that exhibited a pairwise correlation greater than 0.9.
+\end{enumerate}
+
+\subsection{Sensorless Drive Diagnosis Data Set}
+
+\begin{itemize}
+    \item \textbf{Domain:} Industrial Quality Control
+    \item \textbf{Description:} Signals from a sensorless drive used to diagnose 11 different operating conditions (faults).
+    \item \textbf{Target Variable:} Condition (11 classes).
+    \item \textbf{Dimensions:} 48 features, 58,509 observations.
+    \item \textbf{Class Balance:} Perfectly Balanced (5,319 per class).
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/325/sensorless+drive+diagnosis}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+\begin{enumerate}
+    \item \textbf{Scaling Small Values:} Some features contained values with very small magnitudes (e.g., $10^{-5}$), which can cause numerical instability in covariance matrix calculations. We applied a custom \texttt{fix\_tiny\_values} algorithm: for any column with a mean absolute value $< 0.01$, we scaled the column by a factor of $10^k$ to bring the magnitude into the standard range ($[1, 10]$).
+    \item \textbf{Collinearity Removal:} We identified and removed 17 highly collinear features using a pairwise correlation threshold of 0.99.
+\end{enumerate}
+
+\section{Performance Evaluation and Visualization Strategy}
+\label{sec:visualization_methodology}
+
+To construct the performance curves, we employ a systematic evaluation protocol that assesses model accuracy across a range of sample sizes. This process is controlled by a specific set of hyperparameters designed to ensure both statistical reliability and computational feasibility.
+
+\subsection{Sample Size Sampling (The X-axis)}
+
+The performance of the classifiers is evaluated at discrete intervals of the sample size, denoted as $n$. To effectively capture the model behavior in the critical "small $n$" regime (where $p \approx n$ or $p > n$) while covering the convergence behavior at larger sample sizes, we do not sample $n$ linearly. Instead, we employ a \textbf{logarithmic spacing} strategy.
+
+Let $N_{\min}$ be the lower bound (parameter \texttt{lb}, typically set to 16) and $N_{\max}$ be the maximum available sample size. The sequence of sample sizes is generated as follows:
+
+\begin{equation}
+    n_i = \left\lfloor \exp\left( \ln(N_{\min}) + \frac{i-1}{G-1} (\ln(N_{\max}) - \ln(N_{\min})) \right) \right\rceil, \quad \text{for } i = 1, \dots, G,
+\end{equation}
+where $G$ is the \texttt{granularity} parameter (typically set to 10 or more). This results in $G$ distinct evaluation points on the x-axis, densely clustered at the lower end where the regularization impact is most significant.
+
+\subsection{Monte Carlo Repetitions (The Y-axis)}
+
+Each data point plotted on the performance curve represents the \textbf{mean accuracy} calculated over a set of independent experiments, controlled by the parameter \texttt{n\_experiments} (typically 30).
+
+For a specific sample size $n_i$:
+\begin{enumerate}
+    \item We perform $M$ independent repetitions (where $M = \texttt{n\_experiments}$).
+    \item In each repetition $j$:
+    \begin{itemize}
+        \item \textbf{Synthetic Data:} Fresh training and testing sets are sampled directly from the underlying multivariate normal distributions $\mathcal{N}(\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$ defined by the saved scenario parameters. This ensures true independence between experiments.
+        \item \textbf{Real-World Data:} A subset of size $n_i$ is randomly sampled (without replacement) from the full dataset to form the training set, with the remaining data used for testing.
+    \end{itemize}
+    \item The data is split according to the \texttt{tr\_ts\_split} ratio (e.g., 0.7 for training).
+    \item The accuracy $A_{ij}$ is computed.
+\end{enumerate}
+
+\textbf{Handling Model Failures:} A crucial aspect of our benchmarking is robustness. If a model fails to fit (e.g., due to numerical instability or singularity that the regularization failed to handle), the experiment is not discarded. Instead, it is penalized by assigning an accuracy of $0$. The reported value for sample size $n_i$ is the arithmetic mean:
+\[ \bar{A}_i = \frac{1}{M} \sum_{j=1}^{M} A_{ij}. \]
+
+\subsection{Optimization Strategy}
+
+The \texttt{gips}-based models require finding the optimal permutation group. The search strategy is determined automatically based on the dimensionality $p$ of the data to balance precision and computation time:
+
+\begin{itemize}
+    \item \textbf{Small Dimension ($p \le 9$):} We utilize a \textbf{Brute Force} optimizer. This algorithm exhaustively searches the entire space of permutation groups, guaranteeing the discovery of the global maximum for the posterior probability.
+    \item \textbf{High Dimension ($p > 9$):} The permutation space becomes too large for exhaustive search. Here, we employ the \textbf{Metropolis-Hastings} (MH) algorithm, a stochastic Markov Chain Monte Carlo (MCMC) method. The depth of the search is controlled by the \texttt{max\_iter} parameter (typically set to 1000 iterations).
+\end{itemize}
+
+Additionally, the \texttt{MAP} parameter controls the estimation logic: if \texttt{TRUE}, the model projects covariance matrices onto the single best permutation found (Maximum A Posteriori); if \texttt{FALSE}, it utilizes Bayesian Model Averaging over the visited permutations.
 
 % ======================================================================
 %                          Experiments
@@ -495,6 +874,8 @@ This reduces the number of free parameters that need to be estimated, which can 
         \end{tabularx}
         \caption{Summary of individual and shared contributions.}
     \end{table}
+
+\textcolor{red}{Tutaj podzial pracy tekstu inzynierki czyli tabelka kto ktory rozdzial w pracy napisal itd}
 
 % ------------------------------- BIBLIOGRAPHY ---------------------------
 % LEXICOGRAPHICAL ORDER BY AUTHORS' LAST NAMES
