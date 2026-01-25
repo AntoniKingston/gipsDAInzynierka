@@ -11,7 +11,7 @@
 
 
 
-\usepackage{amsmath, amsfonts, amsthm, latexsym, bm} % MOSTLY MATHEMATICAL SYMBOLS
+\usepackage{amsmath, amsfonts, amsthm, latexsym, bm, amssymb} % MOSTLY MATHEMATICAL SYMBOLS
 
 \usepackage[final]{pdfpages} % INPUTING TITLE PDF PAGE - GENERATE IT FIRST!
 %\usepackage[backend=bibtex, style=verbose-trad2]{biblatex}
@@ -503,7 +503,7 @@ This method uses the classic pooled covariance estimator, which is the standard 
 \begin{equation}
     S = \frac{1}{n-m}\sum_{g=1}^m (n_g-1)S_{g}.
 \end{equation}
-By substituting the formula for $S_g$ from Equation (3), this simplifies to the well-known pooled sample covariance matrix formula:
+By substituting the formula for $S_g$ from Equation (3.10), this simplifies to the well-known pooled sample covariance matrix formula:
 \begin{equation}
 S = \frac{1}{n-m}\sum_{g=1}^m \sum^{n_g}_{i=1} (x_{g,i} -\overline{x}_g)(x_{g,i} -\overline{x}_g)^T.
 \end{equation}
@@ -523,6 +523,10 @@ It is supposed to serve the situation when each class has a unique covariance ma
 matrices share the same underlying permutation symmetry. This is useful for scenarios where classes  differ
 in scale or variance but are expected to share a common dependency structure.
 
+\begin{equation}
+    (\hat{\Sigma}_g, \hat{c}) = \texttt{gips}(\text{Data}_g) \quad \text{for each class } g=1, \dots, m
+\end{equation}
+
 \subsection{Regularization}
 It should be also noted that all covariance estimates are regularized after being projected. The exact procedure is discussed in \autoref{sec:baseline_regularization}.
 
@@ -534,16 +538,171 @@ It should be also noted that all covariance estimates are regularized after bein
 % ======================================================================
 %                          Implementation
 % ======================================================================
+\chapter{Package Description}
+The framework of \texttt{gipsDA} was implemented in R. All the necessary code was wrapped as a R package and published at \href{https://cran.r-project.org/}{CRAN}. One can install it with:
+%\begin{RCode}{R Console}
+%    install.packages("gipsDA")
+%\end{RCode}
+The documentation and the source code of the package are available at  \href{https://github.com/AntoniKingston/gipsDAInzynierka}{github.com/AntoniKingston/gipsDAInzynierka} and \href{https://antonikingston.github.io/gipsDA/}{https://antonikingston.github.io/gipsDA/} repectively.
+\section{Example usage}
 
-\chapter{Implementation (Package Description)}
+\section{Implementation}
+Standard R package development practices were followed.
+The implementation is organized into two primary
+components: the user-facing \texttt{models} module and the backend \texttt{gipsmult} module.
+The core design philosophy was to extend the well-established and widely-used
+functions of the \texttt{MASS} package.
 
-\section{Package structure and dependencies}
+\subsection{The \texttt{models} Module}
+This module contains the primary, user-facing functions: \texttt{gipsLDA}, \texttt{gipsQDA}, and \texttt{gipsMultQDA}. Our implementation strategy was to adopt the complete structure of the original \texttt{MASS} functions to ensure a consistent user experience. The \texttt{gipsLDA} function is a direct modification of \texttt{lda.default()}. The other two models, \texttt{gipsQDA} and its variant \texttt{gipsMultQDA}, share a common foundation, as both are implemented by modifying the \texttt{qda.default()} method. For all three functions, our changes are precisely targeted to replace the standard covariance estimation with our \texttt{gips}-based projection.
 
+\subsubsection{gipsLDA}
+This function is designed as a direct, enhanced replacement for its \texttt{MASS::lda} counterpart. The implementation adopts the S3 method dispatch system from \texttt{MASS} to provide a familiar and flexible user interface.
+
+\paragraph{S3 Methods and User Interface}
+To ensure consistency with standard R practices, \texttt{gipslda} is an S3 generic function with several methods that handle different input types. The \texttt{gipslda.formula()}, \texttt{gipslda.data.frame()}, and \texttt{gipslda.matrix()} methods are almost identical to their equivalents in the \texttt{MASS} package. Their primary role is to process the input data—handling formulas, subsets, and missing values—before dispatching to the core computational engine, \texttt{gipslda.default()}. This design ensures that users familiar with \texttt{MASS::lda} can use \texttt{gipslda} with no change to their workflow.
+
+\paragraph{The Core Engine: \texttt{gipslda.default()}}
+This function contains the main algorithm and is where our modifications to the \texttt{MASS} code are concentrated. It accepts the following arguments:
+\begin{description}
+    \item[\texttt{x, grouping}] The input matrix of predictors and the vector of class labels.
+    \item[\texttt{prior}] A vector of prior probabilities for the classes, defaulting to the class proportions in the training data.
+    \item[\texttt{tol}] A tolerance threshold to detect zero-variance columns, defaulting to \texttt{1.0e-4}.
+    \item[\texttt{weighted\_avg}] A logical parameter, defaulting to \texttt{FALSE}, which controls the covariance pooling strategy.
+    \item[\texttt{MAP}] A logical parameter, defaulting to \texttt{TRUE}, which selects the estimation method (argmax or weighted average).
+    \item[\texttt{optimizer}] A character string, defaulting to \texttt{NULL}. If \texttt{NULL}, it is automatically set to \texttt{"BF"} for $p < 10$ and \texttt{"MH"} for $p \ge 10$.
+    \item[\texttt{max\_iter}] An integer, defaulting to \texttt{NULL}. If the optimizer is \texttt{"MH"} and this is \texttt{NULL}, it is set to \texttt{100} and a warning is issued.
+\end{description}
+The function's workflow begins with input validation (checking for finite values, consistent dimensions, empty groups), which is identical to the procedure in \texttt{MASS::lda.default()}. The key modifications occur in two stages:
+\begin{enumerate}
+    \item \textbf{Covariance Pooling:} The first modification intercepts the calculation of the pooled covariance matrix. The logic proceeds based on the \texttt{weighted\_avg} parameter:
+    \begin{itemize}
+        \item If \texttt{FALSE} (default), the standard unbiased pooled covariance matrix is computed, as in \texttt{MASS}.
+        \item If \texttt{TRUE}, the code first calculates the individual covariance matrix $S_g$ for each class and then combines them using the formula $S = \frac{1}{n}\sum_{g} n_g S_{g}$.
+    \end{itemize}
+    \item \textbf{Gips Projection:} The resulting pooled covariance matrix is then passed as a single-element list to the \texttt{project\_covs()} helper function. This is the primary injection point of our methodology. The helper function applies the \texttt{gips} optimization and returns the final, projected covariance matrix.
+\end{enumerate}
+After this step, the remainder of the function proceeds exactly as in \texttt{MASS::lda.default()}, performing Singular Value Decomposition (SVD) and calculating the discriminant function coefficients, but now using the \textit{projected} covariance matrix.
+
+\paragraph{Return Value and Post-Processing}
+The function returns an object of class \texttt{gipslda}. This is a \texttt{list} containing the standard components from a \texttt{MASS::lda} object (e.g., \texttt{prior}, \texttt{counts}, \texttt{means}, \texttt{scaling}), plus an additional element, \texttt{optimization\_info}, which stores the output from the \texttt{gips} optimization. The package provides \texttt{predict()}, \texttt{print()}, and \texttt{plot()} methods for \texttt{gipslda} objects, which are also direct adaptations of their \texttt{MASS} counterparts. This ensures that a fitted \texttt{gipslda} object can be used for prediction and visualization without any side effects beyond the standard console or plot output. The \texttt{print.gipslda()} method has been extended to display the contents of the \texttt{optimization\_info} element.
+
+\subsubsection{gipsQDA}
+This function is designed as an enhanced replacement for \texttt{MASS::qda}, allowing for class-specific covariance matrices, each with its own unique symmetry structure. The implementation follows the S3 method dispatch system of \texttt{MASS} to maintain a familiar user interface.
+
+\paragraph{S3 Methods and User Interface}
+Consistent with standard R practices, \texttt{gipsqda} is an S3 generic function. The \texttt{gipsqda.formula()}, \texttt{gipsqda.data.frame()}, and \texttt{gipsqda.matrix()} methods are nearly identical to their counterparts in the \texttt{MASS} package. Their purpose is to preprocess the input data by handling formulas, subsets, and missing values before passing a clean data matrix and grouping factor to the core computational engine, \texttt{gipsqda.default()}.
+
+\paragraph{The Core Engine: \texttt{gipsqda.default()}}
+This function contains the main algorithm and is where our modifications to the \texttt{MASS} code are implemented. It accepts the following arguments:
+\begin{description}
+    \item[\texttt{x, grouping}] The input matrix of predictors and the vector of class labels.
+    \item[\texttt{prior}] A vector of prior probabilities for the classes, defaulting to the class proportions in the training data.
+    \item[\texttt{MAP}] A logical parameter, defaulting to \texttt{TRUE}, which selects the estimation method (argmax or weighted average).
+    \item[\texttt{optimizer}] A character string, defaulting to \texttt{NULL}. If \texttt{NULL}, it is automatically set to \texttt{"BF"} for $p < 10$ and \texttt{"MH"} for $p \ge 10$.
+    \item[\texttt{max\_iter}] An integer, defaulting to \texttt{NULL}. If the optimizer is \texttt{"MH"} and this is \texttt{NULL}, it is set to \texttt{100} and a warning is issued.
+\end{description}
+
+The function's workflow begins with input validation inherited from \texttt{MASS::qda.default()}, such as checking for finite values and ensuring that each group has enough observations to estimate a covariance matrix ($n_g > p$). The key modification is introduced within the main \texttt{for} loop that iterates through each class:
+\begin{enumerate}
+    \item For the current class, an empirical covariance matrix is estimated using \texttt{MASS::cov.mve()}.
+    \item \textbf{Gips Projection:} This single covariance matrix is then passed as a single-element list to the \texttt{project\_covs()} helper function. The helper applies the \texttt{gips} optimization to find the optimal symmetry structure for this specific class and returns the projected covariance matrix.
+    \item The remainder of the loop proceeds with the standard \texttt{qda} logic, performing Singular Value Decomposition (SVD) on the \textit{projected} matrix to calculate the scaling components and log-determinant for that class.
+\end{enumerate}
+This process is repeated for every class, resulting in a model where each class has its own individually optimized covariance structure.
+
+\paragraph{Return Value and Post-Processing}
+The function returns an object of class \texttt{gipsqda}. This is a \texttt{list} containing the standard components from a \texttt{MASS::qda} object (e.g., \texttt{prior}, \texttt{counts}, \texttt{means}, \texttt{scaling}, \texttt{ldet}), plus an additional element, \texttt{optimization\_info}. The package provides \texttt{predict()} and \texttt{print()} methods for \texttt{gipsqda} objects, which are direct adaptations of their \texttt{MASS} counterparts, ensuring standard functionality for prediction and inspection. The \texttt{print.gipsqda()} method has been extended to display the contents of the \texttt{optimization\_info} element.
+
+\subsubsection{gipsMultQDA}
+This function implements the intermediate model, which allows for class-specific covariance matrices but constrains them to share a single, common permutation symmetry. The implementation is a structural modification of \texttt{MASS::qda} and, like the other functions, uses the S3 method dispatch system.
+
+\paragraph{S3 Methods and User Interface}
+To maintain a consistent API, \texttt{gipsmultqda} is an S3 generic function. The \texttt{gipsmultqda.formula()}, \texttt{gipsmultqda.data.frame()}, and \texttt{gipsmultqda.matrix()} methods are nearly identical to their counterparts in the \texttt{MASS} package. They handle the initial data processing before dispatching to the core computational engine, \texttt{gipsmultqda.default()}.
+
+\paragraph{The Core Engine: \texttt{gipsmultqda.default()}}
+This function contains the main algorithm and is where our modifications to the \texttt{MASS} code are implemented. It accepts the following arguments:
+\begin{description}
+    \item[\texttt{x, grouping}] The input matrix of predictors and the vector of class labels.
+    \item[\texttt{prior}] A vector of prior probabilities for the classes, defaulting to the class proportions in the training data.
+    \item[\texttt{MAP}] A logical parameter, defaulting to \texttt{TRUE}, which selects the estimation method (argmax or weighted average).
+    \item[\texttt{optimizer}] A character string, defaulting to \texttt{NULL}. If \texttt{NULL}, it is automatically set to \texttt{"BF"} for $p < 10$ and \texttt{"MH"} for $p \ge 10$.
+    \item[\texttt{max\_iter}] An integer, defaulting to \texttt{NULL}. If the optimizer is \texttt{"MH"} and this is \texttt{NULL}, it is set to \texttt{100} and a warning is issued.
+\end{description}
+The function's workflow begins with the same input validation as \texttt{MASS::qda.default()}. The core logic is then executed in three distinct stages:
+\begin{enumerate}
+    \item \textbf{Covariance Collection:} A preliminary \texttt{for} loop iterates through all classes. In each iteration, it calculates the empirical covariance matrix for that class using \texttt{MASS::cov.mve()} and collects it into a list.
+    \item \textbf{Joint Gips Projection:} After the loop, the entire list of covariance matrices is passed to the \texttt{project\_covs()} helper function. This is the primary injection point of the \texttt{gipsmult} methodology. The helper function finds a single, common symmetry structure that is jointly optimal for all classes and returns a list of the projected covariance matrices and the optimization results.
+    \item \textbf{SVD and Scaling:} A second \texttt{for} loop then iterates through the classes again. For each class, it takes the corresponding projected matrix from the list returned by the helper function and performs the standard SVD and scaling calculations, as in \texttt{qda.default()}.
+\end{enumerate}
+
+\paragraph{Return Value and Post-Processing}
+The function returns an object of class \texttt{gipsmultqda}. This is a \texttt{list} containing the standard components from a \texttt{MASS::qda} object (e.g., \texttt{prior}, \texttt{counts}, \texttt{means}, \texttt{scaling}, \texttt{ldet}), plus an additional element, \texttt{optimization\_info}. This element stores the results of the joint optimization, such as the single common MAP permutation or the posterior probabilities. The package provides \texttt{predict()} and \texttt{print()} methods for \texttt{gipsmultqda} objects, which are direct adaptations of their \texttt{MASS} counterparts. The \texttt{print.gipsmultqda()} method has been extended to display the contents of the \texttt{optimization\_info} element.
+
+\subsubsection{Helper Functions}
+A utility file (\texttt{models\_utils.R}) contains the core bridge functions that connect the modified \texttt{MASS} code to the \texttt{gips} logic. The implementation was streamlined to use a single, versatile function that handles both estimation strategies.
+
+\begin{itemize}
+    \item \texttt{project\_covs(emp\_covs, ns\_obs, MAP, optimizer, max\_iter, tol)}: This is the primary helper function that acts as a unified interface for both the argmax and weighted-average estimation methods. It takes in several arguments to control the process:
+    \begin{description}
+        \item[\texttt{emp\_covs}] A \texttt{list} of numeric \texttt{matrix} objects, where each matrix is an empirical covariance matrix for a class.
+        \item[\texttt{ns\_obs}] A numeric \texttt{vector} containing the number of observations for each corresponding class.
+        \item[\texttt{MAP}] A logical scalar. If \texttt{TRUE}, the function finds the single most probable permutation. If \texttt{FALSE}, it calculates the weighted-average projection.
+        \item[\texttt{optimizer}] A character string specifying the search algorithm, either \texttt{'BF'} or \texttt{'MH'}. The resolution of the \texttt{'auto'} option is handled by the parent model function.
+        \item[\texttt{max\_iter}] An integer specifying the number of iterations for the Metropolis-Hastings optimizer.
+        \item[\texttt{tol}] A numeric tolerance threshold used when \texttt{MAP = FALSE}. When calculating the weighted average estimator from Equation~\eqref{eq:weighted_avg_estimator}, permutations with a posterior probability below this threshold are excluded from the summation to improve computational efficiency.
+    \end{description}
+    The function returns a \texttt{list} containing two named elements:
+    \begin{itemize}
+        \item \texttt{covs}: A \texttt{list} of numeric \texttt{matrix} objects, containing the final projected covariance matrices. This list has the same length and structure as the input \texttt{emp\_covs}.
+        \item \texttt{opt\_info}: Contains information from the optimization process. If \texttt{MAP = TRUE}, this is the optimal permutation object. If \texttt{MAP = FALSE}, this is a named numeric \texttt{vector} of the posterior probabilities used for weighting.
+    \end{itemize}
+
+    \item \texttt{project\_matrix\_multiperm(emp\_cov, probs)}: This is a lower-level utility that implements the weighted-average projection for a single matrix. It takes in two arguments:
+    \begin{description}
+        \item[\texttt{emp\_cov}] A single numeric \texttt{matrix}.
+        \item[\texttt{probs}] A named numeric \texttt{vector} where the names are permutations and the values are their posterior probabilities.
+    \end{description}
+    The function returns a single numeric \texttt{matrix} of the same dimensions as the input \texttt{emp\_cov}, representing the final weighted-average covariance matrix.
+    \item \texttt{serialize\_for\_json(x)}: A function converting gipsDA classifier object to format eligible for saving to a json file, it takes in a single argument:
+    \begin{description}
+        \item[\texttt{x}] A gipsDA classifier (an object of class gipslda, gipsqda or gipsmultqda).
+    \end{description}
+    The function returns a list with possibly more lists nested inside.
+    \item \texttt{deserialize\_from\_json(x)}: A function deserializing data loaded from json to create a gipsDA model object, it takes in a single argument:
+    \begin{description}
+        \item[\texttt{x}] A list constituting serialized model data.
+    \end{description}
+    The function returns a list which elements are gipsDA components with proper R metadata.
+    \item \texttt{gipsDA\_to\_json(obj, file)}: A function saving gipsDA object to a json file, it takes in 2 arguments:
+    \begin{description}
+        \item[\texttt{obj}] A gipsDA object.
+        \item[\texttt{filename}] Path where object is to be saved.
+    \end{description}
+    The function does not return anything.
+    \item \texttt{gipsDA\_from\_json(file, classname)}: A function loading a gipsDA object from a json file, it takes in 2 arguments:
+    \begin{description}
+        \item[\texttt{obj}] Path where object is to be saved.
+        \item[\texttt{classname}] Class of the object to be loaded.
+    \end{description}
+    The function returns an object of gipslda, gipqda or gipsmultqda class.
+    \item \texttt{recursive\_length(x)}: A helper function to serialize\_for\_json(), it takis in a single argument:
+    \begin{description}
+        \item[\texttt{x}] Any R object.
+    \end{description}
+    The function returns the number of atomic elements in an object
+    \item \texttt{desingularize(A, target)}: A function regularizing a square matrix so that the module of it's smallest eigenvalue is the target, it takes in 2 arguments:
+    \begin{description}
+        \item[\texttt{A}] A square nonsigular matrix.
+        \item[\texttt{target}] Desired module of the smaller eigenvalue.
+    \end{description}
+    The function returns a square regularized matrix.
+\end{itemize}
 \section{Documentation}
 
-\section{Usage of S3 classes}
 
-\section{Usage example}
+
+
 \textcolor{red}{Tutaj chyba tak jak na prezentacji by sie to przedstawilo}
 
 % ======================================================================
