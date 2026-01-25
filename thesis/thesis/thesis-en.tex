@@ -22,6 +22,8 @@
 
 \usepackage[hidelinks]{hyperref} % for hyperlinks, for example, urls, references to equations, entries in a bibliography --- hidelinks option removes rectangles around hiperlinks
 
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
 
 % ---------------- MARGINS, INDENTATION, LINESPREAD ------------------
 
@@ -61,6 +63,99 @@
   \renewcommand{\footrulewidth}{0.0pt}
 }
 
+% ----------------------- Rcode Setup ---------------------------
+
+% ============================================================
+% 1. DEFINICJA KOLORÓW (Nord Style / VS Code)
+% ============================================================
+\definecolor{codegreen}{rgb}{0.25,0.5,0.35}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{HTML}{F2F2F2}    % Bardzo jasne szare tło
+\definecolor{framecolour}{HTML}{2E3440}   % Ciemna ramka (Nord dark)
+\definecolor{keywordcolour}{HTML}{81A1C1} % Nord blue
+
+% ============================================================
+% 2. STYL LISTINGU (Sam kod R)
+% ============================================================
+\lstdefinestyle{myRstyle}{
+    language=R,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\itshape\color{codegreen},
+    keywordstyle=\bfseries\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize, % Czcionka maszynowa, mniejsza
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    morekeywords={TRUE, FALSE, NULL, NA, Inf, NaN}
+}
+
+% Aktywacja stylu domyślnego
+\lstset{style=myRstyle}
+
+% ============================================================
+% 3. ŚRODOWISKO "RCode" (Ramka + Listing)
+% ============================================================
+\newtcblisting[auto counter]{RCode}[2][]{%
+    enhanced,                     % Zaawansowane rysowanie
+    breakable,                    % POZWALA PRZENOSIĆ KOD NA KOLEJNĄ STRONĘ
+    listing engine=listings,      % Silnik listings
+    listing only,                 % Tylko kod
+    listing options={style=myRstyle},
+    title={\textbf{Listing \thetcbcounter:} #2}, % Tytuł: Listing X: Nazwa
+    colback=backcolour,           % Tło
+    colframe=framecolour,         % Ramka
+    coltitle=white,               % Tekst tytułu
+    fonttitle=\bfseries\footnotesize,
+    sharp corners=downhill,       % Wygląd zakładki
+    arc=3mm,
+    boxrule=0.5mm,
+    drop shadow,                  % Cień
+    top=1mm, bottom=1mm,
+    #1                            % Opcje dodatkowe
+}
+
+% ============================================================
+% 4. STYL DLA OUTPUTU Z KONSOLI
+% ============================================================
+\definecolor{outbg}{HTML}{FAFAFA}      % Prawie białe tło
+\definecolor{outframe}{HTML}{707070}   % Szara ramka
+
+\lstdefinestyle{outputStyle}{
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{outbg},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=2,
+    frame=none,
+    numbers=none,
+    columns=fullflexible
+}
+
+\newtcblisting{ROutput}[1][]{
+    enhanced,
+    breakable,                    % Pozwala łamać output na strony
+    listing only,
+    listing options={style=outputStyle},
+    colback=outbg,
+    colframe=outframe,
+    coltitle=white,
+    fonttitle=\bfseries\footnotesize,
+    title={Console Output},       % Domyślny tytuł
+    arc=2mm,
+    boxrule=0.5mm,
+    drop shadow,
+    #1
+}
 
 
 % --------------------------- CHAPTER HEADERS ---------------------
@@ -540,9 +635,32 @@ It should be also noted that all covariance estimates are regularized after bein
 % ======================================================================
 \chapter{Package Description}
 The framework of \texttt{gipsDA} was implemented in R. All the necessary code was wrapped as a R package and published at \href{https://cran.r-project.org/}{CRAN}. One can install it with:
-%\begin{RCode}{R Console}
-%    install.packages("gipsDA")
-%\end{RCode}
+\begin{RCode}{R Console}
+    install.packages("gipsDA")
+\end{RCode}
+
+\begin{ROutput}
+    Installing package into ‘/usr/local/lib/R/site-library’
+    (as ‘lib’ is unspecified)
+    trying URL 'https://cran.r-project.org/src/contrib/gipsDA_0.1.0.tar.gz'
+    Content type 'application/x-gzip' length 123456 bytes (120 KB)
+    ==================================================
+    downloaded 120 KB
+
+    * installing *source* package ‘gipsDA’ ...
+    ** package ‘gipsDA’ successfully unpacked and MD5 sums checked
+    ** using staged installation
+    ** R
+    ** byte-compile and prepare package for lazy loading
+    ** help
+    *** installing help indices
+    ** building package indices
+    ** installing vignettes
+    ** testing if installed package can be loaded from temporary location
+    ** testing if installed package can be loaded from final location
+    ** testing if installed package keeps a record of temporary installation path
+    * DONE (gipsDA)
+\end{ROutput}
 The documentation and the source code of the package are available at  \href{https://github.com/AntoniKingston/gipsDAInzynierka}{github.com/AntoniKingston/gipsDAInzynierka} and \href{https://antonikingston.github.io/gipsDA/}{https://antonikingston.github.io/gipsDA/} repectively.
 \section{Example usage}
 
