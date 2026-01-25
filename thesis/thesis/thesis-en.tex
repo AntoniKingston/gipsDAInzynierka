@@ -1016,41 +1016,194 @@ The specific permutation lists used for generation are defined as follows:
     \end{enumerate}
 \end{itemize}
 
-Below, we present the results for the six selected parameter configurations.
+Below, we present the results for the selected parameter configurations.
 For each configuration, a composite figure displays five subplots corresponding to the five fundamental data generation scenarios defined in Chapter \ref{ch:testing_methodology}.
 
 % ------------------------------------------------------------------------
 % SIMULATION SETS
 % ------------------------------------------------------------------------
-\subsection{Simulation Set 1: Low Dimension ($p=5$), Binary Classification ($k=2$)}
+\subsection{Simulation Set 1: High Dimension and 10 Classes}
 \label{sec:sim_set_1}
 
-\textbf{Configuration:} $p=5$, $k=2$, Distribution: Exponential, MAP: \texttt{TRUE}.
+\textbf{Configuration:} $p=10$, $k=10$, Distribution: Chi-squared, MAP: \texttt{FALSE}, Main Permutation: Dense.
 
 \begin{figure}[H]
     \centering
-    % Tutaj wstawiasz ten DUŻY obrazek, który ma w sobie 5 pod-wykresów (facet_wrap)
-    % \includegraphics[width=\textwidth]{path/to/sim_set_1_combined_plot.png}
+    \includegraphics[width=\textwidth]{img/synth_10_10_chisq_dense_trans_FALSE}
     \caption{Learning curves for Simulation Set 1. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
     \label{fig:sim_set_1}
 \end{figure}
 
 \textbf{Observations:}
-In this low-dimensional setting, we observe that... [Tu wpisz szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].
+In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
 
 \begin{table}[H]
     \centering
-    \begin{tabular}{llc}
+    \begin{tabular}{lllc}
         \toprule
-        \textbf{Model A (Proposed)} & \textbf{Model B (Baseline)} & \textbf{p-value} \\
+        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
         \midrule
-        gipsQDA & QDAmod & $< 0.001$ \\
-        gipsMultQDA & QDAmod & $0.003$ \\
-        gipsLDA (classic) & LDAmod & $0.125$ \\
+        qda & LDAmod & gipsLDA classic & $0.0274$ \\
+        qda & QDAmod & gipsMultQDA & $0.0032$ \\
+        gipsqda & QDAmod & gipsMultQDA & $0$ \\
+        gipsmultqda & QDAmod & gipsMultQDA & $0$ \\
+        lda & LDAmod & gipsLDA classic & $0.0204$ \\
+        lda & QDAmod & gipsMultQDA & $0.002$ \\
+        gipslda & LDAmod & gipsLDA classic & $4*10^{-4}$ \\
+        gipslda & QDAmod & gipsMultQDA & $2*10^{-4}$ \\
         \bottomrule
     \end{tabular}
-    \caption{Statistical Significance (Blocked Permutation Test) for Simulation Set 1. Only key comparisons where $p < 0.05$ are highlighted.}
+    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 1. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
     \label{tab:stat_sim_1}
+\end{table}
+
+\textbf{Statistical Analysis:}
+The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
+
+
+\subsection{Simulation Set 2: High Dimension and Binary Classification}
+\label{sec:sim_set_2}
+
+\textbf{Configuration:} $p=10$, $k=2$, Distribution: Chi-squared, MAP: \texttt{FALSE}, Main Permutation: Dense.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_10_2_chisq_dense_trans_FALSE}
+    \caption{Learning curves for Simulation Set 2. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_2}
+\end{figure}
+
+\textbf{Observations:}
+In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lllc}
+        \toprule
+        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
+        \midrule
+        qda & LDAmod & gipsLDA classic & $0$ \\
+        qda & LDAmod & gipsLDA classic & $0.0104$ \\
+        qda & QDAmod & gipsMultQDA & $0$ \\
+        gipsqda & LDAmod & gipsLDA classic & $4*10^{-4}$ \\
+        gipsqda & LDAmod & gipsLDA weighted average & $0$ \\
+        gipsqda & gipsLDA classic & gipsLDA weighted average & $0.0386$ \\
+        gipsqda & QDAmod & gipsMultQDA & $4*10^{-4}$ \\
+        gipsmultqda & LDAmod & gipsLDA classic & $0$ \\
+        gipsmultqda & LDAmod & gipsLDA weighted average & $0$ \\
+        gipsmultqda & QDAmod & gipsMultQDA & $0.001$ \\
+        lda & LDAmod & gipsLDA classic & $0$ \\
+        lda & LDAmod & gipsLDA weighted average & $0$ \\
+        lda & QDAmod & gipsMultQDA & $0$ \\
+        gipslda & LDAmod & gipsLDA classic & $0$ \\
+        gipslda & LDAmod & gipsLDA weighted average & $0$ \\
+        gipslda & QDAmod & gipsMultQDA & $0$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 2. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
+    \label{tab:stat_sim_2}
+\end{table}
+
+\textbf{Statistical Analysis:}
+The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
+
+
+\subsection{Simulation Set 3: Low Dimension and 10 Classes}
+\label{sec:sim_set_3}
+
+\textbf{Configuration:} $p=5$, $k=10$, Distribution: Log-Normal, MAP: \texttt{TRUE}, Main Permutation: Full Cycle.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_10_lnorm_full_cycle_TRUE}
+    \caption{Learning curves for Simulation Set 3. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_3}
+\end{figure}
+
+\textbf{Observations:}
+In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lllc}
+        \toprule
+        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
+        \midrule
+        gipslda & QDAmod & gipsQDA & $0.0092$ \\
+        gipslda & LDAmod & gipsMultQDA & $0$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 3. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
+    \label{tab:stat_sim_3}
+\end{table}
+
+\textbf{Statistical Analysis:}
+The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
+
+
+\subsection{Simulation Set 4: Low Dimension and Binary Classification}
+\label{sec:sim_set_4}
+
+\textbf{Configuration:} $p=5$, $k=2$, Distribution: Chi-squared, MAP: \texttt{False}, Main Permutation: Dense.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE}
+    \caption{Learning curves for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_4}
+\end{figure}
+
+\textbf{Observations:}
+In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lllc}
+        \toprule
+        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
+        \midrule
+        qda & LDAmod & gipsLDA weighted average & $0.0028$ \\
+        qda & gipsLDA classic & gipsLDA weighted average & $0.0306$ \\
+        gipsqda & LDAmod & gipsLDA weighted average & $0.0244$ \\
+        gipsqda & gipsLDA classic & gipsLDA weighted average & $0.046$ \\
+        gipsqda & QDAmod & gipsQDA & $0.0374$ \\
+        gipsqda & QDAmod & gipsMultQDA & $0.004$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 4. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
+    \label{tab:stat_sim_4}
+\end{table}
+
+\textbf{Statistical Analysis:}
+The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
+
+
+\subsection{Simulation Set 5: Low Dimension and 5 Classes}
+\label{sec:sim_set_5}
+
+\textbf{Configuration:} $p=5$, $k=5$, Distribution: Exponential, MAP: \texttt{False}, Main Permutation: Sparse.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE}
+    \caption{Learning curves for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_5}
+\end{figure}
+
+\textbf{Observations:}
+In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lllc}
+        \toprule
+        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
+        \midrule
+        gipsmultqda & LDAmod & gipsLDA classic & $0.0338$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 5. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
+    \label{tab:stat_sim_5}
 \end{table}
 
 \textbf{Statistical Analysis:}
@@ -1072,13 +1225,10 @@ Each subsection presents the learning curve for a specific dataset, followed by 
 
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.8\textwidth]{path/to/heart_plot.png}
+    \includegraphics[width=0.9\textwidth]{img/heart_plot}
     \caption{Classification accuracy on the Heart Failure dataset. The plot compares the performance of all six models as a function of training sample size.}
     \label{fig:real_heart}
 \end{figure}
-
-\textbf{Analysis:}
-The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
 
 \begin{table}[H]
     \centering
@@ -1086,15 +1236,160 @@ The \texttt{gipsLDA classic} model demonstrates remarkable stability for very sm
         \toprule
         \textbf{Comparison} & \textbf{p-value} \\
         \midrule
-        gipsLDA (classic) vs LDAmod & $0.021$ \\
-        gipsQDA vs QDAmod & $0.005$ \\
+        LDAmod vs gipsLDA classic & $4*10^{-4}$ \\
+        LDAmod vs gipsLDA weighted average & $0.0402$ \\
+        QDAmod vs gipsQDA & $0.0386$ \\
+        QDAmod vs gipsMultQDA & $0.0018$ \\
         \bottomrule
     \end{tabular}
     \caption{Statistical comparison for Heart Failure dataset.}
 \end{table}
 
-\section{Summary of Findings}
+\textbf{Analysis:}
+The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
 
+
+\subsection{Breast Cancer Prediction}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/breast_plot}
+    \caption{Classification accuracy on the Breast Cancer dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \label{fig:breast}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Comparison} & \textbf{p-value} \\
+        \midrule
+        LDAmod vs gipsLDA classic & $0.0208$ \\
+        LDAmod vs gipsLDA weighted average & $0.8234$ \\
+        QDAmod vs gipsQDA & $0.0054$ \\
+        QDAmod vs gipsMultQDA & $6*10^{-4}$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Statistical comparison for Breast Cancer dataset.}
+\end{table}
+
+\textbf{Analysis:}
+The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+
+\subsection{Sensorless Drive Diagnosis Prediction}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/sensorless_plot}
+    \caption{Classification accuracy on the Sensorless Drive Diagnosis dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \label{fig:sensorless}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Comparison} & \textbf{p-value} \\
+        \midrule
+        LDAmod vs gipsLDA classic & $0.9218$ \\
+        LDAmod vs gipsLDA weighted average & $0.952$ \\
+        QDAmod vs gipsQDA & $0.9874$ \\
+        QDAmod vs gipsMultQDA & $0.9904$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Statistical comparison for Sensorless Drive Diagnosis dataset.}
+\end{table}
+
+\textbf{Analysis:}
+The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+
+\subsection{Credit Card Fraud Prediction}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/creditcard_plot}
+    \caption{Classification accuracy on the Credit Card Fraud dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \label{fig:creditcard}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Comparison} & \textbf{p-value} \\
+        \midrule
+        LDAmod vs gipsLDA classic & $0.0062$ \\
+        LDAmod vs gipsLDA weighted average & $1$ \\
+        QDAmod vs gipsQDA & $1$ \\
+        QDAmod vs gipsMultQDA & $1$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Statistical comparison for Credit Card Fraud dataset.}
+\end{table}
+
+\textbf{Analysis:}
+The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+
+
+\subsection{EEG Brainwave Prediction}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/emotions_plot}
+    \caption{Classification accuracy on the EEG Brainwave dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \label{fig:emotions}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Comparison} & \textbf{p-value} \\
+        \midrule
+        LDAmod vs gipsLDA classic & $0.038$ \\
+        LDAmod vs gipsLDA weighted average & $1$ \\
+        QDAmod vs gipsQDA & $0.3908$ \\
+        QDAmod vs gipsMultQDA & $0.9274$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Statistical comparison for EEG Brainwave dataset.}
+\end{table}
+
+\textbf{Analysis:}
+The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+
+
+\subsection{Steel Plates Faults Prediction}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/steel_plot}
+    \caption{Classification accuracy on the Steel Plates Faults dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \label{fig:steel}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Comparison} & \textbf{p-value} \\
+        \midrule
+        LDAmod vs gipsLDA classic & $0.2888$ \\
+        LDAmod vs gipsLDA weighted average & $1$ \\
+        QDAmod vs gipsQDA & $1$ \\
+        QDAmod vs gipsMultQDA & $1$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Statistical comparison for Steel Plates Faults dataset.}
+\end{table}
+
+\textbf{Analysis:}
+The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+
+
+
+\section{Summary of Findings}
+\textcolor{red}{Do napisania od nowa}
 Based on both synthetic and real-world experiments, we can draw the following conclusions:
 \begin{itemize}
     \item \textbf{Regularization Efficacy:} In scenarios where $n \approx p$ or $n < p$, \texttt{gipsQDA} and \texttt{gipsMultQDA} consistently outperform the unstructured \texttt{QDAmod}, proving that permutation symmetry is a powerful regularizer.
