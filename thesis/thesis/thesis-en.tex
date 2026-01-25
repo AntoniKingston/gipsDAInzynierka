@@ -503,7 +503,7 @@ This method uses the classic pooled covariance estimator, which is the standard 
 \begin{equation}
     S = \frac{1}{n-m}\sum_{g=1}^m (n_g-1)S_{g}.
 \end{equation}
-By substituting the formula for $S_g$ from Equation (3), this simplifies to the well-known pooled sample covariance matrix formula:
+By substituting the formula for $S_g$ from Equation (3.10), this simplifies to the well-known pooled sample covariance matrix formula:
 \begin{equation}
 S = \frac{1}{n-m}\sum_{g=1}^m \sum^{n_g}_{i=1} (x_{g,i} -\overline{x}_g)(x_{g,i} -\overline{x}_g)^T.
 \end{equation}
@@ -523,6 +523,10 @@ It is supposed to serve the situation when each class has a unique covariance ma
 matrices share the same underlying permutation symmetry. This is useful for scenarios where classes  differ
 in scale or variance but are expected to share a common dependency structure.
 
+\begin{equation}
+    (\hat{\Sigma}_g, \hat{c}) = \texttt{gips}(\text{Data}_g) \quad \text{for each class } g=1, \dots, m
+\end{equation}
+
 \subsection{Regularization}
 It should be also noted that all covariance estimates are regularized after being projected. The exact procedure is discussed in \autoref{sec:baseline_regularization}.
 
@@ -534,7 +538,10 @@ It should be also noted that all covariance estimates are regularized after bein
 % ======================================================================
 %                          Implementation
 % ======================================================================
-
+The framework of \texttt{gipsDA} was implemented in R. All the necessary code was wrapped as a R package and published at \href{}{CRAN}. One can install it with:
+\begin{RCode}{R Console}
+    install.packages("gipsDA")
+\end{RCode}
 \chapter{Implementation (Package Description)}
 
 \section{Package structure and dependencies}
