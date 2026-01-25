@@ -502,6 +502,15 @@ By imposing such a symmetry constraint, we effectively introduce a form of model
 This reduces the number of free parameters that need to be estimated, which can be particularly advantageous when dealing with high-dimensional data or limited sample sizes, potentially leading to more stable and robust classifiers.
 
 \section{gipsmult}
+%\section{The \texttt{gipsmult} Methodology}
+\label{sec:gipsmult_theory}
+
+The core theoretical contribution of this work involves extending the capabilities of the \texttt{gips} framework to handle more complex data structures. While the original algorithm is designed to identify the optimal permutation symmetry for a \textit{single} covariance matrix, many statistical scenarios involve multiple distinct groups of data that may exhibit related structural properties.
+
+The \texttt{gipsmult} methodology addresses the problem of estimating a shared permutation symmetry $\Gamma$ across $m$ independent groups. In this setting, we allow each group $g$ to have its own distinct covariance matrix $\boldsymbol{\Sigma}_g$—permitting differences in eigenvalues and variance scales—under the strict constraint that all such matrices remain invariant under the \textit{same} permutation group.
+
+This section establishes the mathematical rigor behind this generalization. We begin by introducing the fundamental definitions of permutation-invariant spaces. Subsequently, we present the Bayesian framework used for estimation, contrasting the probabilistic model of the single-group case with our proposed multi-group derivation, and finally arriving at the formula for the joint posterior probability.
+
 \subsection{Definitions}
 \subsubsection{Symmetric group}
 Let us set $p \in \mathbb{N}$. Let $\mathfrak{S}_p$ denote the symmetric group i.e. the set of all permutastions on $V = \{1,2, \dots, p\}$
@@ -546,6 +555,9 @@ We attach full derivation of \eqref{gipsmultposteriorformula} in the appendix A.
 
 
 \section{Description of machine learning models}
+Building upon the theoretical framework of permutation-invariant covariance estimation established in the previous section, we now turn to the practical application of these concepts in supervised learning. The primary objective of this section is to define a new family of classifiers that integrate the \texttt{gips} methodology into the classical frameworks of Linear and Quadratic Discriminant Analysis.
+
+The core innovation lies in replacing the standard empirical covariance estimators with structured estimators that enforce permutation symmetry. This approach serves as a form of model-based regularization, designed to improve stability and predictive performance in high-dimensional settings. However, the implementation of these constraints requires a fundamental choice regarding the statistical estimation strategy: whether to rely on a single, optimal symmetry structure or to incorporate uncertainty through a Bayesian approach. Therefore, before detailing the specific classification architectures, we first define the two primary estimation strategies employed throughout this work.
 \subsection{MAP vs average weighted by AP distribution}
 Each of models described down below:
 \begin{enumerate}
