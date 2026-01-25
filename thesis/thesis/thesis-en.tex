@@ -1245,7 +1245,7 @@ The comparative analysis involves six distinct models. In the generated plots an
 
 \subsection{Experimental Scope and Hyperparameters}
 
-We conducted an extensive simulation study comprising over 100 independent large-scale experiments. These experiments explored a vast grid of hyperparameters, including varying dimensions ($p$), numbers of classes ($k$), eigenvalue distributions (Exponential, Log-Normal, Chi-squared), and optimization strategies (MAP vs. BMA). From this extensive collection, we selected \textbf{six representative configurations} (parameter sets) for detailed discussion in this chapter. These selections best illustrate the specific strengths and limitations of the proposed methods.
+We conducted an extensive simulation study comprising over 100 independent large-scale experiments. These experiments explored a vast grid of hyperparameters, including varying dimensions ($p$), numbers of classes ($k$), eigenvalue distributions (Exponential, Log-Normal, Chi-squared), and optimization strategies (MAP vs. BMA). From this extensive collection, we selected \textbf{representative configurations} (parameter sets) for detailed discussion in this chapter. These selections best illustrate the specific strengths and limitations of the proposed methods.
 
 The optimization strategy for the \texttt{gips}-based models was strictly dependent on the problem dimensionality $p$:
 \begin{itemize}
@@ -1311,9 +1311,6 @@ For each configuration, a composite figure displays five subplots corresponding 
     \label{fig:sim_set_1}
 \end{figure}
 
-\textbf{Observations:}
-In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
-
 \begin{table}[H]
     \centering
     \begin{tabular}{lllc}
@@ -1334,8 +1331,11 @@ In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszem
     \label{tab:stat_sim_1}
 \end{table}
 
-\textbf{Statistical Analysis:}
-The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
+\textbf{Observations:}
+In this high-dimensional multi-class setting ($p=10, k=10$) characterized by a "Dense Transposition" symmetry structure, the \texttt{gips}-based models demonstrate a decisive advantage.
+The statistical analysis reveals that \texttt{gipsMultQDA} significantly outperforms the \texttt{QDAmod} baseline across all heteroscedastic scenarios, achieving p-values near zero in both the \texttt{gipsqda} and \texttt{gipsmultqda} scenarios.
+Furthermore, within the homoscedastic \texttt{gipslda} scenario, the \texttt{gipsLDA classic} estimator provides a statistically significant improvement over \texttt{LDAmod} ($pvalue < 0.001$).
+These results confirm that even with the Bayesian Model Averaging strategy (\texttt{MAP = FALSE}), enforcing the shared permutation constraint successfully regularizes the covariance estimation in data-scarce regimes.
 
 
 \subsection{Simulation Set 2: High Dimension and Binary Classification}
@@ -1349,9 +1349,6 @@ The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic sce
     \caption{Learning curves for Simulation Set 2. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
     \label{fig:sim_set_2}
 \end{figure}
-
-\textbf{Observations:}
-In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
 
 \begin{table}[H]
     \centering
@@ -1381,8 +1378,11 @@ In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszem
     \label{tab:stat_sim_2}
 \end{table}
 
-\textbf{Statistical Analysis:}
-The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
+\textbf{Observations:}
+In this binary classification setting ($p=10, k=2$) with Chi-squared distributed data, the benefits of permutation-based regularization are profound.
+The statistical analysis reveals overwhelming evidence ($p \approx 0$) favoring the \texttt{gips}-based models over the regularized baselines across almost all scenarios.
+Notably, \texttt{gipsMultQDA} consistently outperforms \texttt{QDAmod} in heteroscedastic environments (Scenarios \texttt{gipsqda} and \texttt{gipsmultqda}), confirming that the shared "Dense Transposition" constraint effectively stabilizes estimation without sacrificing necessary flexibility.
+Similarly, in homoscedastic scenarios, \texttt{gipsLDA classic} proves significantly superior to \texttt{LDAmod}, demonstrating that even with a small number of classes, the reduction in free parameters yields a substantial gain in predictive accuracy.
 
 
 \subsection{Simulation Set 3: Low Dimension and 10 Classes}
@@ -1396,9 +1396,6 @@ The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic sce
     \caption{Learning curves for Simulation Set 3. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
     \label{fig:sim_set_3}
 \end{figure}
-
-\textbf{Observations:}
-In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
 
 \begin{table}[H]
     \centering
@@ -1414,9 +1411,12 @@ In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszem
     \label{tab:stat_sim_3}
 \end{table}
 
-\textbf{Statistical Analysis:}
-The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
-
+\textbf{Observations:}
+In this low-dimensional, multi-class setting ($p=5, k=10$) with Log-Normal distributed data, the distinction between models is more nuanced than in higher-dimensional scenarios.
+Due to the low feature count, the "curse of dimensionality" is less pronounced, allowing standard baselines to remain competitive; consequently, many direct comparisons between \texttt{gips}-based models and their baselines did not yield statistically significant differences ($p > 0.05$).
+However, the results in the \texttt{gipslda} scenario highlight the robustness of the \texttt{gipsMultQDA} approach.
+Even when the ground truth implies homoscedasticity, the \texttt{gipsMultQDA} model—which enforces the "Full Cycle" symmetry while allowing for potential scale variations—significantly outperforms the regularized \texttt{LDAmod} ($pvalue \approx 0$).
+This suggests that the shared permutation constraint captures the complex dependency structure of the Log-Normal data more effectively than the standard linear assumption.
 
 \subsection{Simulation Set 4: Low Dimension and Binary Classification}
 \label{sec:sim_set_4}
@@ -1430,8 +1430,6 @@ The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic sce
     \label{fig:sim_set_4}
 \end{figure}
 
-\textbf{Observations:}
-In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
 
 \begin{table}[H]
     \centering
@@ -1451,9 +1449,8 @@ In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszem
     \label{tab:stat_sim_4}
 \end{table}
 
-\textbf{Statistical Analysis:}
-The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
-
+\textbf{Observations:}
+In this low-dimensional binary setting ($p=5, k=2$), the classification task proves to be relatively straightforward, with all models rapidly converging to near-perfect accuracy (saturation effect). Despite this ceiling effect, the \texttt{gips}-based regularization still yields statistically significant improvements. In the heteroscedastic \texttt{gipsqda} scenario, both \texttt{gipsQDA} and \texttt{gipsMultQDA} significantly outperform the standard \texttt{QDAmod} ($pvalue < 0.05$). A notable deviation from previous trends is observed here: the \texttt{gipsLDA weighted average} estimator demonstrates a statistically significant advantage over both \texttt{LDAmod} and the \texttt{gipsLDA classic} estimator. This suggests that in specific low-dimensional, non-Gaussian (Chi-squared) regimes, averaging over the permutation posterior captures the data structure more effectively than a single point estimate.
 
 \subsection{Simulation Set 5: Low Dimension and 5 Classes}
 \label{sec:sim_set_5}
@@ -1467,8 +1464,6 @@ The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic sce
     \label{fig:sim_set_5}
 \end{figure}
 
-\textbf{Observations:}
-In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszemy szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].}
 
 \begin{table}[H]
     \centering
@@ -1483,9 +1478,8 @@ In this high-dimensional setting, we observe that... \textcolor{red}{[Tu wpiszem
     \label{tab:stat_sim_5}
 \end{table}
 
-\textbf{Statistical Analysis:}
-The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
-
+\textbf{Observations:}
+This configuration ($p=5, k=5$) with Exponentially distributed data and a "Sparse Transposition" symmetry presents a scenario where the performance gap between the proposed models and the baselines narrows significantly. The statistical analysis indicates that for the majority of comparisons, including the primary \texttt{gipsQDA} vs. \texttt{QDAmod} case, the difference in accuracy is not statistically significant ($pvalue > 0.05$). This suggests that with the "Sparse Transposition" structure—which imposes relatively weak constraints—and non-Gaussian noise, the regularization benefit of the \texttt{gips} models is less pronounced than in denser symmetry settings. Additionally, the plots reaffirm the trend that for homoscedastic scenarios (\texttt{lda} and \texttt{gipslda}), the \texttt{gipsLDA classic} estimator is far superior to the \texttt{weighted average} variant, which performs poorly in this specific setup.
 
 \section{Real-World Data Results}
 
@@ -1523,7 +1517,7 @@ Each subsection presents the learning curve for a specific dataset, followed by 
 \end{table}
 
 \textbf{Analysis:}
-The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+Despite the application of One-Hot Encoding, which introduces binary features and explicitly violates the multivariate normality assumption, the \texttt{gips}-based models demonstrate remarkable robustness and data efficiency. The statistical analysis reveals that \texttt{gipsLDA classic} significantly outperforms the regularized \texttt{LDAmod} baseline ($pvalue < 0.001$), confirming that the discovered symmetry structure aids in stabilization even for non-Gaussian data. Furthermore, within the quadratic family, \texttt{gipsMultQDA} proves to be the superior estimator ($pvalue = 0.0018$ vs. \texttt{QDAmod}), suggesting that constraining the two classes to share a common permutation symmetry provides a more effective regularization than allowing for fully independent covariance structures or using the standard \texttt{gipsQDA} approach ($pvalue = 0.0386$).
 
 
 \subsection{Breast Cancer Prediction}
@@ -1551,7 +1545,8 @@ The \texttt{gipsLDA classic} model demonstrates remarkable stability for very sm
 \end{table}
 
 \textbf{Analysis:}
-The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+This dataset highlights the exceptional data efficiency of the \texttt{gipsLDA classic} model, which achieves robust performance even with minimal training samples. The statistical comparison confirms that imposing symmetry yields a significant advantage over the regularized baseline, with \texttt{gipsLDA classic} outperforming \texttt{LDAmod} ($pvalue = 0.0208$). Among the quadratic models, the benefit of the \texttt{gips} methodology is even more pronounced; \texttt{gipsMultQDA} achieves a highly significant improvement over \texttt{QDAmod} ($pvalue < 0.001$). This aligns with the domain intuition that geometric features of cell nuclei (e.g., radius, texture) share strong, structured correlations that are effectively captured by permutation symmetry. Conversely, the \texttt{gipsLDA weighted average} variant fails to improve upon the baseline ($pvalue = 0.8234$), visibly plateauing at a lower accuracy as the sample size increases.
+
 
 \subsection{Sensorless Drive Diagnosis Prediction}
 
@@ -1578,7 +1573,8 @@ The \texttt{gipsLDA classic} model demonstrates remarkable stability for very sm
 \end{table}
 
 \textbf{Analysis:}
-The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+The results for this dataset reveal a striking dichotomy between linear and quadratic classifiers. The data appears to possess an inherently linear decision boundary, as evidenced by the \texttt{LDA} family achieving accuracies above $0.80$, while all \texttt{QDA} variants fail to surpass $0.30$, likely due to the parameter explosion associated with estimating 11 distinct $48 \times 48$ covariance matrices. In this specific context, the \texttt{gips}-based regularization does not provide a statistically significant advantage over the baselines (all p-values $> 0.9$). The high p-values indicate that the standard regularized \texttt{LDAmod} is sufficient and potentially optimal; imposing additional permutation symmetries does not refine the decision boundary further, though notably, the \texttt{gipsLDA} models maintain competitive performance without degrading the results.
+
 
 \subsection{Credit Card Fraud Prediction}
 
@@ -1605,8 +1601,7 @@ The \texttt{gipsLDA classic} model demonstrates remarkable stability for very sm
 \end{table}
 
 \textbf{Analysis:}
-The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
-
+In this fraud detection scenario, characterized by a balanced undersampled dataset, the \texttt{gipsLDA classic} estimator demonstrates a distinct advantage. The statistical analysis confirms a significant improvement over the \texttt{LDAmod} baseline ($pvalue = 0.0062$), suggesting that the pooled covariance matrix benefits effectively from the imposed permutation constraint. Conversely, within the quadratic family, the \texttt{gips}-based regularization does not yield a statistically significant gain over standard \texttt{QDAmod} ($pvalue=1$), as all quadratic variants converge to a similarly high accuracy plateau. Notably, the plot highlights the suboptimal performance of the \texttt{gipsLDA weighted average} estimator, which fails to converge to the level of the other classifiers, reinforcing the observation that the Bayesian Model Averaging approach can be detrimental in specific homoscedastic settings.
 
 \subsection{EEG Brainwave Prediction}
 
@@ -1633,7 +1628,7 @@ The \texttt{gipsLDA classic} model demonstrates remarkable stability for very sm
 \end{table}
 
 \textbf{Analysis:}
-The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+The results for the EEG Brainwave dataset reveal a distinct separation between linear and quadratic classifiers, with the linear family consistently achieving higher accuracy. This suggests that the covariance structures of the different emotional states are largely similar (homoscedastic). Within this favorable linear regime, the \texttt{gips} methodology provides a tangible benefit: \texttt{gipsLDA classic} achieves a statistically significant improvement over the \texttt{LDAmod} baseline ($pvalue = 0.038$). Conversely, the quadratic models start with lower accuracy and converge more slowly, likely due to the increased parameter overhead relative to the sample size. Consequently, no significant advantage was found for the \texttt{gips}-based quadratic variants over standard \texttt{QDAmod} in this specific context ($pvalue > 0.05$).
 
 
 \subsection{Steel Plates Faults Prediction}
@@ -1661,17 +1656,28 @@ The \texttt{gipsLDA classic} model demonstrates remarkable stability for very sm
 \end{table}
 
 \textbf{Analysis:}
-The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
-
+In this multi-class industrial classification task, the data exhibits a structure that strongly favors linear decision boundaries. The linear models (\texttt{LDAmod} and \texttt{gipsLDA classic}) consistently outperform their quadratic counterparts, achieving an asymptotic accuracy of approximately 70\%. The statistical analysis yields a p-value of $0.2888$ for the comparison between \texttt{gipsLDA classic} and \texttt{LDAmod}, indicating that while the permutation constraint maintains competitive performance, it does not offer a statistically significant improvement over the standard regularized baseline in this specific context. Conversely, the quadratic models and the \texttt{gipsLDA weighted average} estimator struggle significantly in the low-sample regime, likely due to the increased estimation variance inherent in the multi-class setting (7 classes), which exacerbates the curse of dimensionality.
 
 
 \section{Summary of Findings}
-\textcolor{red}{Do napisania od nowa}
-Based on both synthetic and real-world experiments, we can draw the following conclusions:
+
+Based on the detailed analysis of both the synthetic simulation sets and the diverse real-world benchmarks, we can synthesize the following key findings regarding the proposed \texttt{gipsDA} framework:
+
 \begin{itemize}
-    \item \textbf{Regularization Efficacy:} In scenarios where $n \approx p$ or $n < p$, \texttt{gipsQDA} and \texttt{gipsMultQDA} consistently outperform the unstructured \texttt{QDAmod}, proving that permutation symmetry is a powerful regularizer.
-    \item \textbf{Model Stability:} The \texttt{gipsLDA classic} estimator shows superior stability compared to the weighted average variant, which tends to underperform in...
-    \item \textbf{Real-World Applicability:} Even with non-Gaussian features (e.g., Heart Failure), the structural constraints imposed by \texttt{gips} do not hinder predictive performance and often improve data efficiency.
+    \item \textbf{Efficacy in High-Dimensional, Data-Scarce Regimes:}
+    The synthetic experiments conclusively demonstrate that imposing permutation symmetry acts as a powerful form of model-based regularization. In scenarios characterized by high dimensionality ($p=10$) and low sample sizes ($n \approx p$ or $n < p$), the \texttt{gips}-based models significantly outperformed the standard regularized baselines. Specifically, \texttt{gipsMultQDA} and \texttt{gipsQDA} consistently achieved p-values near zero when compared to \texttt{QDAmod}, proving that reducing the parameter space via symmetry constraints effectively mitigates the "curse of dimensionality" and prevents overfitting.
+
+    \item \textbf{Superiority of the Classic Estimator for gipsLDA:}
+    A recurrent pattern across both synthetic and real-world results (e.g., Credit Card, Steel Plates) is the robust performance of the \texttt{gipsLDA classic} estimator. This approach, which pools the covariance matrices before projecting onto the symmetry group, consistently outperformed the \texttt{gipsLDA weighted average} variant. The latter, which utilizes Bayesian Model Averaging, often failed to converge to optimal accuracy in higher-dimensional or multi-class settings. Consequently, the \texttt{classic} estimator is recommended as the default choice for homoscedastic modeling.
+
+    \item \textbf{Data Efficiency in Real-World Applications:}
+    The benchmarking on real-world datasets highlighted the "data efficiency" of the proposed models. In the Breast Cancer and Heart Failure datasets, \texttt{gipsLDA classic} and \texttt{gipsMultQDA} reached their asymptotic accuracy levels with significantly fewer training samples than their unstructured counterparts. This confirms that discovering and enforcing latent symmetries allows the models to learn the decision boundary faster, a critical advantage in domains where data acquisition is costly.
+
+    \item \textbf{Robustness to Assumption Violations:}
+    The experiments confirmed that the \texttt{gipsDA} framework remains effective even when theoretical assumptions are violated. For instance, in the Heart Failure dataset, where One-Hot Encoding introduced binary features (violating multivariate normality), the \texttt{gips}-based models still provided statistically significant improvements over the baselines. This suggests that the structural constraints imposed by \texttt{gips} are robust enough to capture useful signal even in non-Gaussian distributions.
+
+    \item \textbf{Linear vs. Quadratic Reality Check:}
+    Finally, the real-world benchmarks (specifically Steel Plates, Sensorless, and EEG) underscored a practical reality: many industrial datasets exhibit inherently linear separability. In these cases, while quadratic models (both standard and \texttt{gips}-based) struggled due to parameter complexity, the linear \texttt{gipsLDA} models maintained high performance, proving to be a safe and stable choice that does not degrade results even when the symmetry assumption is an approximation.
 \end{itemize}
 
 % ======================================================================
