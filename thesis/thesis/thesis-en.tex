@@ -1697,11 +1697,54 @@ Based on the detailed analysis of both the synthetic simulation sets and the div
 % ======================================================================
 
 \chapter{Conclusion and Discussion}
+\label{ch:conclusion}
 
-\section{Reflection on the approach}
+This thesis set out to address the limitations of classical discriminant analysis in high-dimensional, data-scarce environments. By developing the \texttt{gipsDA} package, we successfully integrated the theory of permutation-invariant covariance estimation with standard classification workflows. This final chapter summarizes the broader implications of our approach, reflects on the engineering challenges encountered, and outlines potential avenues for future research.
+
+\section{Reflection on the Approach}
+\label{sec:reflection}
+
+The core hypothesis of this work was that imposing permutation symmetry on the covariance matrix acts as a physically motivated form of regularization, superior to arbitrary shrinkage in settings where $p \gg n$. The empirical results presented in Chapter \ref{ch:results} largely validate this hypothesis.
+
+\begin{itemize}
+    \item \textbf{Symmetry as a Prior:} The success of \texttt{gipsQDA} and \texttt{gipsMultQDA} in synthetic scenarios confirms that discovering latent symmetries allows the model to drastically reduce the number of free parameters without discarding the covariance structure entirely. This suggests that "data-driven parsimony" is a viable alternative to sparsity or diagonal constraints.
+    \item \textbf{The "Classic" vs. "Weighted" Dilemma:} One of the most significant findings was the underperformance of the Bayesian Model Averaging (weighted average) strategy in the homoscedastic \texttt{gipsLDA} model. While theoretically robust, in practice, the ensemble of permutations often introduced unnecessary noise compared to the single, optimal structure found by the MAP estimator. This highlights a crucial insight: in discriminant analysis, a crisp, well-defined decision boundary (derived from a single permutation) is often preferable to a "smeared" boundary derived from a posterior average.
+    \item \textbf{Practical Utility:} The seamless integration with the \texttt{MASS} library syntax proved to be a vital design decision. By lowering the barrier to entry, we ensured that the complex mathematical backend remains accessible to data scientists, bridging the gap between advanced statistical theory and practical application.
+\end{itemize}
+
+\section{Engineering Experience and Skills Acquired}
+\label{sec:project_experience}
+
+The development of \texttt{gipsDA} was not merely a statistical exercise but a rigorous software engineering project. This process provided the team with deep insights into the lifecycle of R package development and collaborative workflows.
+
+\subsection{Technical Competence}
+\begin{itemize}
+    \item \textbf{Advanced R Development:} We gained profound expertise in the R ecosystem, particularly the S3 object-oriented system and namespace management. Extending the functionality of the established \texttt{MASS} library required a precise understanding of method dispatch and environment scoping to ensure compatibility without shadowing existing functions.
+    \item \textbf{CRAN Compliance and Publishing Standards:} We mastered the rigorous process of preparing an R package for the Comprehensive R Archive Network (CRAN). This involved ensuring cross-platform compatibility, strictly resolving all \texttt{R CMD check} notes and warnings, and sanitizing the code to meet the community's high-quality standards for public distribution.
+    \item \textbf{Mathematical Optimization:} Implementing the \texttt{gipsmult} backend bridged the gap between theory and code. We gained practical experience with Bayesian statistics, specifically implementing Metropolis-Hastings algorithms for discrete spaces and handling permutation group theory computationally.
+    \item \textbf{Custom Serialization:} A major technical hurdle was data persistence. We learned that standard serialization (e.g., \texttt{saveRDS}) is insufficient for interoperability. Developing a custom JSON engine required mapping complex R objects—such as formulas and attributes—to text-based formats and implementing robust reconstruction logic.
+\end{itemize}
+
+\subsection{Software Engineering Practices}
+\begin{itemize}
+    \item \textbf{Robust Testing Strategies:} Initially, our focus was on "happy path" testing. However, the usability analysis revealed the critical importance of "Negative Testing." Implementing robust error handling for invalid inputs (e.g., singular matrices, mismatched dimensions) significantly improved the package's stability and user experience.
+    \item \textbf{Version Control Proficiency:} Managing a complex codebase with parallel development streams required strict adherence to version control best practices. We refined our skills in using Git and GitHub, mastering branching strategies, code reviews, and conflict resolution to maintain a clean project history.
+    \item \textbf{Documentation as a First-Class Citizen:} Writing documentation concurrently with code development ensured that the final API was consistent and intuitive. This discipline prevented "feature creep" by keeping the development aligned with the functional requirements defined at the project's inception.
+    \item \textbf{Collaborative Synergy:} The project highlighted that successful engineering extends beyond writing code. We learned to effectively divide responsibilities—balancing the backend mathematical logic with the user-facing API—and synchronized our efforts through constant communication.
+\end{itemize}
 
 \section{Future Work}
-\textcolor{red}{Tutaj wiem co napisac, troche jak w prezentacji}
+\label{sec:future_work}
+
+While \texttt{gipsDA} provides a robust foundation for symmetry-based classification, several avenues remain open for further development and research.
+
+\begin{itemize}
+    \item \textbf{Extension to Unsupervised Learning:} The principles of \texttt{gips} are currently applied to supervised classification. A natural extension would be to adapt permutation symmetry constraints to unsupervised models, such as Gaussian Mixture Models (GMM) or Model-Based Clustering. Constraining clusters to share internal symmetries could stabilize clustering in high-dimensional spaces.
+
+    \item \textbf{Complex Symmetry Groups:} Currently, the library primarily optimizes for cyclic permutation subgroups. Expanding the backend to support more complex symmetry structures—such as block symmetries or direct products of groups—would allow the model to capture more intricate dependency patterns, such as those found in hierarchical biological data.
+
+    \item \textbf{Computational Scalability via C++ Integration:} While the current implementation is efficient for moderate dimensions, searching the permutation space in extremely high-dimensional settings (e.g., genomic data where $p > 1000$) remains computationally intensive. A critical next step is to rewrite the bottleneck matrix operations using the \texttt{Rcpp} library to interface directly with C++, which would significantly reduce overhead and improve scalability.
+\end{itemize}
 
 % ======================================================================
 %                          Rest
