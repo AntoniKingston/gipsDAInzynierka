@@ -236,14 +236,20 @@ generate_single_plot_info_real_data <- function(scenario_data,
                                                 model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
                                                 granularity = 25,
                                                 lb = 50,
+                                                up = 100,
                                                 n_experiments = 5,
                                                 MAP = TRUE,
                                                 opt = "BF",
                                                 max_iter = 100,
                                                 tr_ts_split = 0.7,
-                                                n_cores = parallel::detectCores() - 1) {
+                                                n_cores = parallel::detectCores() - 1,
+                                                test_pairs = list(c("lda", "gipsldacl"),
+                                                                  c("lda", "gipsldawa"),
+                                                                  c("gipsldacl", "gipsldawa"),
+                                                                  c("qda", "gipsqda"),
+                                                                  c("qda", "gipsmultqda"))) {
 
-  ns_obs <- round(exp(seq(log(lb), log(nrow(scenario_data)), length.out = granularity)))
+  ns_obs <- round(exp(seq(log(lb), log(up), length.out = granularity)))
 
   # Generate splits sequentially (fast operation)
   splits_by_n <- lapply(ns_obs, function(n) {
@@ -256,11 +262,15 @@ generate_single_plot_info_real_data <- function(scenario_data,
   for (model in model_names) {
     for (i in seq_along(ns_obs)) {
       current_n <- ns_obs[i]
-      for (split in splits_by_n[[i]]) {
+      current_splits <- splits_by_n[[i]]
+
+      for (j in seq_along(current_splits)) {
         task_queue[[length(task_queue) + 1]] <- list(
           model = model,
           n_obs = current_n,
-          split = split
+          split = current_splits[[j]],
+          n_idx = i,
+          exp_idx = j
         )
       }
     }
@@ -279,7 +289,7 @@ generate_single_plot_info_real_data <- function(scenario_data,
       opt = opt,
       max_iter = max_iter
     )
-    list(model = task$model, n_obs = task$n_obs, acc = acc)
+    list(model = task$model, n_idx = task$n_idx, exp_idx = task$exp_idx, acc = acc)
   }, mc.cores = n_cores, mc.preschedule = FALSE)
 
   # Aggregate results back to the original structure
@@ -288,20 +298,32 @@ generate_single_plot_info_real_data <- function(scenario_data,
   for (m in model_names) {
     model_results <- Filter(function(x) x$model == m, results_flat)
 
-    vals <- unlist(lapply(model_results, function(x) x$acc))
-    ns   <- unlist(lapply(model_results, function(x) x$n_obs))
+    all_accs <- matrix(NA, nrow = n_experiments, ncol = length(ns_obs))
 
-    # Calculate means and ensure correct order
-    agg_means <- tapply(vals, ns, mean)
-    sorted_means <- agg_means[as.character(ns_obs)]
+    for (res in model_results) {
+      all_accs[res$exp_idx, res$n_idx] <- res$acc
+    }
+    mean_accs <- colMeans(all_accs, na.rm = TRUE)
 
     plot_info[[m]] <- list(
-      "accs" = as.numeric(sorted_means),
-      "ns_obs" = ns_obs
+      "accs" = mean_accs,
+      "ns_obs" = ns_obs,
+      "all_accs" = all_accs
     )
   }
+  # Prepare data for permutation tests
+  wrapper_for_test <- list("real_data" = plot_info)
 
-  return(plot_info)
+  test_info <- lapply(test_pairs, function(pair) {
+    perm_test_blocked(wrapper_for_test, "real_data", pair[1], pair[2])
+  })
+
+  names(test_info) <- lapply(test_pairs,
+                             function(pair) paste(pair, collapse = " vs "))
+  return(list(
+    plot_info = plot_info,
+    test_info = test_info
+  ))
 }
 
 generate_splits_real_data <- function(n, total_rows, tr_ts_split, n_experiments) {
