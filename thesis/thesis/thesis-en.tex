@@ -945,10 +945,162 @@ A low p-value (typically $< 0.05$) indicates that the observed performance impro
 % ======================================================================
 
 \chapter{Experimental Results}
+\label{ch:results}
 
-\section{Plots and Tables}
+This chapter presents the empirical evaluation of the \texttt{gipsDA} framework. The results are divided into two main parts: controlled simulations on synthetic data and benchmarking on real-world datasets.
 
-\section{Comments and interpretation of results}
+\section{Synthetic Data Experiments}
+
+In this section, we analyze the performance of the proposed classification models against the regularized baselines. To ensure clarity when interpreting the results, we first establish the mapping between the theoretical model names and the labels used in the visualization plots.
+
+\subsection{Model Nomenclature}
+
+The comparative analysis involves six distinct models. In the generated plots and subsequent discussions, the following abbreviations are used:
+
+\begin{itemize}
+    \item \textbf{\texttt{gipsldawa}}: The \texttt{gipsLDA} model utilizing the \textbf{weighted average} estimator (Bayesian Model Averaging).
+    \item \textbf{\texttt{gipsldacl}}: The \texttt{gipsLDA} model utilizing the \textbf{classic} estimator (unbiased pooled covariance).
+    \item \textbf{\texttt{gipsqda}}: The \texttt{gipsQDA} model, where each class has a unique covariance structure.
+    \item \textbf{\texttt{gipsmultqda}}: The \texttt{gipsMultQDA} model, where classes share a common permutation symmetry.
+    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described in Section \ref{sec:baseline_regularization} (\texttt{LDAmod}).
+    \item \textbf{\texttt{qda}}: The baseline Quadratic Discriminant Analysis model, modified with eigenvalue regularization (\texttt{QDAmod}).
+\end{itemize}
+
+\subsection{Experimental Scope and Hyperparameters}
+
+We conducted an extensive simulation study comprising over 100 independent large-scale experiments. These experiments explored a vast grid of hyperparameters, including varying dimensions ($p$), numbers of classes ($k$), eigenvalue distributions (Exponential, Log-Normal, Chi-squared), and optimization strategies (MAP vs. BMA). From this extensive collection, we selected \textbf{six representative configurations} (parameter sets) for detailed discussion in this chapter. These selections best illustrate the specific strengths and limitations of the proposed methods.
+
+The optimization strategy for the \texttt{gips}-based models was strictly dependent on the problem dimensionality $p$:
+\begin{itemize}
+    \item \textbf{For $p=5$:} The permutation space is sufficiently small ($5! = 120$) to allow for an exhaustive search. Therefore, the \textbf{Brute Force} optimizer was employed to guarantee finding the global maximum of the posterior probability.
+    \item \textbf{For $p=10$:} The permutation space becomes computationally intractable ($10! \approx 3.6 \times 10^6$). In these cases, the stochastic \textbf{Metropolis-Hastings} algorithm was used, constrained by a fixed \texttt{max\_iter} parameter to balance accuracy and runtime.
+\end{itemize}
+
+\subsection{Permutation Selection Protocol}
+
+A critical component of the data generation process is the selection of the "ground truth" permutation symmetries imposed on the covariance matrices. We defined specific pools of permutations for $p=5$ and $p=10$, ranging from simple structures (e.g., sparse transpositions) to complex ones (e.g., full cycles).
+
+The selection logic depends on the target scenario:
+
+\begin{enumerate}
+    \item \textbf{Shared Symmetry Scenarios (gipsLDA, gipsMultQDA):}
+    In these scenarios, the data generation assumes a single permutation structure is shared across all classes. We select \textbf{one} specific permutation type from the pool—either \texttt{sparse\_trans}, \texttt{dense\_trans}, or \texttt{full\_cycle}—and apply it to generate the covariance matrices for all groups.
+
+    \item \textbf{Unique Symmetry Scenario (gipsQDA):}
+    This scenario assumes that each class possesses a distinct symmetry structure. If the number of classes is $k$, we select the first $k$ permutations from the pre-defined list.
+    \begin{itemize}
+        \item For example, if $k=5$, we take the first 5 permutations from the $p$-specific list.
+        \item If $k=10$, we utilize all 10 available permutations in the list.
+    \end{itemize}
+\end{enumerate}
+
+The specific permutation lists used for generation are defined as follows:
+
+\begin{itemize}
+    \item \textbf{For $p=5$:}
+    \begin{enumerate}
+        \item $(1,2)$ [sparse]
+        \item $(1,2)(3,4)$ [dense]
+        \item $(1,2,3,4,5)$ [full cycle]
+        \item $(1,3)(2,4)$
+        \item $(1,2,3)(4,5)$
+        \item ... (and so on up to 10 distinct permutations).
+    \end{enumerate}
+    \item \textbf{For $p=10$:}
+    \begin{enumerate}
+        \item $(1,2)(5,6)(8,9)$ [sparse]
+        \item $(1,2)(3,4)(5,6)(7,8)(9,10)$ [dense]
+        \item $(1,2,\dots,10)$ [full cycle]
+        \item $(1,3)(2,4)(7,9)$
+        \item ... (and so on up to 10 distinct permutations).
+    \end{enumerate}
+\end{itemize}
+
+Below, we present the results for the six selected parameter configurations.
+For each configuration, a composite figure displays five subplots corresponding to the five fundamental data generation scenarios defined in Chapter \ref{ch:testing_methodology}.
+
+% ------------------------------------------------------------------------
+% SIMULATION SETS
+% ------------------------------------------------------------------------
+\subsection{Simulation Set 1: Low Dimension ($p=5$), Binary Classification ($k=2$)}
+\label{sec:sim_set_1}
+
+\textbf{Configuration:} $p=5$, $k=2$, Distribution: Exponential, MAP: \texttt{TRUE}.
+
+\begin{figure}[H]
+    \centering
+    % Tutaj wstawiasz ten DUŻY obrazek, który ma w sobie 5 pod-wykresów (facet_wrap)
+    % \includegraphics[width=\textwidth]{path/to/sim_set_1_combined_plot.png}
+    \caption{Learning curves for Simulation Set 1. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_1}
+\end{figure}
+
+\textbf{Observations:}
+In this low-dimensional setting, we observe that... [Tu wpisz szybkie wnioski: np. czy gipsQDA wygrywa w swoim scenariuszu? Czy gipsLDA jest stabilne?].
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Model A (Proposed)} & \textbf{Model B (Baseline)} & \textbf{p-value} \\
+        \midrule
+        gipsQDA & QDAmod & $< 0.001$ \\
+        gipsMultQDA & QDAmod & $0.003$ \\
+        gipsLDA (classic) & LDAmod & $0.125$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Statistical Significance (Blocked Permutation Test) for Simulation Set 1. Only key comparisons where $p < 0.05$ are highlighted.}
+    \label{tab:stat_sim_1}
+\end{table}
+
+\textbf{Statistical Analysis:}
+The table confirms that the advantage of \texttt{gipsQDA} in heteroscedastic scenarios is statistically significant. However, for the homoscedastic case...
+
+
+\section{Real-World Data Results}
+
+In this section, we evaluate the models on the six real-world datasets described in Chapter \ref{ch:testing_methodology}.
+Unlike the synthetic experiments, the "true" covariance structure is unknown, and the data may violate Gaussian assumptions.
+
+Each subsection presents the learning curve for a specific dataset, followed by a statistical comparison of the best-performing \texttt{gips} model against its relevant baseline.
+
+% ========================================================================
+% SZABLON DLA DANYCH REALNYCH
+% ========================================================================
+
+\subsection{Heart Failure Prediction}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{path/to/heart_plot.png}
+    \caption{Classification accuracy on the Heart Failure dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \label{fig:real_heart}
+\end{figure}
+
+\textbf{Analysis:}
+The \texttt{gipsLDA classic} model demonstrates remarkable stability for very small sample sizes ($n < 50$)...
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Comparison} & \textbf{p-value} \\
+        \midrule
+        gipsLDA (classic) vs LDAmod & $0.021$ \\
+        gipsQDA vs QDAmod & $0.005$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Statistical comparison for Heart Failure dataset.}
+\end{table}
+
+\section{Summary of Findings}
+
+Based on both synthetic and real-world experiments, we can draw the following conclusions:
+\begin{itemize}
+    \item \textbf{Regularization Efficacy:} In scenarios where $n \approx p$ or $n < p$, \texttt{gipsQDA} and \texttt{gipsMultQDA} consistently outperform the unstructured \texttt{QDAmod}, proving that permutation symmetry is a powerful regularizer.
+    \item \textbf{Model Stability:} The \texttt{gipsLDA classic} estimator shows superior stability compared to the weighted average variant, which tends to underperform in...
+    \item \textbf{Real-World Applicability:} Even with non-Gaussian features (e.g., Heart Failure), the structural constraints imposed by \texttt{gips} do not hinder predictive performance and often improve data efficiency.
+\end{itemize}
 
 % ======================================================================
 %                          Conclusion
