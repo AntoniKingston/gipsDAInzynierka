@@ -488,7 +488,16 @@ where $\mu_g$ is the mean vector for class $g$, $\Sigma_g$ is its covariance mat
 
 
 \section{General description of gips}
-\textcolor{red}{Tutaj opis gipsa, na podstawie artykulu itd}
+The \texttt{gips} package provides a framework for identifying and
+exploiting hidden permutation symmetries in Gaussian random vectors.
+This approach is particularly effective for high-dimensional data $(p>n)$,
+where the empirical covariance matrix is often singular. By assuming
+the distribution is invariant under a permutation subgroup $\Gamma$,
+the methodology imposes equality constraints on the covariance matrix such that
+$K_{i,j} = K_{\sigma(i), \sigma(j)}$ for all $\sigma \in \Gamma$ This reduces the number of free parameters through a form of parameter sharing \cite{JSSv112i07}.
+
+
+
 
 % ======================================================================
 %                          Solution Proposal
@@ -673,8 +682,9 @@ The framework of \texttt{gipsDA} was implemented in R. All the necessary code wa
     ** testing if installed package keeps a record of temporary installation path
     * DONE (gipsDA)
 \end{ROutput}
-The documentation and the source code of the package are available at  \href{https://github.com/AntoniKingston/gipsDAInzynierka}{github.com/AntoniKingston/gipsDAInzynierka} and \href{https://antonikingston.github.io/gipsDA/}{https://antonikingston.github.io/gipsDA/} repectively.
+The source code and the documentation of the package are available at  \href{https://github.com/AntoniKingston/gipsDAInzynierka}{github.com/AntoniKingston/gipsDAInzynierka} and \href{https://antonikingston.github.io/gipsDA/}{https://antonikingston.github.io/gipsDA/} repectively.
 \section{Example usage}
+
 
 \section{Implementation}
 Standard R package development practices were followed.
