@@ -531,6 +531,25 @@ Let $K \in \mathbb{R}^{p\times p}$ and $\Gamma \leq \mathfrak{S}_p$. We say that
 \end{equation}
 For conciseness sake in the following sections we will say that a matrix is \textit{invariant under subgroup} or, if supgroup $\Gamma = \langle \sigma \rangle$
 is cyclic that a matrix is \textit{invariant under} $\sigma$.
+Below we attach some visual examples to explain the concept better:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/matrix_id}
+    \caption{Matrix invariant under () permutation - no constraints}
+    \label{fig:matid}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/matrix_1256}
+    \caption{Matrix invariant under (1256) permutation - loose constraints}
+    \label{fig:mat1256}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/matrix_12345678}
+    \caption{Matrix invariant under (12345678) permutation - tight constraints}
+    \label{fig:mat12345678}
+\end{figure}
 \subsubsection{Invariant space and cone}
 \begin{equation}
     \mathcal{Z}_\Gamma := \left\{S \in Sym(p;\mathbbm{R}) : S \ is \ invariant \ under \ \Gamma \right\},
@@ -561,6 +580,7 @@ Under analogous assumptions the posterior in \texttt{gipsmult} setting is propor
 \end{equation}
 So the entire logic of Bayesian selection for \texttt{gipsmult} boils down to multiplication of results from \texttt{gips}.\\
 We attach full derivation of \eqref{gipsmultposteriorformula} in the appendix A.
+
 
 
 \section{Description of machine learning models}
@@ -856,7 +876,7 @@ A utility file (\texttt{models\_utils.R}) contains the core bridge functions tha
     The function returns a square regularized matrix.
 \end{itemize}
 \section{Unit tests and documentation}
-The project utilizes the \textbf{\texttt{testthat}} framework ($\ge$ 3.3.1) along with \texttt{mockery} ($\ge$ 0.4.5) for mocking objects to ensure code reliability.
+The project utilizes the \textbf{\texttt{testthat}} framework ($\ge$ 3.3.1) along with \texttt{mockery} ($\ge$ 0.4.5) for mocking objects to ensure code reliability. The package achieves $85\%$ test coverage.
 Documentation was written in the form of \texttt{roxygen2} comments and rendered using \texttt{pkgdown}. Github actions were configured to run tests and generate documentation automatically upon any changes to the main branch
 
 
