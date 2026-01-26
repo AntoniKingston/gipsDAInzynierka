@@ -656,34 +656,51 @@ It should be also noted that all covariance estimates are regularized after bein
 % ======================================================================
 \chapter{Package Description}
 The framework of \texttt{gipsDA} was implemented in R. All the necessary code was wrapped as a R package and published at \href{https://cran.r-project.org/}{CRAN}. One can install it with:
-\begin{RCode}{R Console}
+\begin{RCode}{Installing gipsDA}
     install.packages("gipsDA")
 \end{RCode}
 
-\begin{ROutput}
-    Installing package into ‘/usr/local/lib/R/site-library’
-    (as ‘lib’ is unspecified)
-    trying URL 'https://cran.r-project.org/src/contrib/gipsDA_0.1.0.tar.gz'
-    Content type 'application/x-gzip' length 123456 bytes (120 KB)
-    ==================================================
-    downloaded 120 KB
 
-    * installing *source* package ‘gipsDA’ ...
-    ** package ‘gipsDA’ successfully unpacked and MD5 sums checked
-    ** using staged installation
-    ** R
-    ** byte-compile and prepare package for lazy loading
-    ** help
-    *** installing help indices
-    ** building package indices
-    ** installing vignettes
-    ** testing if installed package can be loaded from temporary location
-    ** testing if installed package can be loaded from final location
-    ** testing if installed package keeps a record of temporary installation path
-    * DONE (gipsDA)
-\end{ROutput}
 The source code and the documentation of the package are available at  \href{https://github.com/AntoniKingston/gipsDAInzynierka}{github.com/AntoniKingston/gipsDAInzynierka} and \href{https://antonikingston.github.io/gipsDA/}{https://antonikingston.github.io/gipsDA/} repectively.
 \section{Example usage}
+After installation one can import package in the standard R way and call it's functions. In this case gipsqda() is used to build a classifier on widely known \textit{Iris} dataset.
+\begin{RCode}{Training gipsQDA}
+library(gipsDA)
+# MAP = FALSE uses the weighted posterior estimator
+fit_qda <- gipsqda(Species ~ ., data = iris, MAP = FALSE)
+
+print(fit_qda)
+\end{RCode}
+
+\begin{ROutput}
+Call:
+gipsqda(Species ~ ., data = iris, MAP = FALSE)
+
+Prior probabilities of groups:
+    setosa versicolor  virginica
+ 0.3333333  0.3333333  0.3333333
+
+Group means:
+           Sepal.Length Sepal.Width Petal.Length Petal.Width
+setosa            5.006       3.428        1.462       0.246
+versicolor        5.936       2.770        4.260       1.326
+virginica         6.588       2.974        5.552       2.026
+
+Permutations with their estimated probabilities:
+[[1]]
+      (1,2)          ()
+0.992587770 0.007412159
+
+[[2]]
+       ()
+0.9999999
+
+[[3]]
+(1,3)(2,4)         ()      (2,4)      (1,3)
+0.69108586 0.17759118 0.10792401 0.02339895
+\end{ROutput}
+
+As there are 3 classes in the dataset optimization info is a list of length 3.
 
 
 \section{Implementation}
@@ -838,12 +855,10 @@ A utility file (\texttt{models\_utils.R}) contains the core bridge functions tha
     \end{description}
     The function returns a square regularized matrix.
 \end{itemize}
-\section{Documentation}
+\section{Unit tests and documentation}
+The project utilizes the \textbf{\texttt{testthat}} framework ($\ge$ 3.3.1) along with \texttt{mockery} ($\ge$ 0.4.5) for mocking objects to ensure code reliability.
+Documentation was written in the form of \texttt{roxygen2} comments and rendered using \texttt{pkgdown}. Github actions were configured to run tests and generate documentation automatically upon any changes to the main branch
 
-
-
-
-\textcolor{red}{Tutaj chyba tak jak na prezentacji by sie to przedstawilo}
 
 % ======================================================================
 %                          Testing
