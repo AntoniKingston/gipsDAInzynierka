@@ -25,6 +25,8 @@
 \usepackage{listings}
 \usepackage[most]{tcolorbox}
 
+\usepackage{tikz}
+
 % ---------------- MARGINS, INDENTATION, LINESPREAD ------------------
 
 \usepackage[inner=20mm, outer=20mm, bindingoffset=10mm, top=25mm, bottom=25mm]{geometry} % MARGINS
@@ -524,7 +526,7 @@ with function composition as the operation.
 Let $K \in \mathbb{R}^{p\times p}$ and $\Gamma \leq \mathfrak{S}_p$. We say that matrix $K$ is invariant under action of subgroup $\Gamma$ iif
 \begin{equation}
     \forall_{\sigma \in \Gamma} \forall_{i,j\in V} K_{i,j} = K_{\sigma(i), \sigma(j)}
-\end{equation}
+\end{equation}.
 For conciseness sake in the following sections we will say that a matrix is \textit{invariant under subgroup} or, if supgroup $\Gamma = \langle \sigma \rangle$
 is cyclic that a matrix is \textit{invariant under} $\sigma$.
 Below we attach some visual examples to explain the concept better:
@@ -566,8 +568,8 @@ $
 of cyclic subgroups of $\mathfrak{S}_p$ and Diaconis-Ylvisacker\cite{diaconis1979conjugate} one on the precision
 matrix $K$, \cite{JSSv112i07} arrives at the following proportionality of posterior:
 \begin{equation}\label{gipsposteriorformula}
-    \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}\right) \propto \frac{I_c\left(\delta + n, D+U\right)}{I_c\left(\delta, D\right)}
-\end{equation}.
+    \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}\right) \propto \frac{I_c\left(\delta + n, D+U\right)}{I_c\left(\delta, D\right)}.
+\end{equation}
 For more detailed explanation of this result see \cite{JSSv112i07}.
 \\
 Under analogous assumptions the posterior in \texttt{gipsmult} setting is proportional to:
@@ -600,9 +602,9 @@ where
 \end{equation}
 Since both \texttt{gips} and \texttt{gipsmult} allow to estimate not only MAP but the entire AP distribution we have an alternative:
 \begin{equation}
-    \hat{\Sigma}=\sum_{c \in \mathfrak{S}_p} \mathbb{P}(\Gamma=c \mid X=x, Y=y) \Sigma_c
+    \hat{\Sigma}=\sum_{c \in \mathfrak{S}_p} \mathbb{P}(\Gamma=c \mid X=x, Y=y) \Sigma_c.
     \label{eq:weighted_avg_estimator}
-\end{equation}.
+\end{equation}
 It potentially offers a more robust estimation by incorporating uncertainty about the true underlying symmetry.
 It should be noted that formulas above  are exact only when the entire space of permutations can be exhaustively searched,
 which is feasible in \texttt{gips(mult)} implementation for $p \le 9$, where $p$ denotes the number of features (columns).
@@ -612,8 +614,8 @@ is used to approximate these estimators, as the permutation space becomes too la
 \subsection{gipsQDA}
 The \texttt{gipsQDA} model represents the most flexible approach within our framework. In this method, the \texttt{gips} library is applied independently to the data of each class. This process yields a unique estimated covariance matrix, $\hat{\Sigma}_g$, and a unique optimal permutation group, $\hat{c}_g$, for each class $g$:
 \begin{equation}
-    (\hat{\Sigma}_g, \hat{c}_g) = \texttt{gips}(\text{Data}_g) \quad \text{for each class } g=1, \dots, m
-\end{equation}.
+    (\hat{\Sigma}_g, \hat{c}_g) = \texttt{gips}(\text{Data}_g) \quad \text{for each class } g=1, \dots, m.
+\end{equation}
 This model is directly analogous to the classic QDA, as it allows for heteroscedasticity, but with the additional complexity that each class can exhibit its own distinct symmetry structure. Consequently, \texttt{gipsQDA} serves as a general model that contains all other proposed models as special, more constrained cases.
 
 \subsection{gipsLDA}
@@ -653,11 +655,33 @@ where $n = \sum_{g=1}^m n_g$ is the total number of observations and $m$ is the 
 The \texttt{gipsMultQDA} model is an intermediate approach between the full flexibility of \texttt{gipsQDA} and the strong constraints of \texttt{gipsLDA}.
 It is supposed to serve the situation when each class has a unique covariance matrix (like QDA), but all these
 matrices share the same underlying permutation symmetry. This is useful for scenarios where classes  differ
-in scale or variance but are expected to share a common dependency structure.
+in scale or variance but are expected to share a common dependency structure:
 
 \begin{equation}
-    (\hat{\Sigma}_g, \hat{c}) = \texttt{gips}(\text{Data}_g) \quad \text{for each class } g=1, \dots, m
+    (\hat{\Sigma}_g, \hat{c}) = \texttt{gips}(\text{Data}_g) \quad \text{for each class } g=1, \dots, m.
 \end{equation}
+
+\subsection{Relationship between the models}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+
+% Outer set
+\draw[fill=blue,  fill opacity=0.15] (0,0) ellipse (6cm and 4cm);
+\node [above=30mm] {$\texttt{gipsQDA}$};
+
+% Middle set
+\draw[fill=green,fill opacity=0.15] (0,0) ellipse (4cm and 2.6cm);
+\node [above=15mm] {$\texttt{gipsmultQDA}$};
+
+% Inner set
+\draw[fill=red,  fill opacity=0.15] (0,0) ellipse (2cm and 1.2cm);
+\node at (0,0) {$\texttt{gipsLDA}$};
+
+\end{tikzpicture}
+\caption{The diagram shows that \texttt{gipsLDA} is a specific case of \texttt{gipsmultQDA}, which itself is a specific case of \texttt{gipsQDA}.}
+\label{fig:nested-sets}
+\end{figure}
 
 \subsection{Regularization}
 It should be also noted that all covariance estimates are passed to regularizing function after being projected. The exact procedure is discussed in \autoref{sec:baseline_regularization}.
@@ -1891,41 +1915,41 @@ where $\delta>1$ and $D\in \mathcal{P}_c$ are hyperparameters and $I_c(\delta, D
 We start with standard bayesian reasoning linking the probability of any given permutation conditioned by data with probability of specific data conditioned by given permutation:
 \begin{equation}
 \mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
-\frac{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right) \mathbbm{P}\left(\Gamma = c \right)}{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto \mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right).
-\end{equation}
-Writing this in more probabilistic terms and conditioning $\mathbbm{X}$ directly on precision matrices we get:
+\frac{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right) \mathbbm{P}\left(\Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto \mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right).
+\end{equation},
+phrasing this in more probabilistic terms and conditioning $\mathbbm{X}$ directly on precision matrices we get:
 \begin{equation}
 \mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \idotsint\limits_{\mathcal{P}_c^m}
     f_{\mathbbm{X} \mid \mathcal{K} = \kappa, \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x})\,
     f_{\mathcal{K} \mid \Gamma = c}(\kappa)
-    \, d \kappa
+    \, d \kappa.
 \end{equation}
 Let us now tackle the first factor under the integral:
 \begin{equation}
     \begin{align}
         f_{\mathbbm{X} \mid \mathcal{K} = \kappa, \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \prod_{i=i}^{n}(2\pi)^{-\frac{p}{2}}\left|K_{g_i}\right|^{\frac{1}{2}}
         \exp \left(-\frac{1}{2}x_i^T K_{g_i}x_i\right) \propto \\ \propto \prod_{g=1}^m\left|K_g\right|^{\frac{n_g}{2}}\exp\left(-\frac{1}{2}\sum_{g=1}^m\sum_{j=1}^{n_g}
-        x_{g,j}^T K_g x_{g,j}\right)
+        x_{g,j}^T K_g x_{g,j}\right),
     \end{align}
 \end{equation}
-As inside exponential we are summing real numbers we can replace them by their trace:
+as inside exponential we are summing real numbers we can replace them by their trace:
 \begin{equation}
     \begin{align}
         \exp\left(-\frac{1}{2}\sum_{g=1}^m\sum_{j=1}^{n_g}
         x_{g,j}^T K_g x_{g,j}\right) = \exp\left(-\frac{1}{2}\sum_{g=1}^m\sum_{j=1}^{n_g}
         tr\left(x_{g,j}^T K_g x_{g,j}\right)\right) = \\ =
         \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_g\sum_{j=1}^{n_g}
-        x_{g,j}x_{g,j}^T\right)\right) = \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right)
+        x_{g,j}x_{g,j}^T\right)\right) = \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right),
     \end{align}
 \end{equation}
-Where:
+where:
 \begin{equation}
     U_g = \sum_{j=1}^{n_g}
-        x_{g,j}x_{g,j}^T
+        x_{g,j}x_{g,j}^T.
 \end{equation}
-As for the second factor we assume precission matrices are independent:
+As for the second factor we assume precision matrices are independent:
 \begin{equation}
-    f_{\mathcal{K} \mid \Gamma = c}(\kappa) = \prod_{g=1}^m f_{K_g \mid \Gamma = c} (k_g)
+    f_{\mathcal{K} \mid \Gamma = c}(\kappa) = \prod_{g=1}^m f_{K_g \mid \Gamma = c} (k_g),
 \end{equation}
 Combining all of these we get:
 \begin{equation}
@@ -1936,14 +1960,14 @@ Combining all of these we get:
     \, d \kappa = \\ =\idotsint\limits_{\mathcal{P}_c^m} \prod_{g=1}^m \left|K_g\right|^{\frac{n_g}{2}}
         \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right) f_{K_g \mid \Gamma = c}(k_g) \, d \kappa = \\ =
         \prod_{g=1} ^m \int\limits_{\mathcal{P}_c} \left|K_g\right|^{\frac{n_g}{2}}
-        \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right) f_{K_g \mid \Gamma = c}(k_g) \, dk_g
+        \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right) f_{K_g \mid \Gamma = c}(k_g) \, dk_g.
     \end{align}
 \end{equation}
 Applying results from \cite{JSSv112i07} for each factor we arrive at the result:
 \begin{equation}\label{UltimateAPosterioriFormula}
     \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
     f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) \propto
-    \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)},
+    \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)}.
 \end{equation}
 
 
