@@ -994,13 +994,14 @@ To rigorously evaluate the performance of the proposed classification models, a 
 A critical aspect of our methodology is the separation of the \textit{distribution definition} from the \textit{data sampling} phase. To ensure that performance comparisons across different sample sizes ($n$) reflect true model characteristics rather than random variations in the ground-truth parameters, the simulation proceeds in two distinct stages:
 
 \begin{enumerate}
-    \item \textbf{Parameter Fixing:} First, the "ground truth" parameters—specifically the class mean vectors ($\boldsymbol{\mu}_k$) and the true covariance matrices ($\boldsymbol{\Sigma}_k$)—are generated according to specific scenarios (detailed in Section \ref{sec:scenarios}). These parameters are serialized and saved to disk.
+    \item \textbf{Parameter Fixing:} First, the "ground truth" parameters—specifically the class mean vectors ($\boldsymbol{\mu}_k$) and the true covariance matrices ($\boldsymbol{\Sigma}_k$)—are generated according to specific scenarios (detailed in Sections \ref{sec:data_generation_algorithm} and \ref{sec:scenarios}). These parameters are serialized and saved to disk.
     \item \textbf{Monte Carlo Simulation:} Subsequently, for each defined sample size $n$, we conduct a series of independent experiments. In each experiment, training and test datasets are sampled from the distributions defined by the saved parameters.
 \end{enumerate}
 
-Consequently, each data point on the resulting performance curves represents the mean accuracy calculated over multiple independent repetitions (e.g., 20 or 50 runs). This approach minimizes the variance of the estimator and ensures that the observed trends are statistically robust.
+Consequently, each data point on the resulting performance curves represents the mean accuracy calculated over multiple independent repetitions (e.g., 30 runs). This approach minimizes the variance of the estimator and ensures that the observed trends are statistically robust.
 
 \subsection{Data Generation Algorithm}
+\label{sec:data_generation_algorithm}
 
 The core algorithm for defining the distributions consists of the following sequential steps:
 
@@ -1027,7 +1028,7 @@ The core algorithm for defining the distributions consists of the following sequ
 
     This target threshold is calculated dynamically to adapt to the number of classes, $K$. We define a fixed signal strength parameter $S = 0.6$ and the baseline random accuracy as $Acc_{\text{base}} =\frac{1}{K}$. The theoretical target test accuracy is defined as:
     \begin{equation}
-        Acc_{\text{test}} = Acc_{\text{base}} + (1 - Acc_{\text{base}}) \cdot S.
+        Acc_{\text{test}} = Acc_{\text{base}} + (1 - Acc_{\text{base}}) \cdot S = S + (1 - S) \cdot Acc_{\text{base}}.
     \end{equation}
     To account for estimation variance during the calibration phase, the actual stopping criterion for the search (target training accuracy) is set slightly higher, capped at a maximum of 0.90:
     \begin{equation}
@@ -1073,7 +1074,7 @@ Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance mat
     This serves as the baseline for linear classification.
     \begin{itemize}
         \item \textbf{Covariance Structure:} All classes share a single covariance matrix $\boldsymbol{\Sigma}_{\text{common}}$.
-        \item \textbf{Symmetry:} No permutation symmetry is imposed (other than the trivial identity group). The covariance matrix is generated from a random spectral distribution without any projection, representing a standard, unstructured multivariate normal distribution.
+        \item \textbf{Symmetry:} No permutation symmetry is imposed. The covariance matrix is generated from a random spectral distribution without any projection, representing a standard, unstructured multivariate normal distribution.
     \end{itemize}
 
     \item[Scenario 5: Classic QDA (Heteroscedastic / Unstructured)] \hfill \\
@@ -1122,22 +1123,22 @@ Since this dataset contains categorical variables (e.g., \texttt{Sex}, \texttt{C
 \textbf{Preprocessing Pipeline:}
 The data was already in a clean, numerical format suitable for analysis. No additional encoding, imputation, or feature removal was required.
 
-\subsection{EEG Brainwave Dataset: Feeling Emotions}
+\subsection{Sensorless Drive Diagnosis Data Set}
+\label{sec:sensorless_drive_diagnosis}
 
 \begin{itemize}
-    \item \textbf{Domain:} Medical / Neuroscience
-    \item \textbf{Description:} Contains statistical features extracted from EEG brainwave signals collected from individuals in different emotional states.
-    \item \textbf{Target Variable:} \texttt{emotion} (Positive, Neutral, Negative).
-    \item \textbf{Dimensions:} 2548 features, 2132 observations.
-    \item \textbf{Class Balance:} Balanced ($\approx 700$ per class).
-    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/birdy654/eeg-brainwave-dataset-feeling-emotions} \cite{birdy654_eeg_emotions}
+    \item \textbf{Domain:} Industrial Quality Control
+    \item \textbf{Description:} Signals from a sensorless drive used to diagnose 11 different operating conditions (faults).
+    \item \textbf{Target Variable:} Condition (11 classes).
+    \item \textbf{Dimensions:} 48 features, 58,509 observations.
+    \item \textbf{Class Balance:} Perfectly Balanced (5,319 per class).
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/325/sensorless+drive+diagnosis} \cite{dataset_for_sensorless_drive_diagnosis_325}
 \end{itemize}
 
 \textbf{Preprocessing Pipeline:}
-Given the extremely high dimensionality ($p=2548$), feature selection was critical.
 \begin{enumerate}
-    \item \textbf{Low Variance Filtering:} We removed 2 columns where a single value dominated more than 90\% of the observations.
-    \item \textbf{Feature Selection:} We trained a Random Forest classifier on the full dataset and selected the \textbf{top 30 features} based on the Gini importance measure. This reduced the dimensionality to a manageable level while preserving the most predictive signals.
+    \item \textbf{Scaling Small Values:} Some features contained values with very small magnitudes (e.g., $10^{-5}$), which can cause numerical instability in covariance matrix calculations. We applied a custom \texttt{fix\_tiny\_values} algorithm: for any column with a mean absolute value $< 0.01$, we scaled the column by a factor of $10^k$ to bring the magnitude into the standard range ($[1, 10]$).
+    \item \textbf{Collinearity Removal:} We identified and removed 17 highly collinear features using a pairwise correlation threshold of 0.99.
 \end{enumerate}
 
 \subsection{Credit Card Fraud Detection}
@@ -1160,6 +1161,24 @@ The extreme class imbalance poses a problem for standard classifiers. We applied
     \item Finally, we removed 2 collinear features using a correlation cutoff of 0.9.
 \end{enumerate}
 
+\subsection{EEG Brainwave Dataset: Feeling Emotions}
+
+\begin{itemize}
+    \item \textbf{Domain:} Medical / Neuroscience
+    \item \textbf{Description:} Contains statistical features extracted from EEG brainwave signals collected from individuals in different emotional states.
+    \item \textbf{Target Variable:} \texttt{emotion} (Positive, Neutral, Negative).
+    \item \textbf{Dimensions:} 2548 features, 2132 observations.
+    \item \textbf{Class Balance:} Balanced ($\approx 700$ per class).
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/birdy654/eeg-brainwave-dataset-feeling-emotions} \cite{birdy654_eeg_emotions}
+\end{itemize}
+
+\textbf{Preprocessing Pipeline:}
+Given the extremely high dimensionality ($p=2548$), feature selection was critical.
+\begin{enumerate}
+    \item \textbf{Low Variance Filtering:} We removed 2 columns where a single value dominated more than 90\% of the observations.
+    \item \textbf{Feature Selection:} We trained a Random Forest classifier on the full dataset and selected the \textbf{top 30 features} based on the Gini importance measure. This reduced the dimensionality to a manageable level while preserving the most predictive signals.
+\end{enumerate}
+
 \subsection{Steel Plates Faults Dataset}
 
 \begin{itemize}
@@ -1174,26 +1193,10 @@ The extreme class imbalance poses a problem for standard classifiers. We applied
 \textbf{Preprocessing Pipeline:}
 \begin{enumerate}
     \item \textbf{Infinite Value Handling:} We scanned the dataset for infinite values, replaced them with \texttt{NA}, and subsequently removed rows containing missing values.
-    \item \textbf{Scaling Small Values:} We applied the \texttt{fix\_tiny\_values} algorithm (described below) to prevent numerical underflow.
+    \item \textbf{Scaling Small Values:} We applied the \texttt{fix\_tiny\_values} algorithm (described in \ref{sec:sensorless_drive_diagnosis}) to prevent numerical underflow.
     \item \textbf{Collinearity Removal:} We removed 6 features that exhibited a pairwise correlation greater than 0.9.
 \end{enumerate}
 
-\subsection{Sensorless Drive Diagnosis Data Set}
-
-\begin{itemize}
-    \item \textbf{Domain:} Industrial Quality Control
-    \item \textbf{Description:} Signals from a sensorless drive used to diagnose 11 different operating conditions (faults).
-    \item \textbf{Target Variable:} Condition (11 classes).
-    \item \textbf{Dimensions:} 48 features, 58,509 observations.
-    \item \textbf{Class Balance:} Perfectly Balanced (5,319 per class).
-    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/325/sensorless+drive+diagnosis} \cite{dataset_for_sensorless_drive_diagnosis_325}
-\end{itemize}
-
-\textbf{Preprocessing Pipeline:}
-\begin{enumerate}
-    \item \textbf{Scaling Small Values:} Some features contained values with very small magnitudes (e.g., $10^{-5}$), which can cause numerical instability in covariance matrix calculations. We applied a custom \texttt{fix\_tiny\_values} algorithm: for any column with a mean absolute value $< 0.01$, we scaled the column by a factor of $10^k$ to bring the magnitude into the standard range ($[1, 10]$).
-    \item \textbf{Collinearity Removal:} We identified and removed 17 highly collinear features using a pairwise correlation threshold of 0.99.
-\end{enumerate}
 
 \section{Performance Evaluation and Visualization Strategy}
 \label{sec:visualization_methodology}
@@ -1804,13 +1807,14 @@ The development of \texttt{gipsDA} was not merely a statistical exercise but a r
 While \texttt{gipsDA} provides a robust foundation for symmetry-based classification, several avenues remain open for further development and research.
 
 \begin{itemize}
+    \item \textbf{Integration of Conditional Independence:} Recent theoretical advancements have introduced a new class of models that combine permutation symmetry with graphical modeling, known as Colored Graphical Gaussian Models \cite{chojecki2026newclasscoloredgaussian}. Expanding \texttt{gipsDA} to incorporate these constraints would allow for the simultaneous discovery of symmetries and conditional independence structures (sparsity). This is particularly relevant for high-dimensional biological networks, where variables are often both exchangeable within pathways and sparsely connected across them.
+
     \item \textbf{Extension to Unsupervised Learning:} The principles of \texttt{gips} are currently applied to supervised classification. A natural extension would be to adapt permutation symmetry constraints to unsupervised models, such as Gaussian Mixture Models (GMM) or Model-Based Clustering. Constraining clusters to share internal symmetries could stabilize clustering in high-dimensional spaces.
 
     \item \textbf{Complex Symmetry Groups:} Currently, the library primarily optimizes for cyclic permutation subgroups. Expanding the backend to support more complex symmetry structures—such as block symmetries or direct products of groups—would allow the model to capture more intricate dependency patterns, such as those found in hierarchical biological data.
 
     \item \textbf{Computational Scalability via C++ Integration:} While the current implementation is efficient for moderate dimensions, searching the permutation space in extremely high-dimensional settings (e.g., genomic data where $p > 1000$) remains computationally intensive. A critical next step is to rewrite the bottleneck matrix operations using the \texttt{Rcpp} library to interface directly with C++, which would significantly reduce overhead and improve scalability.
 \end{itemize}
-
 % ======================================================================
 %                          Rest
 % ======================================================================
