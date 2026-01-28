@@ -8,10 +8,10 @@ library(parallel)
 set.seed(2137)
 source("manual_tests/models/utils.R")
 
-ps <- c("5","10")
-# ps <- c("5")
-ns <- c("2","5","10")
-# ns <- c("2")
+# ps <- c("5","10")
+ps <- c("5")
+# ns <- c("2","5","10")
+ns <- c("2")
 perm_lists_prop <- list(
   # For p=5 (5 dimensions)
   "5" = list(
@@ -87,12 +87,14 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
     n_classes = as.integer(n),
     perms = perms,
     lambda_dist = dist,
-    granularity = 10,
+    granularity = 5,
     lb = 16,
-    n_experiments = 30,
+    n_experiments = 2,
+    n_experiments_spe = 2,
+    spe_idx = c(1,3,5),
     opt = opt,
     max_iter = 1000,
-    tr_ts_split = 0.7,
+    n_test = 1000,
     MAP = MAP
   )
 
@@ -118,6 +120,8 @@ mclapply(
   },
   mc.cores = parallel::detectCores() - 1
 )
+
+
 
 
 

@@ -5,12 +5,10 @@ source("data/generate/generate_scenario_cov_mat_means_given.R")
 source("manual_tests/models/LDAmod.R")
 source("manual_tests/models/QDAmod.R")
 
-accuracy_experiment <- function(cov_mats, means, n_per_class, model, tr_ts_split = 0.7,
+accuracy_experiment <- function(cov_mats, means, n_per_class, model, n_per_class_test,
                                 MAP = TRUE, opt = "BF", max_iter = 100) {
-  experiment_data <- generate_scenario_cov_mats_means_given(cov_mats, means, n_per_class)
-  train_idx <- sample(1:nrow(experiment_data), ceiling(tr_ts_split * nrow(experiment_data)))
-  train_data <- experiment_data[train_idx, ]
-  test_data <- experiment_data[-train_idx, ]
+  train_data <- generate_scenario_cov_mats_means_given(cov_mats, means, n_per_class)
+  test_data <- generate_scenario_cov_mats_means_given(cov_mats, means, n_per_class_test)
 
   classifier <- tryCatch({
     if (model == "lda") {
@@ -45,27 +43,39 @@ generate_accuracy_data <- function(cov_mats,
                                    means,
                                    ns_obs,
                                    model,
-                                   tr_ts_split = 0.7,
+                                   n_test = 1000,
                                    n_experiments = 5,
+                                   n_experiments_spe = 5,
+                                   spe_idx = c(1,3,5),
                                    MAP = TRUE,
                                    opt = "BF",
                                    max_iter = 100) {
   accs <- as.numeric(unlist(lapply(ns_obs, function(n_obs) {
     n_per_class <- floor(n_obs / ncol(means))
-    replicate(n_experiments, accuracy_experiment(cov_mats, means, n_per_class, model, tr_ts_split, MAP, opt, max_iter))
+    n_per_class_test <- floor(n_test / ncol(means))
+    replicate(n_experiments, accuracy_experiment(cov_mats, means, n_per_class, model, n_per_class_test, MAP, opt, max_iter))
+  })))
+  ns_obs_spe <- ns_obs[spe_idx]
+  accs_spe <- as.numeric(unlist(lapply(ns_obs_spe, function(n_obs) {
+    n_per_class <- floor(n_obs / ncol(means))
+    n_per_class_test <- floor(n_test / ncol(means))
+    replicate(n_experiments_spe, accuracy_experiment(cov_mats, means, n_per_class, model, n_per_class_test, MAP, opt, max_iter))
   })))
 
 
 
 
-  return(accs)
+
+  return(list("accs" = accs, "accs_spe" = accs_spe))
 }
 
 generate_single_plot_info <- function(scenario_metadata,
                                       model_names = c("lda", "qda", "gipsldacl", "gipsldawa", "gipsqda", "gipsmultqda"),
                                       ns_obs,
-                                      tr_ts_split = 0.7,
+                                      n_test = 1000,
                                       n_experiments = 5,
+                                      n_experiments_spe = 5,
+                                      spe_idx = c(1,3,5),
                                       MAP = TRUE,
                                       opt = "BF",
                                       max_iter = 100
@@ -73,9 +83,9 @@ generate_single_plot_info <- function(scenario_metadata,
 
   cov_mats <- scenario_metadata$matrices
   means <- scenario_metadata$means
-
   plot_info <- lapply(model_names, function(model) {
-    list("accs" = generate_accuracy_data(cov_mats, means, ns_obs, model, tr_ts_split, n_experiments, MAP, opt, max_iter), "ns_obs" = ns_obs)
+    acc_data <- generate_accuracy_data(cov_mats, means, ns_obs, model, n_test, n_experiments, n_experiments_spe, spe_idx, MAP, opt, max_iter)
+    list("accs" = acc_data[["accs"]], "accs_spe" = acc_data[["accs_spe"]], "ns_obs" = ns_obs)
   })
   names(plot_info) <- model_names
   plot_info
@@ -91,28 +101,27 @@ generate_multiple_plots_info_qr <- function(p,
                              granularity = 25,
                              lb = 16,
                              n_experiments = 5,
+                             n_experiments_spe = 5,
+                             spe_idx = c(1,3,5),
                              opt = "BF",
                              max_iter = 100,
-                             tr_ts_split = 0.7,
+                             n_test = 1000,
                              MAP = TRUE) {
   source("data/generate/generate_cov_mat_means_scenario_given.R")
-
   scenarios_metadata <- lapply(scenario_names, function(scenario) {
     generate_cov_mat_means_scenario_given(scenario, p, n_classes, perms, lambda_dist, n_per_class)
   })
   ns_obs <- round(exp(seq(log(lb), log(n_classes*n_per_class), length.out = granularity)))
   multiple_plots_info <- lapply(scenarios_metadata, function(scenario_metadata) {
-    generate_single_plot_info(scenario_metadata, model_names, ns_obs, tr_ts_split, n_experiments, MAP, opt, max_iter)
+    generate_single_plot_info(scenario_metadata, model_names, ns_obs, n_test, n_experiments, n_experiments_spe, spe_idx, MAP, opt, max_iter)
   })
-
   names(multiple_plots_info) <- scenario_names
   names(scenarios_metadata) <- scenario_names
-
 
   test_pairs <- list(c("lda", "gipsldacl"), c("lda", "gipsldawa"), c("gipsldacl", "gipsldawa"), c("qda", "gipsqda"), c("qda", "gipsmultqda"))
   test_info <- lapply(scenario_names, function(name) {
     ret_list <- lapply(test_pairs, function(test_pair) {
-      perm_test_blocked(multiple_plots_info, name, test_pair[1], test_pair[2])
+      wilcoxon_test(multiple_plots_info, name, test_pair[1], test_pair[2], n_experiments)
     })
     names(ret_list) <- lapply(test_pairs, function(pair) {
         return(paste(pair, collapse = " vs "))
@@ -125,6 +134,7 @@ generate_multiple_plots_info_qr <- function(p,
 
   return(list("plot" = multiple_plots_info, "meta" = scenarios_metadata, "test" = test_info))
 }
+
 
 
 create_multilevel_plot <- function(
@@ -146,11 +156,13 @@ create_multilevel_plot <- function(
       le <- length(data_points[["ns_obs"]])
       n_experiments <- length(data_points[["accs"]]) / le
 
+      section_lengths <- c(100, n_experiments, 100, n_experiments, 100)
+
       data_points[["accs"]] <- tapply(data_points[["accs"]], rep(seq_len(le), each = n_experiments), mean)
 
       temp_df <- data.frame(
-        observations = data_points[[2]],
-        accuracy = data_points[[1]],
+        observations = data_points[["ns_obs"]],
+        accuracy = data_points[["accs"]],
         model = model_name,
         dataset = dataset_name
       )
@@ -186,6 +198,24 @@ create_multilevel_plot <- function(
   coord_cartesian(ylim = c(0, 1))
 
   return(gg_plot)
+}
+
+wilcoxon_test <- function(acc_info, scenario, mod1, mod2,
+                          n_exp_spe = 5, spe_idx = c(1, 3, 5)) {
+
+  x <- acc_info[[scenario]][[mod1]]$accs_spe
+  y <- acc_info[[scenario]][[mod2]]$accs_spe
+
+  stopifnot(length(x) == length(y))
+  stopifnot(length(x) == n_exp_spe * length(spe_idx))
+
+  pvals <- lapply(seq_along(spe_idx), function(k) {
+    idx <- ((k - 1) * n_exp_spe + 1):(k * n_exp_spe)
+    wilcox.test(x[idx], y[idx], alternative = "less", exact = FALSE)$p.value
+  })
+
+  names(pvals) <- as.character(spe_idx)
+  pvals
 }
 
 perm_test_blocked <- function(acc_info,
