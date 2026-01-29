@@ -121,7 +121,7 @@ generate_multiple_plots_info_qr <- function(p,
   test_pairs <- list(c("lda", "gipsldacl"), c("lda", "gipsldawa"), c("gipsldacl", "gipsldawa"), c("qda", "gipsqda"), c("qda", "gipsmultqda"))
   test_info <- lapply(scenario_names, function(name) {
     ret_list <- lapply(test_pairs, function(test_pair) {
-      wilcoxon_test(multiple_plots_info, name, test_pair[1], test_pair[2], n_experiments)
+      wilcoxon_test(multiple_plots_info, name, test_pair[1], test_pair[2], n_experiments_spe, spe_idx)
     })
     names(ret_list) <- lapply(test_pairs, function(pair) {
         return(paste(pair, collapse = " vs "))
