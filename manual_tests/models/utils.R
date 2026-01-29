@@ -135,7 +135,7 @@ generate_multiple_plots_info_qr <- function(p,
   return(list("plot" = multiple_plots_info, "meta" = scenarios_metadata, "test" = test_info))
 }
 
-
+# ====== Plotting functions ======
 
 create_multilevel_plot <- function(
   mult_plots_info,
@@ -199,6 +199,78 @@ create_multilevel_plot <- function(
 
   return(gg_plot)
 }
+
+create_multilevel_boxplot <- function(
+  mult_plots_info,
+  spe_idx,
+  ncol = NULL,
+  xlab = "Number of Observations",
+  ylab = "Accuracy",
+  point_size = 1,
+  scales = "fixed"
+) {
+  stopifnot(is.list(mult_plots_info))
+
+  data_list <- list()
+
+  for (dataset_name in names(mult_plots_info)) {
+    inner_list <- mult_plots_info[[dataset_name]]
+    for (model_name in names(inner_list)) {
+      data_points <- inner_list[[model_name]]
+
+      obs_vec <- data_points[["ns_obs"]]
+      acc_vec <- data_points[["accs_spe"]]
+
+      le <- length(obs_vec)
+      n_experiments <- length(acc_vec) / le
+
+      acc_matrix <- matrix(acc_vec, nrow = n_experiments,
+                           ncol = le, byrow = FALSE)
+      selected_accs <- acc_matrix[, spe_idx, drop = FALSE]
+      selected_obs <- obs_vec[spe_idx]
+
+      obs_for_df <- rep(selected_obs, each = n_experiments)
+      accs_for_df <- as.vector(selected_accs)
+
+      temp_df <- data.frame(
+        observations = as.factor(obs_for_df),
+        accuracy = accs_for_df,
+        model = model_name,
+        dataset = dataset_name
+      )
+      data_list[[length(data_list) + 1]] <- temp_df
+    }
+  }
+
+  if (length(data_list) == 0) {
+    stop("Input 'mult_plots_info' is empty or has an invalid structure.")
+  }
+
+  plot_df <- do.call(rbind, data_list)
+  plot_df$dataset <- factor(plot_df$dataset, levels = names(mult_plots_info))
+
+  gg_plot <- ggplot(
+    plot_df,
+    aes(x = observations, y = accuracy, fill = model)
+  ) +
+  geom_boxplot(outlier.size = point_size, alpha = 0.7) +
+  facet_wrap(~ dataset, ncol = ncol, scales = scales) +
+  labs(
+    x = xlab,
+    y = ylab,
+    fill = "Model"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    strip.background = element_rect(fill = "gray90"),
+    text = element_text(size = 12)
+  )
+
+  return(gg_plot)
+}
+
+# ====== Statistical tests ======
 
 wilcoxon_test <- function(acc_info, scenario, mod1, mod2,
                           n_exp_spe = 5, spe_idx = c(1, 3, 5)) {

@@ -75,6 +75,7 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
   map_bool_chr <- as.character(MAP)
 
   filename <- glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.png")
+  filename_boxplot <- glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}_spe.png")
   filename_plot_info <- glue("saved_objects/synthetic_data_plot_info/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
   filename_scenarios_metadata <- glue("saved_objects/synthetic_data_matrices_and_means/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
   filename_tests <- glue("saved_objects/tests/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
@@ -83,6 +84,8 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
     return(invisible(NULL))
   }
 
+  spe_indexes <- c(1,3,5)
+
   scenario_info <- generate_multiple_plots_info_qr(p = as.numeric(p),
     n_classes = as.integer(n),
     perms = perms,
@@ -90,8 +93,8 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
     granularity = 5,
     lb = 16,
     n_experiments = 2,
-    n_experiments_spe = 2,
-    spe_idx = c(1,3,5),
+    n_experiments_spe = 20,
+    spe_idx = spe_indexes,
     opt = opt,
     max_iter = 1000,
     n_test = 1000,
@@ -107,8 +110,10 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
   saveRDS(test_info, filename_tests)
 
   campaign_plot <- create_multilevel_plot(plot_info)
+  campaign_boxplot <- create_multilevel_boxplot(plot_info, spe_indexes)
 
   ggplot2::ggsave(filename, plot = campaign_plot, width = 16, height = 9, dpi = 500)
+  ggplot2::ggsave(filename_boxplot, plot = campaign_boxplot, width = 16, height = 9, dpi = 500)
 
   invisible(NULL)
 }
