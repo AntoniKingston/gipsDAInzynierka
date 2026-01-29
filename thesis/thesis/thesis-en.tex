@@ -684,7 +684,7 @@ in scale or variance but are expected to share a common dependency structure:
 \end{figure}
 
 \subsection{Regularization}
-It should be also noted that all covariance estimates are passed to regularizing function after being projected. The exact procedure is discussed in \autoref{sec:baseline_regularization}.
+It should be also noted that all covariance estimates are passed to regularizing function after being projected. The exact procedure is discussed in appendix B.
 
 
 
@@ -932,57 +932,57 @@ To quantitatively assess and compare the predictive power of these models, we em
 
 where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
 
-\section{Baseline Regularization Strategy}
-\label{sec:baseline_regularization}
-
-Standard estimators for Linear and Quadratic Discriminant Analysis (LDA and QDA) rely on the inversion of the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$. In high-dimensional settings, particularly when $p > n$, $\hat{\boldsymbol{\Sigma}}$ becomes singular or near-singular, possessing eigenvalues close to or equal to zero. This renders the standard precision matrix calculation unstable or impossible.
-
-To ensure a fair comparison between the proposed \texttt{gips}-based models and the classical approaches, we implemented a modified version of the standard algorithms, denoted as \texttt{LDAmod} and \texttt{QDAmod}. These models incorporate a deterministic regularization step—referred to as \textit{desingularization}—which guarantees that the covariance matrix is strictly positive-definite with a bounded condition number.
-
-\subsection{Mathematical Formulation}
-
-The objective of this procedure is to transform the empirical covariance matrix $\mathbf{A}$ into a regularized matrix $\tilde{\mathbf{A}}$ such that its smallest eigenvalue, $\lambda_{\min}(\tilde{\mathbf{A}})$, is no less than a specific target threshold $\tau$. For the purposes of this study, we set $\tau = 0.05$.
-
-If the smallest eigenvalue of the original matrix, denoted as $\lambda = \lambda_{\min}(\mathbf{A})$, already satisfies $\lambda \ge \tau$, no modification is performed. However, if $\lambda < \tau$, we apply a linear shrinkage towards the identity matrix $\mathbf{I}$. The regularized matrix is defined as:
-
-\begin{equation}
-    \tilde{\mathbf{A}} = \frac{\mathbf{A} + s\mathbf{I}}{1 + s},
-\end{equation}
-where $s$ is a non-negative scalar scaling factor.
-
-\subsection{Derivation of the Scaling Factor}
-
-The parameter $s$ is derived analytically to ensure the new smallest eigenvalue exactly matches the target $\tau$. The derivation proceeds as follows:
-
-\begin{enumerate}
-    \item Let the eigenvalues of $\mathbf{A}$ be denoted by $\lambda_i$. The smallest eigenvalue is $\lambda$.
-    \item Adding a multiple of the identity matrix shifts the spectrum. The eigenvalues of $\mathbf{A} + s\mathbf{I}$ are $\lambda_i + s$. Consequently, the smallest eigenvalue becomes $\lambda + s$.
-    \item Dividing by the scalar $(1+s)$ scales the eigenvalues. Thus, the smallest eigenvalue of the normalized matrix $\tilde{\mathbf{A}}$ is given by:
-    \begin{equation}
-        \lambda_{\min}(\tilde{\mathbf{A}}) = \frac{\lambda + s}{1 + s}.
-    \end{equation}
-\end{enumerate}
-
-To enforce the condition $\lambda_{\min}(\tilde{\mathbf{A}}) = \tau$, we solve the following equation for $s$:
-
-\begin{equation}
-    \frac{\lambda + s}{1 + s} = \tau.
-\end{equation}
-
-Rearranging the terms:
-\begin{align*}
-    \lambda + s &= \tau(1 + s) \\
-    \lambda + s &= \tau + \tau s \\
-    s - \tau s &= \tau - \lambda \\
-    s(1 - \tau) &= \tau - \lambda.
-\end{align*}
-
-This yields the closed-form solution for the scaling factor:
-\begin{equation}
-    s = \frac{\tau - \lambda}{1 - \tau}.
-\end{equation}
-
-This transformation ensures that \texttt{LDAmod} and \texttt{QDAmod} remain numerically solvable even in high-dimensional scenarios where standard implementations would fail due to singularity, providing a robust baseline for benchmarking the performance of \texttt{gipsDA}.
+%\section{Baseline Regularization Strategy}
+%\label{sec:baseline_regularization}
+%
+%Standard estimators for Linear and Quadratic Discriminant Analysis (LDA and QDA) rely on the inversion of the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$. In high-dimensional settings, particularly when $p > n$, $\hat{\boldsymbol{\Sigma}}$ becomes singular or near-singular, possessing eigenvalues close to or equal to zero. This renders the standard precision matrix calculation unstable or impossible.
+%
+%To ensure a fair comparison between the proposed \texttt{gips}-based models and the classical approaches, we implemented a modified version of the standard algorithms, denoted as \texttt{LDAmod} and \texttt{QDAmod}. These models incorporate a deterministic regularization step—referred to as \textit{desingularization}—which guarantees that the covariance matrix is strictly positive-definite with a bounded condition number.
+%
+%\subsection{Mathematical Formulation}
+%
+%The objective of this procedure is to transform the empirical covariance matrix $\mathbf{A}$ into a regularized matrix $\tilde{\mathbf{A}}$ such that its smallest eigenvalue, $\lambda_{\min}(\tilde{\mathbf{A}})$, is no less than a specific target threshold $\tau$. For the purposes of this study, we set $\tau = 0.05$.
+%
+%If the smallest eigenvalue of the original matrix, denoted as $\lambda = \lambda_{\min}(\mathbf{A})$, already satisfies $\lambda \ge \tau$, no modification is performed. However, if $\lambda < \tau$, we apply a linear shrinkage towards the identity matrix $\mathbf{I}$. The regularized matrix is defined as:
+%
+%\begin{equation}
+%    \tilde{\mathbf{A}} = \frac{\mathbf{A} + s\mathbf{I}}{1 + s},
+%\end{equation}
+%where $s$ is a non-negative scalar scaling factor.
+%
+%\subsection{Derivation of the Scaling Factor}
+%
+%The parameter $s$ is derived analytically to ensure the new smallest eigenvalue exactly matches the target $\tau$. The derivation proceeds as follows:
+%
+%\begin{enumerate}
+%    \item Let the eigenvalues of $\mathbf{A}$ be denoted by $\lambda_i$. The smallest eigenvalue is $\lambda$.
+%    \item Adding a multiple of the identity matrix shifts the spectrum. The eigenvalues of $\mathbf{A} + s\mathbf{I}$ are $\lambda_i + s$. Consequently, the smallest eigenvalue becomes $\lambda + s$.
+%    \item Dividing by the scalar $(1+s)$ scales the eigenvalues. Thus, the smallest eigenvalue of the normalized matrix $\tilde{\mathbf{A}}$ is given by:
+%    \begin{equation}
+%        \lambda_{\min}(\tilde{\mathbf{A}}) = \frac{\lambda + s}{1 + s}.
+%    \end{equation}
+%\end{enumerate}
+%
+%To enforce the condition $\lambda_{\min}(\tilde{\mathbf{A}}) = \tau$, we solve the following equation for $s$:
+%
+%\begin{equation}
+%    \frac{\lambda + s}{1 + s} = \tau.
+%\end{equation}
+%
+%Rearranging the terms:
+%\begin{align*}
+%    \lambda + s &= \tau(1 + s) \\
+%    \lambda + s &= \tau + \tau s \\
+%    s - \tau s &= \tau - \lambda \\
+%    s(1 - \tau) &= \tau - \lambda.
+%\end{align*}
+%
+%This yields the closed-form solution for the scaling factor:
+%\begin{equation}
+%    s = \frac{\tau - \lambda}{1 - \tau}.
+%\end{equation}
+%
+%This transformation ensures that \texttt{LDAmod} and \texttt{QDAmod} remain numerically solvable even in high-dimensional scenarios where standard implementations would fail due to singularity, providing a robust baseline for benchmarking the performance of \texttt{gipsDA}.
 
 \section{Synthetic data}
 \label{sec:synthetic_data}
@@ -1247,54 +1247,72 @@ Additionally, the \texttt{MAP} parameter controls the estimation logic: if \text
 \subsection{Statistical Significance Testing}
 \label{sec:statistical_testing}
 
-To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a Blocked Permutation Test (also known as a Blocked Randomization Test).
-
-This choice is motivated by the structure of our experiment. Since model performance varies drastically across different sample sizes ($n$), simply aggregating results would violate the exchangeability assumption required for standard tests. The "blocking" factor in our design is the sample size; we must ensure that comparisons are made strictly within the same regime of data availability.
-
-\subsubsection{Hypothesis Definition}
-
-For a given pair of models, Model A (baseline, e.g., \texttt{QDAmod}) and Model B (proposed, e.g., \texttt{gipsQDA}), we define the following hypotheses:
+To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a Wilcoxon signed-rank test.
+\subsubsection{Hypotheses}
+For a given pair of models i.e., Model A (baseline, e.g., \texttt{QDAmod}) and Model B (proposed, e.g., \texttt{gipsQDA}), accompanied by a pair of equal size samples $(\mathbbm{Y}, \mathbbm{Z})$ sampled from prediction of models trained on the same number of observations, null and alternative hypotheses are defined as follows:
 \begin{itemize}
-    \item $H_0$ (Null Hypothesis): There is no difference in performance between Model A and Model B. The assignment of accuracy scores to the models is arbitrary within each experimental block.
-    \item $H_1$ (Alternative Hypothesis): Model B performs significantly better than Model A (one-sided test).
+    \item $H_0$ : The median of differences $(\mathbbm{Y} - \mathbbm{Z})$ is 0.
+    \item $H_1$ : The median of differences is less than 0.
 \end{itemize}
-
-\subsubsection{Test Statistic Construction}
-
-Let $G$ denote the number of sample size levels (granularity). For a specific sample size $n_k$ (where $k=1, \dots, G$), we perform $M$ independent experiments. Let $Acc_{k,j}^{(A)}$ and $Acc_{k,j}^{(B)}$ denote the accuracy of Model A and Model B, respectively, in the $j$-th experiment at sample size $n_k$.
-
-First, we calculate the mean difference in accuracy for each sample size block $k$:
+\subsubsection{Test procedure}
+The Wilcoxon test is fundamentaly a one-sample test, as we are dealing with 2 samples we first create a single sample $\mathbbm{X}$ by subtracting the second one from the first:
 \begin{equation}
-    \bar{\delta}_k = \frac{1}{M} \sum_{j=1}^{M} \left( Acc_{k,j}^{(B)} - Acc_{k,j}^{(A)} \right).
-\end{equation}
-
-The observed test statistic, $T_{\text{obs}}$, is defined as the grand mean of these block-wise differences:
-\begin{equation}
-    T_{\text{obs}} = \frac{1}{G} \sum_{k=1}^{G} \bar{\delta}_k.
-\end{equation}
-This statistic effectively aggregates the performance gain across the entire learning curve, treating each sample size level as equally important.
-
-\subsubsection{Permutation Procedure}
-
-To approximate the null distribution of the test statistic, we perform $B = 5000$ Monte Carlo permutations. The procedure preserves the block structure of the data:
-
+    \mathbbm{X} = \mathbbm{Y} - \mathbbm{Z}
+\end{equation},
+then the following procedure is applied:
 \begin{enumerate}
-    \item \textbf{Within-Block Swapping:} For every specific sample size $n_k$ and every experiment $j$, we randomly swap the accuracy values of Model A and Model B with a probability of $0.5$. Formally, we define a Bernoulli variable $S_{k,j} \sim \text{Bern}(0.5)$.
-    \[
-    (X, Y) =
-    \begin{cases}
-    (Acc_{k,j}^{(A)}, Acc_{k,j}^{(B)}) & \text{if } S_{k,j} = 0 \\
-    (Acc_{k,j}^{(B)}, Acc_{k,j}^{(A)}) & \text{if } S_{k,j} = 1
-    \end{cases}
-    \]
-    \item \textbf{Statistic Recomputation:} Using these permuted labels, we calculate a new permuted statistic $T^*_b$.
-    \item \textbf{P-value Calculation:} After $B$ repetitions, the empirical p-value is calculated as the proportion of permuted statistics that are greater than or equal to the observed statistic:
-    \begin{equation}
-        p\text{-value} = \frac{1}{B} \sum_{b=1}^{B} \mathbb{I}(T^*_b \ge T_{\text{obs}}).
-    \end{equation}
+    \item Compute $|X_1|, \dots, |X_n|$.
+    \item Sort $|X_1|, \dots, |X_n|$, and assign ranks $R_1, \dots, R_n$. The smallest observation is ranked 1.
+    \item Compute test statistic as the signed-rank sum $T = \sum_{i=1}^{n} sgn(X_i)R_i$
+    \item By comparing T to its distribution under null hypothesis compute p-value.
 \end{enumerate}
+The distribution of T-statistic can be easly calculated under the assmuption of uniform distribution of rank assignment.
 
-A low p-value (typically $< 0.05$) indicates that the observed performance improvement of Model B over Model A is statistically significant and unlikely to have occurred by chance.
+
+%\subsubsection{Hypothesis Definition}
+%
+%For a given pair of models, Model A (baseline, e.g., \texttt{QDAmod}) and Model B (proposed, e.g., \texttt{gipsQDA}), we define the following hypotheses:
+%\begin{itemize}
+%    \item $H_0$ (Null Hypothesis): There is no difference in performance between Model A and Model B. The assignment of accuracy scores to the models is arbitrary within each experimental block.
+%    \item $H_1$ (Alternative Hypothesis): Model B performs significantly better than Model A (one-sided test).
+%\end{itemize}
+%
+%\subsubsection{Test Statistic Construction}
+%
+%Let $G$ denote the number of sample size levels (granularity). For a specific sample size $n_k$ (where $k=1, \dots, G$), we perform $M$ independent experiments. Let $Acc_{k,j}^{(A)}$ and $Acc_{k,j}^{(B)}$ denote the accuracy of Model A and Model B, respectively, in the $j$-th experiment at sample size $n_k$.
+%
+%First, we calculate the mean difference in accuracy for each sample size block $k$:
+%\begin{equation}
+%    \bar{\delta}_k = \frac{1}{M} \sum_{j=1}^{M} \left( Acc_{k,j}^{(B)} - Acc_{k,j}^{(A)} \right).
+%\end{equation}
+%
+%The observed test statistic, $T_{\text{obs}}$, is defined as the grand mean of these block-wise differences:
+%\begin{equation}
+%    T_{\text{obs}} = \frac{1}{G} \sum_{k=1}^{G} \bar{\delta}_k.
+%\end{equation}
+%This statistic effectively aggregates the performance gain across the entire learning curve, treating each sample size level as equally important.
+%
+%\subsubsection{Permutation Procedure}
+%
+%To approximate the null distribution of the test statistic, we perform $B = 5000$ Monte Carlo permutations. The procedure preserves the block structure of the data:
+%
+%\begin{enumerate}
+%    \item \textbf{Within-Block Swapping:} For every specific sample size $n_k$ and every experiment $j$, we randomly swap the accuracy values of Model A and Model B with a probability of $0.5$. Formally, we define a Bernoulli variable $S_{k,j} \sim \text{Bern}(0.5)$.
+%    \[
+%    (X, Y) =
+%    \begin{cases}
+%    (Acc_{k,j}^{(A)}, Acc_{k,j}^{(B)}) & \text{if } S_{k,j} = 0 \\
+%    (Acc_{k,j}^{(B)}, Acc_{k,j}^{(A)}) & \text{if } S_{k,j} = 1
+%    \end{cases}
+%    \]
+%    \item \textbf{Statistic Recomputation:} Using these permuted labels, we calculate a new permuted statistic $T^*_b$.
+%    \item \textbf{P-value Calculation:} After $B$ repetitions, the empirical p-value is calculated as the proportion of permuted statistics that are greater than or equal to the observed statistic:
+%    \begin{equation}
+%        p\text{-value} = \frac{1}{B} \sum_{b=1}^{B} \mathbb{I}(T^*_b \ge T_{\text{obs}}).
+%    \end{equation}
+%\end{enumerate}
+%
+%A low p-value (typically $< 0.05$) indicates that the observed performance improvement of Model B over Model A is statistically significant and unlikely to have occurred by chance.
 
 
 % ======================================================================
@@ -1319,13 +1337,13 @@ The comparative analysis involves six distinct models. In the generated plots an
     \item \textbf{\texttt{gipsldacl}}: The \texttt{gipsLDA} model utilizing the \textbf{classic} estimator (unbiased pooled covariance).
     \item \textbf{\texttt{gipsqda}}: The \texttt{gipsQDA} model, where each class has a unique covariance structure.
     \item \textbf{\texttt{gipsmultqda}}: The \texttt{gipsMultQDA} model, where classes share a common permutation symmetry.
-    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described in Section \ref{sec:baseline_regularization} (\texttt{LDAmod}).
+    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described appendix B (\texttt{LDAmod}).
     \item \textbf{\texttt{qda}}: The baseline Quadratic Discriminant Analysis model, modified with eigenvalue regularization (\texttt{QDAmod}).
 \end{itemize}
 
 \subsection{Experimental Scope and Hyperparameters}
 
-We conducted an extensive simulation study comprising over 100 independent large-scale experiments. These experiments explored a vast grid of hyperparameters, including varying dimensions ($p$), numbers of classes ($k$), eigenvalue distributions (Exponential, Log-Normal, Chi-squared), and optimization strategies (MAP vs. BMA). From this extensive collection, we selected \textbf{representative configurations} (parameter sets) for detailed discussion in this chapter. These selections best illustrate the specific strengths and limitations of the proposed methods.
+We conducted an extensive simulation study comprising over 100 independent large-scale experiments. These experiments explored a vast grid of hyperparameters, including varying dimensions ($p$), numbers of classes ($k$), eigenvalue distributions (Exponential, Log-Normal, Chi-squared), and optimization strategies (MAP = TRUE vs. MAP = FALSE). From this extensive collection, we selected \textbf{representative configurations} (parameter sets) for detailed discussion in this chapter. These selections best illustrate the specific strengths and limitations of the proposed methods.
 
 The optimization strategy for the \texttt{gips}-based models was strictly dependent on the problem dimensionality $p$:
 \begin{itemize}
@@ -1974,7 +1992,57 @@ Applying results from \cite{JSSv112i07} for each factor we arrive at the result:
     \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)}.
 \end{equation}
 
+\chapter{Baseline regularization strategy}
+\label{sec:baseline_regularization}
 
+Standard estimators for Linear and Quadratic Discriminant Analysis (LDA and QDA) rely on the inversion of the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$. In high-dimensional settings, particularly when $p > n$, $\hat{\boldsymbol{\Sigma}}$ becomes singular or near-singular, possessing eigenvalues close to or equal to zero. This renders the standard precision matrix calculation unstable or impossible.
+
+To ensure a fair comparison between the proposed \texttt{gips}-based models and the classical approaches, we implemented a modified version of the standard algorithms, denoted as \texttt{LDAmod} and \texttt{QDAmod}. These models incorporate a deterministic regularization step—referred to as \textit{desingularization}—which guarantees that the covariance matrix is strictly positive-definite with a bounded condition number.
+
+\section{Mathematical Formulation}
+
+The objective of this procedure is to transform the empirical covariance matrix $\mathbf{A}$ into a regularized matrix $\tilde{\mathbf{A}}$ such that its smallest eigenvalue, $\lambda_{\min}(\tilde{\mathbf{A}})$, is no less than a specific target threshold $\tau$. For the purposes of this study, we set $\tau = 0.05$.
+
+If the smallest eigenvalue of the original matrix, denoted as $\lambda = \lambda_{\min}(\mathbf{A})$, already satisfies $\lambda \ge \tau$, no modification is performed. However, if $\lambda < \tau$, we apply a linear shrinkage towards the identity matrix $\mathbf{I}$. The regularized matrix is defined as:
+
+\begin{equation}
+    \tilde{\mathbf{A}} = \frac{\mathbf{A} + s\mathbf{I}}{1 + s},
+\end{equation}
+where $s$ is a non-negative scalar scaling factor.
+
+\section{Derivation of the Scaling Factor}
+
+The parameter $s$ is derived analytically to ensure the new smallest eigenvalue exactly matches the target $\tau$. The derivation proceeds as follows:
+
+\begin{enumerate}
+    \item Let the eigenvalues of $\mathbf{A}$ be denoted by $\lambda_i$. The smallest eigenvalue is $\lambda$.
+    \item Adding a multiple of the identity matrix shifts the spectrum. The eigenvalues of $\mathbf{A} + s\mathbf{I}$ are $\lambda_i + s$. Consequently, the smallest eigenvalue becomes $\lambda + s$.
+    \item Dividing by the scalar $(1+s)$ scales the eigenvalues. Thus, the smallest eigenvalue of the normalized matrix $\tilde{\mathbf{A}}$ is given by:
+    \begin{equation}
+        \lambda_{\min}(\tilde{\mathbf{A}}) = \frac{\lambda + s}{1 + s}.
+    \end{equation}
+\end{enumerate}
+
+To enforce the condition $\lambda_{\min}(\tilde{\mathbf{A}}) = \tau$, we solve the following equation for $s$:
+
+\begin{equation}
+    \frac{\lambda + s}{1 + s} = \tau.
+\end{equation}
+
+Rearranging the terms:
+\begin{align*}
+    \lambda + s &= \tau(1 + s) \\
+    \lambda + s &= \tau + \tau s \\
+    s - \tau s &= \tau - \lambda \\
+    s(1 - \tau) &= \tau - \lambda.
+\end{align*}
+
+This yields the closed-form solution for the scaling factor:
+\begin{equation}
+    s = \frac{\tau - \lambda}{1 - \tau}.
+\end{equation}
+
+This transformation ensures that \texttt{LDAmod} and \texttt{QDAmod} remain numerically solvable even in high-dimensional scenarios where standard implementations would fail due to singularity, providing a robust baseline for benchmarking the performance of \texttt{gipsDA}.
 
 
 
