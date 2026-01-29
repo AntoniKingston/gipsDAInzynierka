@@ -32,17 +32,27 @@ df <- fix_tiny_values(df)
 df = clean_infinite_values(df)
 df <- df[sample(1:nrow(df)), ]
 
+spe_idx = c(1,4,8)
+
 credit_exp_data <- generate_single_plot_info_real_data(df,
                                                 granularity = 16, lb = 20, up=750,
-                                                n_experiments = 30, opt = "MH",
+                                                n_experiments = 30, n_experiments_spe = 100, spe_idx = spe_idx, opt = "MH",
                                                 max_iter = 1500, tr_ts_split = 0.7, MAP = TRUE)
 
 credit_plot_data <- credit_exp_data$plot_info
 credit_test_data <- credit_exp_data$test_info
 real_plot_data = list("creditcard" = credit_plot_data)
+
 plot_object <- create_multilevel_plot(real_plot_data)
+plot_object_auc <- create_multilevel_plot(real_plot_data, "vucs", ylab = "AUC")
+boxplot_object <- create_multilevel_boxplot(real_plot_data, spe_idx)
+
 ggsave("data/real_world_datasets/creditcard_plot.png",
        plot = plot_object, width = 10, height = 5, dpi = 300)
+ggsave("data/real_world_datasets/creditcard_plot_auc.png",
+       plot = plot_object_auc, width = 10, height = 5, dpi = 300)
+ggsave("data/real_world_datasets/creditcard_boxplot.png",
+       plot = boxplot_object, width = 6, height = 5, dpi = 300)
 
 saveRDS(real_plot_data, "data/real_world_datasets/creditcard_plot_data.rds")
 saveRDS(credit_test_data, "data/real_world_datasets/creditcard_test_data.rds")
