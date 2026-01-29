@@ -8,10 +8,10 @@ library(parallel)
 set.seed(2137)
 source("manual_tests/models/utils.R")
 
-# ps <- c("5","10")
-ps <- c("5")
-# ns <- c("2","5","10")
-ns <- c("2")
+ps <- c("5","10")
+# ps <- c("5")
+ns <- c("2","5","10")
+# ns <- c("2")
 perm_lists_prop <- list(
   # For p=5 (5 dimensions)
   "5" = list(
@@ -62,6 +62,20 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
   } else if (perm_type_name == "full_cycle") {
     perms[c(1,3)] <- perms[c(3,1)]
   }
+
+  map_bool_chr <- as.character(MAP)
+
+  filename <- glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.png")
+  filename_auc <- glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}_auc.png")
+  filename_boxplot <- glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}_spe.png")
+  filename_plot_info <- glue("saved_objects/synthetic_data_plot_info/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
+  filename_scenarios_metadata <- glue("saved_objects/synthetic_data_matrices_and_means/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
+  filename_tests <- glue("saved_objects/tests/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
+
+  if (file.exists(filename)) {
+    return(invisible(NULL))
+  }
+
   message(
     "Running job: ",
     "p=", p, ", ",
@@ -72,28 +86,16 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
     "opt=", opt
   )
 
-  map_bool_chr <- as.character(MAP)
-
-  filename <- glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.png")
-  filename_boxplot <- glue("plots/synthetic_data/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}_spe.png")
-  filename_plot_info <- glue("saved_objects/synthetic_data_plot_info/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
-  filename_scenarios_metadata <- glue("saved_objects/synthetic_data_matrices_and_means/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
-  filename_tests <- glue("saved_objects/tests/synth_{p}_{n}_{dist}_{perm_type_name}_{map_bool_chr}.rds")
-
-  if (file.exists(filename)) {
-    return(invisible(NULL))
-  }
-
   spe_indexes <- c(1,3,5)
 
   scenario_info <- generate_multiple_plots_info_qr(p = as.numeric(p),
     n_classes = as.integer(n),
     perms = perms,
     lambda_dist = dist,
-    granularity = 5,
+    granularity = 10,
     lb = 16,
-    n_experiments = 2,
-    n_experiments_spe = 20,
+    n_experiments = 30,
+    n_experiments_spe = 100,
     spe_idx = spe_indexes,
     opt = opt,
     max_iter = 1000,
@@ -110,9 +112,11 @@ run_job <- function(p, n, dist, perm_type_name, MAP, opt) {
   saveRDS(test_info, filename_tests)
 
   campaign_plot <- create_multilevel_plot(plot_info)
+  campagn_plot_auc <- create_multilevel_plot(plot_info, "vucs", ylab = "AUC")
   campaign_boxplot <- create_multilevel_boxplot(plot_info, spe_indexes)
 
   ggplot2::ggsave(filename, plot = campaign_plot, width = 16, height = 9, dpi = 500)
+  ggplot2::ggsave(filename_auc, plot = campagn_plot_auc, width = 16, height = 9, dpi = 500)
   ggplot2::ggsave(filename_boxplot, plot = campaign_boxplot, width = 16, height = 9, dpi = 500)
 
   invisible(NULL)
@@ -123,7 +127,7 @@ mclapply(
   function(i) {
     with(jobs[i, ], run_job(p, n, dist, perm_type_name, MAP, opt))
   },
-  mc.cores = parallel::detectCores() - 1
+  mc.cores = 12
 )
 
 
