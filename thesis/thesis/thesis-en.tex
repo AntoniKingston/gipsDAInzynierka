@@ -684,7 +684,7 @@ in scale or variance but are expected to share a common dependency structure:
 \end{figure}
 
 \subsection{Regularization}
-It should be also noted that all covariance estimates are passed to regularizing function after being projected. The exact procedure is discussed in appendix B.
+It should be also noted that all covariance estimates are passed to regularizing function after being projected. The exact procedure is discussed in appendix \ref{sec:baseline_regularization}.
 
 
 
@@ -1337,7 +1337,7 @@ The comparative analysis involves six distinct models. In the generated plots an
     \item \textbf{\texttt{gipsldacl}}: The \texttt{gipsLDA} model utilizing the \textbf{classic} estimator (unbiased pooled covariance).
     \item \textbf{\texttt{gipsqda}}: The \texttt{gipsQDA} model, where each class has a unique covariance structure.
     \item \textbf{\texttt{gipsmultqda}}: The \texttt{gipsMultQDA} model, where classes share a common permutation symmetry.
-    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described appendix B (\texttt{LDAmod}).
+    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described in appendix \ref{sec:baseline_regularization} (\texttt{LDAmod}).
     \item \textbf{\texttt{qda}}: The baseline Quadratic Discriminant Analysis model, modified with eigenvalue regularization (\texttt{QDAmod}).
 \end{itemize}
 
