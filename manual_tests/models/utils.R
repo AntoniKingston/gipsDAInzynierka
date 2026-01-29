@@ -1,6 +1,5 @@
 library(gipsDA)
 library(ggplot2)
-library(pROC)
 
 source("data/generate/generate_scenario_cov_mat_means_given.R")
 source("manual_tests/models/LDAmod.R")
@@ -31,6 +30,9 @@ accuracy_experiment <- function(cov_mats, means, n_per_class, model, n_per_class
   })
 
   if (is.null(classifier)) {
+    if (vuc) {
+      return(list("acc" = 0, "vuc" = 0))
+    }
     return(0)
   }
 
@@ -41,7 +43,7 @@ accuracy_experiment <- function(cov_mats, means, n_per_class, model, n_per_class
   if (vuc) {
   post <- prediction$posterior
 
-  return(list("acc" = mean(pred == test_data$Y), "vuc" = as.numeric(multiclass.roc(response = test_data$Y, predict = post)$auc)))
+  return(list("acc" = mean(pred == test_data$Y), "vuc" = as.numeric(pROC::multiclass.roc(response = test_data$Y, predict = post)$auc)))
   }
 
   mean(pred == test_data$Y)
@@ -155,6 +157,7 @@ generate_multiple_plots_info_qr <- function(p,
 
 create_multilevel_plot <- function(
   mult_plots_info,
+  metric_name = "accs",  # "accs" or "vucs"
   ncol = NULL,
   xlab = "Number of Observations",
   ylab = "Accuracy",
@@ -169,16 +172,23 @@ create_multilevel_plot <- function(
     inner_list <- mult_plots_info[[dataset_name]]
     for (model_name in names(inner_list)) {
       data_points <- inner_list[[model_name]]
+
+      if (is.null(data_points[[metric_name]])) {
+        stop(paste("Metric", metric_name, "not found for model", model_name))
+      }
+
       le <- length(data_points[["ns_obs"]])
-      n_experiments <- length(data_points[["accs"]]) / le
+
+      raw_values <- data_points[[metric_name]]
+      n_experiments <- length(raw_values) / le
 
       section_lengths <- c(100, n_experiments, 100, n_experiments, 100)
 
-      data_points[["accs"]] <- tapply(data_points[["accs"]], rep(seq_len(le), each = n_experiments), mean)
+      mean_values <- tapply(raw_values, rep(seq_len(le), each = n_experiments), mean)
 
       temp_df <- data.frame(
         observations = data_points[["ns_obs"]],
-        accuracy = data_points[["accs"]],
+        accuracy = mean_values,
         model = model_name,
         dataset = dataset_name
       )
@@ -356,6 +366,8 @@ generate_single_plot_info_real_data <- function(scenario_data,
                                                 lb = 50,
                                                 up = 100,
                                                 n_experiments = 5,
+                                                n_experiments_spe = 5,
+                                                spe_idx = c(1, 3, 5),
                                                 MAP = TRUE,
                                                 opt = "BF",
                                                 max_iter = 100,
@@ -369,75 +381,79 @@ generate_single_plot_info_real_data <- function(scenario_data,
 
   ns_obs <- round(exp(seq(log(lb), log(up), length.out = granularity)))
 
-  # Generate splits sequentially (fast operation)
-  splits_by_n <- lapply(ns_obs, function(n) {
-    generate_splits_real_data(n, nrow(scenario_data),
-                              tr_ts_split, n_experiments)
+  splits_main <- lapply(ns_obs, function(n) {
+    generate_splits_real_data(n, nrow(scenario_data), tr_ts_split, n_experiments)
   })
 
-  # Flatten tasks into a single queue (Model x N x Split)
+  ns_obs_spe <- ns_obs[spe_idx]
+  splits_spe <- lapply(ns_obs_spe, function(n) {
+    generate_splits_real_data(n, nrow(scenario_data), tr_ts_split, n_experiments_spe)
+  })
+
   task_queue <- list()
   for (model in model_names) {
     for (i in seq_along(ns_obs)) {
-      current_n <- ns_obs[i]
-      current_splits <- splits_by_n[[i]]
-
-      for (j in seq_along(current_splits)) {
+      s_list <- splits_main[[i]]
+      for (j in seq_along(s_list)) {
         task_queue[[length(task_queue) + 1]] <- list(
-          model = model,
-          n_obs = current_n,
-          split = current_splits[[j]],
-          n_idx = i,
-          exp_idx = j
+          type = "main", model = model, n_obs = ns_obs[i], split = s_list[[j]],
+          n_idx = i, exp_idx = j
+        )
+      }
+    }
+    for (k in seq_along(spe_idx)) {
+      s_list <- splits_spe[[k]]
+      for (j in seq_along(s_list)) {
+        task_queue[[length(task_queue) + 1]] <- list(
+          type = "spe", model = model, n_obs = ns_obs_spe[k], split = s_list[[j]],
+          spe_k_idx = k, exp_idx = j
         )
       }
     }
   }
 
-  # Shuffle tasks for load balancing
   task_queue <- task_queue[sample(length(task_queue))]
 
-  # Run parallel execution using dynamic scheduling
   results_flat <- parallel::mclapply(task_queue, function(task) {
-    acc <- accuracy_experiment_real_data(
-      df = scenario_data,
-      split = task$split,
-      model = task$model,
-      MAP = MAP,
-      opt = opt,
-      max_iter = max_iter
-    )
-    list(model = task$model, n_idx = task$n_idx, exp_idx = task$exp_idx, acc = acc)
+    calc_vuc <- (task$type == "main")
+    res <- accuracy_experiment_real_data(scenario_data, task$split, task$model, MAP, opt, max_iter, vuc = calc_vuc)
+    c(task, list(res_acc = res$acc, res_vuc = res$vuc))
   }, mc.cores = n_cores, mc.preschedule = FALSE)
 
-  # Aggregate results back to the original structure
   plot_info <- setNames(vector("list", length(model_names)), model_names)
 
   for (m in model_names) {
-    model_results <- Filter(function(x) x$model == m, results_flat)
+    res_m <- Filter(function(x) x$model == m, results_flat)
 
-    all_accs <- matrix(NA, nrow = n_experiments, ncol = length(ns_obs))
+    res_main <- Filter(function(x) x$type == "main", res_m)
+    res_main <- res_main[order(sapply(res_main, `[[`, "n_idx"), sapply(res_main, `[[`, "exp_idx"))]
 
-    for (res in model_results) {
-      all_accs[res$exp_idx, res$n_idx] <- res$acc
-    }
-    mean_accs <- colMeans(all_accs, na.rm = TRUE)
+    res_spe <- Filter(function(x) x$type == "spe", res_m)
+    res_spe <- res_spe[order(sapply(res_spe, `[[`, "spe_k_idx"), sapply(res_spe, `[[`, "exp_idx"))]
 
     plot_info[[m]] <- list(
-      "accs" = mean_accs,
-      "ns_obs" = ns_obs,
-      "all_accs" = all_accs
+      "accs" = sapply(res_main, `[[`, "res_acc"),
+      "vucs" = sapply(res_main, `[[`, "res_vuc"),
+      "accs_spe" = sapply(res_spe, `[[`, "res_acc"),
+      "ns_obs" = ns_obs
     )
   }
-  # Prepare data for permutation tests
-  wrapper_for_test <- list("real_data" = plot_info)
+
+  acc_info_wrapper <- list("real_data" = plot_info)
 
   test_info <- lapply(test_pairs, function(pair) {
-    perm_test_blocked(wrapper_for_test, "real_data", pair[1], pair[2])
+    wilcoxon_test(
+      acc_info = acc_info_wrapper,
+      scenario = "real_data",
+      mod1 = pair[1],
+      mod2 = pair[2],
+      n_exp_spe = n_experiments_spe,
+      spe_idx = spe_idx
+    )
   })
 
-  names(test_info) <- lapply(test_pairs,
-                             function(pair) paste(pair, collapse = " vs "))
+  names(test_info) <- lapply(test_pairs, function(pair) paste(pair, collapse = " vs "))
+
   return(list(
     plot_info = plot_info,
     test_info = test_info
@@ -456,7 +472,7 @@ generate_splits_real_data <- function(n, total_rows, tr_ts_split, n_experiments)
   }, simplify = FALSE)
 }
 
-accuracy_experiment_real_data <- function(df, split, model, MAP = TRUE, opt = "BF", max_iter = 100) {
+accuracy_experiment_real_data <- function(df, split, model, MAP = TRUE, opt = "BF", max_iter = 100, vuc = TRUE) {
   train_data <- df[split$train, , drop = FALSE]
   test_data  <- df[split$test,  , drop = FALSE]
 
@@ -479,10 +495,20 @@ accuracy_experiment_real_data <- function(df, split, model, MAP = TRUE, opt = "B
     return(NULL)
   })
 
-  if (is.null(classifier)) return(0)
+  if (is.null(classifier)) return(list(acc = 0, vuc = 0))
 
-  pred <- predict(classifier, test_data)$class
-  mean(pred == test_data$Y)
+  prediction <- predict(classifier, test_data)
+  acc <- mean(prediction$class == test_data$Y)
+
+  roc_val <- 0
+  if (vuc) {
+    tryCatch({
+      roc_res <- pROC::multiclass.roc(response = test_data$Y, predictor = prediction$posterior)
+      roc_val <- as.numeric(roc_res$auc)
+    }, error = function(e) { roc_val <<- 0 })
+  }
+
+  return(list(acc = acc, vuc = roc_val))
 }
 
 remove_low_variance_columns <- function(df, threshold = 0.95, target_col = "Y") {
