@@ -1,12 +1,13 @@
 library(gipsDA)
 library(ggplot2)
+library(pROC)
 
 source("data/generate/generate_scenario_cov_mat_means_given.R")
 source("manual_tests/models/LDAmod.R")
 source("manual_tests/models/QDAmod.R")
 
 accuracy_experiment <- function(cov_mats, means, n_per_class, model, n_per_class_test,
-                                MAP = TRUE, opt = "BF", max_iter = 100) {
+                                MAP = TRUE, opt = "BF", max_iter = 100, vuc = TRUE) {
   train_data <- generate_scenario_cov_mats_means_given(cov_mats, means, n_per_class)
   test_data <- generate_scenario_cov_mats_means_given(cov_mats, means, n_per_class_test)
 
@@ -33,7 +34,15 @@ accuracy_experiment <- function(cov_mats, means, n_per_class, model, n_per_class
     return(0)
   }
 
-  pred <- predict(classifier, test_data)$class
+  prediction <- predict(classifier, test_data)
+
+  pred <- prediction$class
+
+  if (vuc) {
+  post <- prediction$posterior
+
+  return(list("acc" = mean(pred == test_data$Y), "vuc" = as.numeric(multiclass.roc(response = test_data$Y, predict = post)$auc)))
+  }
 
   mean(pred == test_data$Y)
 }
@@ -50,23 +59,30 @@ generate_accuracy_data <- function(cov_mats,
                                    MAP = TRUE,
                                    opt = "BF",
                                    max_iter = 100) {
-  accs <- as.numeric(unlist(lapply(ns_obs, function(n_obs) {
+  accs_vucs <- lapply(ns_obs, function(n_obs) {
     n_per_class <- floor(n_obs / ncol(means))
     n_per_class_test <- floor(n_test / ncol(means))
-    replicate(n_experiments, accuracy_experiment(cov_mats, means, n_per_class, model, n_per_class_test, MAP, opt, max_iter))
-  })))
+    lapply(seq_len(n_experiments), function(i) {
+      accuracy_experiment(cov_mats, means, n_per_class, model, n_per_class_test, MAP, opt, max_iter)
+    })
+  })
+  flat <- unlist(accs_vucs, recursive = FALSE)
+  accs <- vapply(flat, `[[`, numeric(1), "acc")
+  vucs <- vapply(flat, `[[`, numeric(1), "vuc")
+
+
   ns_obs_spe <- ns_obs[spe_idx]
   accs_spe <- as.numeric(unlist(lapply(ns_obs_spe, function(n_obs) {
     n_per_class <- floor(n_obs / ncol(means))
     n_per_class_test <- floor(n_test / ncol(means))
-    replicate(n_experiments_spe, accuracy_experiment(cov_mats, means, n_per_class, model, n_per_class_test, MAP, opt, max_iter))
+    replicate(n_experiments_spe, accuracy_experiment(cov_mats, means, n_per_class, model, n_per_class_test, MAP, opt, max_iter, vuc = FALSE))
   })))
 
 
 
 
 
-  return(list("accs" = accs, "accs_spe" = accs_spe))
+  return(list("accs" = accs, "accs_spe" = accs_spe, "vucs" = vucs))
 }
 
 generate_single_plot_info <- function(scenario_metadata,
@@ -85,7 +101,7 @@ generate_single_plot_info <- function(scenario_metadata,
   means <- scenario_metadata$means
   plot_info <- lapply(model_names, function(model) {
     acc_data <- generate_accuracy_data(cov_mats, means, ns_obs, model, n_test, n_experiments, n_experiments_spe, spe_idx, MAP, opt, max_iter)
-    list("accs" = acc_data[["accs"]], "accs_spe" = acc_data[["accs_spe"]], "ns_obs" = ns_obs)
+    list("accs" = acc_data[["accs"]], "accs_spe" = acc_data[["accs_spe"]], "vucs" = acc_data[["vucs"]], "ns_obs" = ns_obs)
   })
   names(plot_info) <- model_names
   plot_info
