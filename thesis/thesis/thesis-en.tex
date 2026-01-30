@@ -1520,11 +1520,12 @@ For each configuration, a composite figure displays five subplots corresponding 
 \end{table}
 
 \textbf{Observations:}
-\textcolor{red}{Do napisania od nowa}
-In this high-dimensional multi-class setting ($p=10, k=10$) characterized by a "Dense Transposition" symmetry structure, the \texttt{gips}-based models demonstrate a decisive advantage.
-The statistical analysis reveals that \texttt{gipsMultQDA} significantly outperforms the \texttt{QDAmod} baseline across all heteroscedastic scenarios, achieving p-values near zero in both the \texttt{gipsqda} and \texttt{gipsmultqda} scenarios.
-Furthermore, within the homoscedastic \texttt{gipslda} scenario, the \texttt{gipsLDA classic} estimator provides a statistically significant improvement over \texttt{LDAmod} ($pvalue < 0.001$).
-These results confirm that even with the Bayesian Model Averaging strategy (\texttt{MAP = FALSE}), enforcing the shared permutation constraint successfully regularizes the covariance estimation in data-scarce regimes.
+%\textcolor{red}{Do napisania od nowa}
+In numerous scenarios we observe null hypothesis rejection signifiyng supremacy of \texttt{gips} models. While this is a result backed with statistical machinery, overall look of accuracy line and boxplots does not reveal a substantial advantage.
+%In this high-dimensional multi-class setting ($p=10, k=10$) characterized by a "Dense Transposition" symmetry structure, the \texttt{gips}-based models demonstrate a decisive advantage.
+%The statistical analysis reveals that \texttt{gipsMultQDA} significantly outperforms the \texttt{QDAmod} baseline across all heteroscedastic scenarios, achieving p-values near zero in both the \texttt{gipsqda} and \texttt{gipsmultqda} scenarios.
+%Furthermore, within the homoscedastic \texttt{gipslda} scenario, the \texttt{gipsLDA classic} estimator provides a statistically significant improvement over \texttt{LDAmod} ($pvalue < 0.001$).
+%These results confirm that even with the Bayesian Model Averaging strategy (\texttt{MAP = FALSE}), enforcing the shared permutation constraint successfully regularizes the covariance estimation in data-scarce regimes.
 
 
 \subsection{Simulation Set 2: High Dimension and Binary Classification}
@@ -1651,11 +1652,12 @@ These results confirm that even with the Bayesian Model Averaging strategy (\tex
 \end{table}
 
 \textbf{Observations:}
-\textcolor{red}{Do napisania}
-In this binary classification setting ($p=10, k=2$) with covariance matrix with eigenvalues coming form Chi-squared distribution, the benefits of permutation-based regularization are profound.
-The statistical analysis reveals overwhelming evidence ($p \approx 0$) favoring the \texttt{gips}-based models over the regularized baselines across almost all scenarios.
-Notably, \texttt{gipsMultQDA} consistently outperforms \texttt{QDAmod} in heteroscedastic environments (Scenarios \texttt{gipsqda} and \texttt{gipsmultqda}), confirming that the shared "Dense Transposition" constraint effectively stabilizes estimation without sacrificing necessary flexibility.
-Similarly, in homoscedastic scenarios, \texttt{gipsLDA classic} proves significantly superior to \texttt{LDAmod}, demonstrating that even with a small number of classes, the reduction in free parameters yields a substantial gain in predictive accuracy.
+%\textcolor{red}{Do napisania}
+As binary classification is a much simpler task that predicting 1 of 10 classes line and boxplots seem even less informative, at the same time statistical testing suggests an even bigger advantage of \texttt{gips} models than in the previous scenario.
+%In this binary classification setting ($p=10, k=2$) with covariance matrix with eigenvalues coming form Chi-squared distribution, the benefits of permutation-based regularization are profound.
+%The statistical analysis reveals overwhelming evidence ($p \approx 0$) favoring the \texttt{gips}-based models over the regularized baselines across almost all scenarios.
+%Notably, \texttt{gipsMultQDA} consistently outperforms \texttt{QDAmod} in heteroscedastic environments (Scenarios \texttt{gipsqda} and \texttt{gipsmultqda}), confirming that the shared "Dense Transposition" constraint effectively stabilizes estimation without sacrificing necessary flexibility.
+%Similarly, in homoscedastic scenarios, \texttt{gipsLDA classic} proves significantly superior to \texttt{LDAmod}, demonstrating that even with a small number of classes, the reduction in free parameters yields a substantial gain in predictive accuracy.
 
 
 \subsection{Simulation Set 3: Low Dimension and 10 Classes}
@@ -1757,214 +1759,216 @@ Similarly, in homoscedastic scenarios, \texttt{gipsLDA classic} proves significa
 \end{table}
 
 \textbf{Observations:}
-\textcolor{red}{Do napisania od nowa}
-In this low-dimensional, multi-class setting ($p=5, k=10$) with covariance matrix with eigenvalues coming form Log-Normal distribution, the distinction between models is more nuanced than in higher-dimensional scenarios.
-Due to the low feature count, the "curse of dimensionality" is less pronounced, allowing standard baselines to remain competitive; consequently, many direct comparisons between \texttt{gips}-based models and their baselines did not yield statistically significant differences ($p > 0.05$).
-However, the results in the \texttt{gipslda} scenario highlight the robustness of the \texttt{gipsMultQDA} approach.
-Even when the ground truth implies homoscedasticity, the \texttt{gipsMultQDA} model—which enforces the "Full Cycle" symmetry while allowing for potential scale variations—significantly outperforms the regularized \texttt{LDAmod} ($pvalue \approx 0$).
-This suggests that the shared permutation constraint captures the complex dependency structure of the Log-Normal data more effectively than the standard linear assumption.
+%\textcolor{red}{Do napisania od nowa}
+Due to disparity in dimensionality and the number of classes in favor of the former this problem is much more difficult than the 2 previous ones. This manifests in the form of lower plateaus of accuracy and a visible difference in model performance.
+Tests results similarly to the previously discussed scenarios do stem from visualized data at the first glance though.
+%In this low-dimensional, multi-class setting ($p=5, k=10$) with covariance matrix with eigenvalues coming form Log-Normal distribution, the distinction between models is more nuanced than in higher-dimensional scenarios.
+%Due to the low feature count, the "curse of dimensionality" is less pronounced, allowing standard baselines to remain competitive; consequently, many direct comparisons between \texttt{gips}-based models and their baselines did not yield statistically significant differences ($p > 0.05$).
+%However, the results in the \texttt{gipslda} scenario highlight the robustness of the \texttt{gipsMultQDA} approach.
+%Even when the ground truth implies homoscedasticity, the \texttt{gipsMultQDA} model—which enforces the "Full Cycle" symmetry while allowing for potential scale variations—significantly outperforms the regularized \texttt{LDAmod} ($pvalue \approx 0$).
+%This suggests that the shared permutation constraint captures the complex dependency structure of the Log-Normal data more effectively than the standard linear assumption.
 
-\subsection{Simulation Set 4: Low Dimension and Binary Classification}
-\label{sec:sim_set_4}
-
-\textbf{Configuration:} $p=5$, $k=2$, Distribution: Chi-squared, MAP: \texttt{False}, Main Permutation: Dense Transposition.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE}
-    \caption{Learning curves for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
-    \label{fig:sim_set_4}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE_auc}
-    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
-    \label{fig:sim_set_4_auc}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE_spe}
-    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
-    \label{fig:sim_set_4_box}
-\end{figure}
-
-
-\begin{table}[H]
-    \centering
-    \setlength{\tabcolsep}{4pt}
-    \small
-    \begin{tabular}{lllc c}
-    \toprule
-    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
-    \midrule
-    % --- SCENARIO: QDA ---
-    \multirow{12}{*}{qda}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
-      & & & 24 & 0.0006 \\
-      & & & 36 & 0.0024 \\
-      \cmidrule{2-5}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0003 \\
-      & & & 24 & 0.0004 \\
-      & & & 36 & 0.0167 \\
-      \cmidrule{2-5}
-      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsQDA} & 16 & 0.0819 \\
-      & & & 24 & 0.0050 \\
-      & & & 36 & 0.0115 \\
-      \cmidrule{2-5}
-      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0006 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0001 \\
-    \midrule
-    % --- SCENARIO: GIPSQDA ---
-    \multirow{9}{*}{gipsqda}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
-      & & & 24 & 0.0001 \\
-      & & & 36 & 0.0042 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 16 & 0.0003 \\
-      & & & 24 & 0.0337 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 24 & 0.0738 \\
-      & & & 36 & 0.0072 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0165 \\
-      & & & 24 & 0.0000 \\
-    \midrule
-    % --- SCENARIO: GIPSMULTQDA ---
-    \multirow{11}{*}{gipsmultqda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 24 & 0.0001 \\
-      & & & 36 & 0.0068 \\
-      \cmidrule{2-5}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0009 \\
-      & & & 24 & 0.0002 \\
-      & & & 36 & 0.0091 \\
-      \cmidrule{2-5}
-      & gipsLDA classic & gipsLDA weighted & 16 & 0.0163 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 24 & 0.0117 \\
-      & & & 36 & 0.0000 \\
-      \cmidrule{2-5}
-      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
-    \bottomrule
-    \end{tabular}
-    \caption{Selected statistical comparison results for Simulation Set 4 - Part 1. The table presents p-values for specific model pairs in QDA-based scenarios.}
-    \label{tab:stat_sim_4_part1}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \setlength{\tabcolsep}{4pt}
-    \small
-    \begin{tabular}{lllc c}
-    \toprule
-    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
-    \midrule
-    % --- SCENARIO: LDA ---
-    \multirow{3}{*}{lda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 16 & 0.0041 \\
-      & & & 24 & 0.0209 \\
-      \cmidrule{2-5}
-      & LDAmod & gipsLDA weighted & 16 & 0.0200 \\
-    \midrule
-    % --- SCENARIO: GIPSLDA ---
-    \multirow{10}{*}{gipslda}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
-      & & & 24 & 0.0039 \\
-      & & & 36 & 0.0011 \\
-      \cmidrule{2-5}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
-      & & & 24 & 0.0022 \\
-      & & & 36 & 0.0298 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 16 & 0.0077 \\
-      & & & 36 & 0.0014 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0000 \\
-      & & & 36 & 0.0071 \\
-    \bottomrule
-    \end{tabular}
-    \caption{Selected statistical comparison results for Simulation Set 4 - Part 2. The table presents p-values for specific model pairs in LDA-based scenarios.}
-    \label{tab:stat_sim_4_part2}
-\end{table}
-
-
-\textbf{Observations:}
-\textcolor{red}{Do Napisania od nowa}
-In this low-dimensional binary setting ($p=5, k=2$), the classification task proves to be relatively straightforward, with all models rapidly converging to near-perfect accuracy (saturation effect). Despite this ceiling effect, the \texttt{gips}-based regularization still yields statistically significant improvements. In the heteroscedastic \texttt{gipsqda} scenario, both \texttt{gipsQDA} and \texttt{gipsMultQDA} significantly outperform the standard \texttt{QDAmod} ($pvalue < 0.05$). A notable deviation from previous trends is observed here: the \texttt{gipsLDA weighted average} estimator demonstrates a statistically significant advantage over both \texttt{LDAmod} and the \texttt{gipsLDA classic} estimator. This suggests that in specific low-dimensional, non-Gaussian (Chi-squared) regimes, averaging over the permutation posterior captures the data structure more effectively than a single point estimate.
-
-\subsection{Simulation Set 5: Low Dimension and 5 Classes}
-\label{sec:sim_set_5}
-
-\textbf{Configuration:} $p=5$, $k=5$, Distribution: Exponential, MAP: \texttt{False}, Main Permutation: Sparse Transposition.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE}
-    \caption{Learning curves showing \textbf{Classification Accuracy} for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
-    \label{fig:sim_set_5}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE_auc}
-    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
-    \label{fig:sim_set_5_auc}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE_spe}
-    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
-    \label{fig:sim_set_5_box}
-\end{figure}
+%\subsection{Simulation Set 4: Low Dimension and Binary Classification}
+%\label{sec:sim_set_4}
+%
+%\textbf{Configuration:} $p=5$, $k=2$, Distribution: Chi-squared, MAP: \texttt{False}, Main Permutation: Dense Transposition.
+%
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE}
+%    \caption{Learning curves for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+%    \label{fig:sim_set_4}
+%\end{figure}
+%
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE_auc}
+%    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+%    \label{fig:sim_set_4_auc}
+%\end{figure}
+%
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE_spe}
+%    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
+%    \label{fig:sim_set_4_box}
+%\end{figure}
+%
+%
+%\begin{table}[H]
+%    \centering
+%    \setlength{\tabcolsep}{4pt}
+%    \small
+%    \begin{tabular}{lllc c}
+%    \toprule
+%    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+%    \midrule
+%    % --- SCENARIO: QDA ---
+%    \multirow{12}{*}{qda}
+%      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+%      & & & 24 & 0.0006 \\
+%      & & & 36 & 0.0024 \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0003 \\
+%      & & & 24 & 0.0004 \\
+%      & & & 36 & 0.0167 \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsQDA} & 16 & 0.0819 \\
+%      & & & 24 & 0.0050 \\
+%      & & & 36 & 0.0115 \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0006 \\
+%      & & & 24 & 0.0000 \\
+%      & & & 36 & 0.0001 \\
+%    \midrule
+%    % --- SCENARIO: GIPSQDA ---
+%    \multirow{9}{*}{gipsqda}
+%      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+%      & & & 24 & 0.0001 \\
+%      & & & 36 & 0.0042 \\
+%      \cmidrule{2-5}
+%      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 16 & 0.0003 \\
+%      & & & 24 & 0.0337 \\
+%      \cmidrule{2-5}
+%      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 24 & 0.0738 \\
+%      & & & 36 & 0.0072 \\
+%      \cmidrule{2-5}
+%      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0165 \\
+%      & & & 24 & 0.0000 \\
+%    \midrule
+%    % --- SCENARIO: GIPSMULTQDA ---
+%    \multirow{11}{*}{gipsmultqda}
+%      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 24 & 0.0001 \\
+%      & & & 36 & 0.0068 \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0009 \\
+%      & & & 24 & 0.0002 \\
+%      & & & 36 & 0.0091 \\
+%      \cmidrule{2-5}
+%      & gipsLDA classic & gipsLDA weighted & 16 & 0.0163 \\
+%      \cmidrule{2-5}
+%      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 24 & 0.0117 \\
+%      & & & 36 & 0.0000 \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
+%      & & & 24 & 0.0000 \\
+%      & & & 36 & 0.0000 \\
+%    \bottomrule
+%    \end{tabular}
+%    \caption{Selected statistical comparison results for Simulation Set 4 - Part 1. The table presents p-values for specific model pairs in QDA-based scenarios.}
+%    \label{tab:stat_sim_4_part1}
+%\end{table}
+%
+%\begin{table}[H]
+%    \centering
+%    \setlength{\tabcolsep}{4pt}
+%    \small
+%    \begin{tabular}{lllc c}
+%    \toprule
+%    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+%    \midrule
+%    % --- SCENARIO: LDA ---
+%    \multirow{3}{*}{lda}
+%      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 16 & 0.0041 \\
+%      & & & 24 & 0.0209 \\
+%      \cmidrule{2-5}
+%      & LDAmod & gipsLDA weighted & 16 & 0.0200 \\
+%    \midrule
+%    % --- SCENARIO: GIPSLDA ---
+%    \multirow{10}{*}{gipslda}
+%      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+%      & & & 24 & 0.0039 \\
+%      & & & 36 & 0.0011 \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
+%      & & & 24 & 0.0022 \\
+%      & & & 36 & 0.0298 \\
+%      \cmidrule{2-5}
+%      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 16 & 0.0077 \\
+%      & & & 36 & 0.0014 \\
+%      \cmidrule{2-5}
+%      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0000 \\
+%      & & & 36 & 0.0071 \\
+%    \bottomrule
+%    \end{tabular}
+%    \caption{Selected statistical comparison results for Simulation Set 4 - Part 2. The table presents p-values for specific model pairs in LDA-based scenarios.}
+%    \label{tab:stat_sim_4_part2}
+%\end{table}
 
 
-\begin{table}[H]
-\centering
-\label{tab:stat_sim_5}
-\begin{tabular}{lllcS[table-format=1.4]}
-\toprule
-\textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
-\midrule
-\multirow{2}{*}{qda}
-  & LDAmod & gipsLDA classic & 16 & 0.0049 \\
-  & LDAmod & gipsLDA weighted & 16 & 0.0099 \\
-\midrule
-\multirow{3}{*}{gipsqda}
-  & LDAmod & gipsLDA classic & 16 & 0.0331 \\
-  & LDAmod & gipsLDA weighted & 16 & 0.0287 \\
-  & QDAmod & gipsMultQDA & 16 & 0.0029 \\
-\midrule
-\multirow{6}{*}{gipsmultqda}
-  & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0001 \\
-  & & & 29 & 0.0000 \\
-  & & & 54 & 0.0028 \\
-  \cmidrule{2-5}
-  & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0008 \\
-  & & & 29 & 0.0025 \\
-  & & & 54 & 0.0017 \\
-\midrule
-\multirow{3}{*}{lda}
-  & LDAmod & gipsLDA classic & 16 & 0.0654 \\
-  \cmidrule{2-5}
-  & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0032 \\
-  & & & 29 & 0.0000 \\
-\midrule
-\multirow{2}{*}{gipslda}
-  & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0809 \\
-  & & & 29 & 0.0589 \\
-\bottomrule
-\end{tabular}
-\caption{Selected statistical comparison results including Number of Observations. The table presents p-values for specific model pairs derived from the raw simulation data.}
-\end{table}
+%\textbf{Observations:}
+%\textcolor{red}{Do Napisania od nowa}
+%In this low-dimensional binary setting ($p=5, k=2$), the classification task proves to be relatively straightforward, with all models rapidly converging to near-perfect accuracy (saturation effect). Despite this ceiling effect, the \texttt{gips}-based regularization still yields statistically significant improvements. In the heteroscedastic \texttt{gipsqda} scenario, both \texttt{gipsQDA} and \texttt{gipsMultQDA} significantly outperform the standard \texttt{QDAmod} ($pvalue < 0.05$). A notable deviation from previous trends is observed here: the \texttt{gipsLDA weighted average} estimator demonstrates a statistically significant advantage over both \texttt{LDAmod} and the \texttt{gipsLDA classic} estimator. This suggests that in specific low-dimensional, non-Gaussian (Chi-squared) regimes, averaging over the permutation posterior captures the data structure more effectively than a single point estimate.
+%
+%\subsection{Simulation Set 5: Low Dimension and 5 Classes}
+%\label{sec:sim_set_5}
+%
+%\textbf{Configuration:} $p=5$, $k=5$, Distribution: Exponential, MAP: \texttt{False}, Main Permutation: Sparse Transposition.
+%
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE}
+%    \caption{Learning curves showing \textbf{Classification Accuracy} for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+%    \label{fig:sim_set_5}
+%\end{figure}
+%
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE_auc}
+%    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+%    \label{fig:sim_set_5_auc}
+%\end{figure}
+%
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE_spe}
+%    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
+%    \label{fig:sim_set_5_box}
+%\end{figure}
+%
+%
+%\begin{table}[H]
+%\centering
+%\label{tab:stat_sim_5}
+%\begin{tabular}{lllcS[table-format=1.4]}
+%\toprule
+%\textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+%\midrule
+%\multirow{2}{*}{qda}
+%  & LDAmod & gipsLDA classic & 16 & 0.0049 \\
+%  & LDAmod & gipsLDA weighted & 16 & 0.0099 \\
+%\midrule
+%\multirow{3}{*}{gipsqda}
+%  & LDAmod & gipsLDA classic & 16 & 0.0331 \\
+%  & LDAmod & gipsLDA weighted & 16 & 0.0287 \\
+%  & QDAmod & gipsMultQDA & 16 & 0.0029 \\
+%\midrule
+%\multirow{6}{*}{gipsmultqda}
+%  & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0001 \\
+%  & & & 29 & 0.0000 \\
+%  & & & 54 & 0.0028 \\
+%  \cmidrule{2-5}
+%  & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0008 \\
+%  & & & 29 & 0.0025 \\
+%  & & & 54 & 0.0017 \\
+%\midrule
+%\multirow{3}{*}{lda}
+%  & LDAmod & gipsLDA classic & 16 & 0.0654 \\
+%  \cmidrule{2-5}
+%  & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0032 \\
+%  & & & 29 & 0.0000 \\
+%\midrule
+%\multirow{2}{*}{gipslda}
+%  & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0809 \\
+%  & & & 29 & 0.0589 \\
+%\bottomrule
+%\end{tabular}
+%\caption{Selected statistical comparison results including Number of Observations. The table presents p-values for specific model pairs derived from the raw simulation data.}
+%\end{table}
 
-\textbf{Observations:}
-\textcolor{red}{Do napisania od nowa}
-This configuration ($p=5, k=5$) with covariance matrix with eigenvalues coming form Exponential distribution and a "Sparse Transposition" symmetry presents a scenario where the performance gap between the proposed models and the baselines narrows significantly. The statistical analysis indicates that for the majority of comparisons, including the primary \texttt{gipsQDA} vs. \texttt{QDAmod} case, the difference in accuracy is not statistically significant ($pvalue > 0.05$). This suggests that with the "Sparse Transposition" structure—which imposes relatively weak constraints—and non-Gaussian noise, the regularization benefit of the \texttt{gips} models is less pronounced than in denser symmetry settings. Additionally, the plots reaffirm the trend that for homoscedastic scenarios (\texttt{lda} and \texttt{gipslda}), the \texttt{gipsLDA classic} estimator is far superior to the \texttt{weighted average} variant, which performs poorly in this specific setup.
+%\textbf{Observations:}
+%\textcolor{red}{Do napisania od nowa}
+%This configuration ($p=5, k=5$) with covariance matrix with eigenvalues coming form Exponential distribution and a "Sparse Transposition" symmetry presents a scenario where the performance gap between the proposed models and the baselines narrows significantly. The statistical analysis indicates that for the majority of comparisons, including the primary \texttt{gipsQDA} vs. \texttt{QDAmod} case, the difference in accuracy is not statistically significant ($pvalue > 0.05$). This suggests that with the "Sparse Transposition" structure—which imposes relatively weak constraints—and non-Gaussian noise, the regularization benefit of the \texttt{gips} models is less pronounced than in denser symmetry settings. Additionally, the plots reaffirm the trend that for homoscedastic scenarios (\texttt{lda} and \texttt{gipslda}), the \texttt{gipsLDA classic} estimator is far superior to the \texttt{weighted average} variant, which performs poorly in this specific setup.
 
 \section{Real-World Data Results}
 
@@ -2332,24 +2336,23 @@ In this multi-class industrial classification task, the performance dynamics shi
 Regarding the quadratic family, all variants (\texttt{QDAmod}, \texttt{gipsQDA}, \texttt{gipsMultQDA}) exhibit identical behavior, implying that the regularization identified the trivial symmetry as optimal. While these models struggle when the Number of Observations is small due to the parameter explosion inherent in 7-class classification, visual inspection reveals that they eventually surpass the linear models as data becomes abundant and the high variance of the estimator is overcome. Finally, the \texttt{gipsLDA weighted average} estimator occupies a distinct middle ground in the early phase—performing better than the struggling quadratic models but falling significantly behind the robust \texttt{gipsLDA classic} and \texttt{LDAmod} variants.
 
 \section{Summary of Findings}
-\textcolor{red}{Sekcja do Napisania od nowa na podstawie wszystkich nowych eksperymentów, jak jest niezle to trzeba przynajmniej minimalnie zmienic}
-Based on the detailed analysis of both the synthetic simulation sets and the diverse real-world benchmarks, we can synthesize the following key findings regarding the proposed \texttt{gipsDA} framework:
+Based on the analysis of both the synthetic simulation sets and the diverse real-world benchmarks, we can synthesize the following key findings regarding the proposed \texttt{gipsDA} framework:
 
 \begin{itemize}
     \item \textbf{Efficacy in High-Dimensional, Data-Scarce Regimes:}
-    The synthetic experiments conclusively demonstrate that imposing permutation symmetry acts as a powerful form of model-based regularization. In scenarios characterized by high dimensionality ($p=10$) and low sample sizes ($n \approx p$ or $n < p$), the \texttt{gips}-based models significantly outperformed the standard regularized baselines. Specifically, \texttt{gipsMultQDA} and \texttt{gipsQDA} consistently achieved p-values near zero when compared to \texttt{QDAmod}, proving that reducing the parameter space via symmetry constraints effectively mitigates the "curse of dimensionality" and prevents overfitting.
+    The synthetic experiments  demonstrate that imposing permutation symmetry acts as a form of model-based regularization to be reckoned with. In scenarios characterized by high dimensionality ($p=10$) and low sample sizes ($n \approx p$ or $n < p$), the \texttt{gips}-based models significantly outperformed the standard regularized baselines. Specifically, \texttt{gipsMultQDA} and \texttt{gipsQDA} consistently achieved p-values near zero when compared to \texttt{QDAmod}, suggesting that reducing the parameter space via symmetry constraints  mitigates the "curse of dimensionality" and prevents overfitting.
 
     \item \textbf{Superiority of the Classic Estimator for gipsLDA:}
-    A recurrent pattern across both synthetic and real-world results (e.g., Credit Card, Steel Plates) is the robust performance of the \texttt{gipsLDA classic} estimator. This approach, which pools the covariance matrices before projecting onto the symmetry group, consistently outperformed the \texttt{gipsLDA weighted average} variant. The latter, which utilizes Bayesian Model Averaging, often failed to converge to optimal accuracy in higher-dimensional or multi-class settings. Consequently, the \texttt{classic} estimator is recommended as the default choice for homoscedastic modeling.
+    A recurrent pattern across both synthetic and real-world results (e.g., Credit Card, Steel Plates) is the performance of the \texttt{gipsLDA classic} estimator. This approach consistently outperformed \texttt{gipsLDA weighted average} variant. The latter often failed to converge to optimal accuracy in higher-dimensional or multi-class settings.
 
     \item \textbf{Data Efficiency in Real-World Applications:}
-    The benchmarking on real-world datasets highlighted the "data efficiency" of the proposed models. In the Breast Cancer and Heart Failure datasets, \texttt{gipsLDA classic} and \texttt{gipsMultQDA} reached their asymptotic accuracy levels with significantly fewer training samples than their unstructured counterparts. This confirms that discovering and enforcing latent symmetries allows the models to learn the decision boundary faster, a critical advantage in domains where data acquisition is costly.
+    The benchmarking on real-world datasets highlighted the "data efficiency" of the proposed models. In the Breast Cancer and Heart Failure datasets, \texttt{gipsLDA classic} and \texttt{gipsMultQDA} reached their asymptotic accuracy levels with significantly fewer training samples than their unstructured counterparts. This confirms that discovering and enforcing latent symmetries allows the models to learn the decision boundary faster, an advantage in domains where data acquisition is costly.
 
     \item \textbf{Robustness to Assumption Violations:}
     The experiments confirmed that the \texttt{gipsDA} framework remains effective even when theoretical assumptions are violated. For instance, in the Heart Failure dataset, where One-Hot Encoding introduced binary features (violating multivariate normality), the \texttt{gips}-based models still provided statistically significant improvements over the baselines. This suggests that the structural constraints imposed by \texttt{gips} are robust enough to capture useful signal even in non-Gaussian distributions.
 
     \item \textbf{Linear vs. Quadratic Reality Check:}
-    Finally, the real-world benchmarks (specifically Steel Plates, Sensorless, and EEG) underscored a practical reality: many industrial datasets exhibit inherently linear separability. In these cases, while quadratic models (both standard and \texttt{gips}-based) struggled due to parameter complexity, the linear \texttt{gipsLDA} models maintained high performance, proving to be a safe and stable choice that does not degrade results even when the symmetry assumption is an approximation.
+    Finally, the real-world benchmarks (specifically Steel Plates, Sensorless, and EEG) underscored a practical reality: many industrial datasets exhibit inherent linear separability. In these cases, while quadratic models (both standard and \texttt{gips}-based) struggled due to parameter complexity, the linear \texttt{gipsLDA} models maintained high performance.
 \end{itemize}
 
 % ======================================================================
@@ -2358,18 +2361,17 @@ Based on the detailed analysis of both the synthetic simulation sets and the div
 
 \chapter{Conclusion and Discussion}
 \label{ch:conclusion}
-\textcolor{red}{Trzeba to skorygowac na podstawie tego co sie zmienilo w eksperymentach}
-This thesis set out to address the limitations of classical discriminant analysis in high-dimensional, data-scarce environments. By developing the \texttt{gipsDA} package, we successfully integrated the theory of permutation-invariant covariance estimation with standard classification workflows. This final chapter summarizes the broader implications of our approach, reflects on the engineering challenges encountered, and outlines potential avenues for future research.
+This thesis set out to address the limitations of classical discriminant analysis in high-dimensional, data-scarce environments. By developing the \texttt{gipsDA} package, we  integrated the theory of permutation-invariant covariance estimation with standard classification workflows. This final chapter summarizes the broader implications of our approach, reflects on the engineering challenges encountered, and outlines potential avenues for future research.
 
 \section{Reflection on the Approach}
 \label{sec:reflection}
 
-The core hypothesis of this work was that imposing permutation symmetry on the covariance matrix acts as a physically motivated form of regularization, superior to arbitrary shrinkage in settings where $p \gg n$. The empirical results presented in Chapter \ref{ch:results} largely validate this hypothesis.
+The core hypothesis of this work was that imposing permutation symmetry on the covariance matrix acts as a physically motivated form of regularization, superior to arbitrary shrinkage in settings where $p \gg n$. The empirical results presented in Chapter \ref{ch:results} do not reject this hypothesis.
 
 \begin{itemize}
     \item \textbf{Symmetry as a Prior:} The success of \texttt{gipsQDA} and \texttt{gipsMultQDA} in synthetic scenarios confirms that discovering latent symmetries allows the model to drastically reduce the number of free parameters without discarding the covariance structure entirely. This suggests that "data-driven parsimony" is a viable alternative to sparsity or diagonal constraints.
-    \item \textbf{The "Classic" vs. "Weighted" Dilemma:} One of the most significant findings was the underperformance of the Bayesian Model Averaging (weighted average) strategy in the homoscedastic \texttt{gipsLDA} model. While theoretically robust, in practice, the ensemble of permutations often introduced unnecessary noise compared to the single, optimal structure found by the MAP estimator. This highlights a crucial insight: in discriminant analysis, a crisp, well-defined decision boundary (derived from a single permutation) is often preferable to a "smeared" boundary derived from a posterior average.
-    \item \textbf{Practical Utility:} The seamless integration with the \texttt{MASS} library syntax proved to be a vital design decision. By lowering the barrier to entry, we ensured that the complex mathematical backend remains accessible to data scientists, bridging the gap between advanced statistical theory and practical application.
+    \item \textbf{The "Classic" vs. "Weighted" Dilemma:} One of the most significant findings was the underperformance of the Bayesian Model Averaging (weighted average) strategy in the homoscedastic \texttt{gipsLDA} model. The models are theoreticaly asymptoticaly equivalent the issue may be an external factor like numerical instability.
+%    \item \textbf{Practical Utility:} The integration with the \texttt{MASS} library syntax proved to be a vital design decision. By lowering the barrier to entry, we ensured that the complex mathematical backend remains accessible to data scientists, bridging the gap between advanced statistical theory and practical application. % wiem, że w listingu to min 3 wyglądae dobrze ale to już jest na prawdę zeroinformatywna linijka na granicy dezinofrmacji powiedziałbym wręcz.
 \end{itemize}
 
 \section{Engineering Experience and Skills Acquired}
@@ -2387,7 +2389,7 @@ The development of \texttt{gipsDA} was not merely a statistical exercise but a r
 
 \subsection{Software Engineering Practices}
 \begin{itemize}
-    \item \textbf{Robust Testing Strategies:} Initially, our focus was on "happy path" testing. However, the usability analysis revealed the critical importance of "Negative Testing." Implementing robust error handling for invalid inputs (e.g., singular matrices, mismatched dimensions) significantly improved the package's stability and user experience.
+%    \item \textbf{Robust Testing Strategies:} Initially, our focus was on "happy path" testing. However, the usability analysis revealed the critical importance of "Negative Testing." Implementing robust error handling for invalid inputs (e.g., singular matrices, mismatched dimensions) significantly improved the package's stability and user experience.
     \item \textbf{Version Control Proficiency:} Managing a complex codebase with parallel development streams required strict adherence to version control best practices. We refined our skills in using Git and GitHub, mastering branching strategies, code reviews, and conflict resolution to maintain a clean project history.
     \item \textbf{Documentation as a First-Class Citizen:} Writing documentation concurrently with code development ensured that the final API was consistent and intuitive. This discipline prevented "feature creep" by keeping the development aligned with the functional requirements defined at the project's inception.
     \item \textbf{Collaborative Synergy:} The project highlighted that successful engineering extends beyond writing code. We learned to effectively divide responsibilities—balancing the backend mathematical logic with the user-facing API—and synchronized our efforts through constant communication.
