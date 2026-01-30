@@ -1261,7 +1261,7 @@ Additionally, the \texttt{MAP} parameter controls the estimation logic: if \text
 \subsection{Statistical Significance Testing}
 \label{sec:statistical_testing}
 
-To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a Wilcoxon signed-rank test.
+To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a Wilcoxon signed-rank test \cite{hollander2013nonparametric}.
 \subsubsection{Hypotheses}
 For a given pair of models i.e., Model A (baseline, e.g., \texttt{QDAmod}) and Model B (proposed, e.g., \texttt{gipsQDA}), accompanied by a pair of equal size samples $(\mathbbm{Y}, \mathbbm{Z})$ sampled from prediction of models trained on the same number of observations, null and alternative hypotheses are defined as follows:
 \begin{itemize}
@@ -2443,7 +2443,30 @@ While \texttt{gipsDA} provides a robust foundation for symmetry-based classifica
         \caption{Summary of individual and shared contributions.}
     \end{table}
 
-\textcolor{red}{Tutaj podzial pracy tekstu inzynierki czyli tabelka kto ktory rozdzial w pracy napisal itd}
+\noindent
+It is important to note that our collaboration was highly interactive. We worked closely together, constantly cross-checking each other's work and frequently consulting on solutions. Often, one author would prepare the initial draft of a chapter, while the other would thoroughly review and edit it. This reciprocal approach characterized our entire workflow and cooperation.
+
+\begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabularx}{\textwidth}{ >{\raggedright\arraybackslash}p{6cm} X X }
+        \toprule
+        \textbf{Role} & \textbf{Norbert} \newline 327273 & \textbf{Antoni} \newline 327284 \\
+        \midrule
+        % --- WRITING DRAFT ---
+        \textbf{Writing – original draft} &
+        Chapters: \newline 1, 2, 5, 6, 7, 8 &
+        Chapters: \newline 3, 4 \\
+        \addlinespace[10pt]
+        % --- WRITING REVIEW ---
+        \textbf{Writing – review \& editing}  &
+        Chapters: \newline 3, 4 &
+        Chapters: \newline 1, 2, 5, 6, 7, 8 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{The contribution of the authors of the thesis (Writing section).}
+\end{table}
 
 \section*{The use of IT tools in this thesis}
 \vspace{3pt}
