@@ -16,7 +16,7 @@
 \usepackage[final]{pdfpages} % INPUTING TITLE PDF PAGE - GENERATE IT FIRST!
 %\usepackage[backend=bibtex, style=verbose-trad2]{biblatex}
 
-\usepackage{tabularx, booktabs, xcolor, float} % FOR TABLES
+\usepackage{tabularx, booktabs, xcolor, float, multirow, siunitx} % FOR TABLES
 
 \usepackage{commath} % various commands which can make writing math expressions easier --- documentation available at: https://ctan.gust.org.pl/tex-archive/macros/latex/contrib/commath/commath.pdf
 
@@ -932,57 +932,17 @@ To quantitatively assess and compare the predictive power of these models, we em
 
 where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
 
-%\section{Baseline Regularization Strategy}
-%\label{sec:baseline_regularization}
-%
-%Standard estimators for Linear and Quadratic Discriminant Analysis (LDA and QDA) rely on the inversion of the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$. In high-dimensional settings, particularly when $p > n$, $\hat{\boldsymbol{\Sigma}}$ becomes singular or near-singular, possessing eigenvalues close to or equal to zero. This renders the standard precision matrix calculation unstable or impossible.
-%
-%To ensure a fair comparison between the proposed \texttt{gips}-based models and the classical approaches, we implemented a modified version of the standard algorithms, denoted as \texttt{LDAmod} and \texttt{QDAmod}. These models incorporate a deterministic regularization step—referred to as \textit{desingularization}—which guarantees that the covariance matrix is strictly positive-definite with a bounded condition number.
-%
-%\subsection{Mathematical Formulation}
-%
-%The objective of this procedure is to transform the empirical covariance matrix $\mathbf{A}$ into a regularized matrix $\tilde{\mathbf{A}}$ such that its smallest eigenvalue, $\lambda_{\min}(\tilde{\mathbf{A}})$, is no less than a specific target threshold $\tau$. For the purposes of this study, we set $\tau = 0.05$.
-%
-%If the smallest eigenvalue of the original matrix, denoted as $\lambda = \lambda_{\min}(\mathbf{A})$, already satisfies $\lambda \ge \tau$, no modification is performed. However, if $\lambda < \tau$, we apply a linear shrinkage towards the identity matrix $\mathbf{I}$. The regularized matrix is defined as:
-%
-%\begin{equation}
-%    \tilde{\mathbf{A}} = \frac{\mathbf{A} + s\mathbf{I}}{1 + s},
-%\end{equation}
-%where $s$ is a non-negative scalar scaling factor.
-%
-%\subsection{Derivation of the Scaling Factor}
-%
-%The parameter $s$ is derived analytically to ensure the new smallest eigenvalue exactly matches the target $\tau$. The derivation proceeds as follows:
-%
-%\begin{enumerate}
-%    \item Let the eigenvalues of $\mathbf{A}$ be denoted by $\lambda_i$. The smallest eigenvalue is $\lambda$.
-%    \item Adding a multiple of the identity matrix shifts the spectrum. The eigenvalues of $\mathbf{A} + s\mathbf{I}$ are $\lambda_i + s$. Consequently, the smallest eigenvalue becomes $\lambda + s$.
-%    \item Dividing by the scalar $(1+s)$ scales the eigenvalues. Thus, the smallest eigenvalue of the normalized matrix $\tilde{\mathbf{A}}$ is given by:
-%    \begin{equation}
-%        \lambda_{\min}(\tilde{\mathbf{A}}) = \frac{\lambda + s}{1 + s}.
-%    \end{equation}
-%\end{enumerate}
-%
-%To enforce the condition $\lambda_{\min}(\tilde{\mathbf{A}}) = \tau$, we solve the following equation for $s$:
-%
-%\begin{equation}
-%    \frac{\lambda + s}{1 + s} = \tau.
-%\end{equation}
-%
-%Rearranging the terms:
-%\begin{align*}
-%    \lambda + s &= \tau(1 + s) \\
-%    \lambda + s &= \tau + \tau s \\
-%    s - \tau s &= \tau - \lambda \\
-%    s(1 - \tau) &= \tau - \lambda.
-%\end{align*}
-%
-%This yields the closed-form solution for the scaling factor:
-%\begin{equation}
-%    s = \frac{\tau - \lambda}{1 - \tau}.
-%\end{equation}
-%
-%This transformation ensures that \texttt{LDAmod} and \texttt{QDAmod} remain numerically solvable even in high-dimensional scenarios where standard implementations would fail due to singularity, providing a robust baseline for benchmarking the performance of \texttt{gipsDA}.
+In addition to accuracy, we utilize the \textbf{Area Under the Receiver Operating Characteristic Curve (AUC-ROC)} to evaluate the models' ability to discriminate between classes, independent of specific decision thresholds. For a binary classification problem, the AUC represents the probability that the classifier ranks a randomly chosen positive instance higher than a randomly chosen negative instance \cite{fawcett2006introduction}.
+
+To extend this metric to multi-class problems (where the number of classes $K > 2$), we employ the generalization proposed by \cite{hand2001simple}, often referred to as the \textbf{Hand \& Till M value}. This method adopts a "One-vs-One" strategy.
+
+Instead of comparing one class against all others, we calculate the AUC for every possible pair of distinct classes $(c_i, c_j)$. The final multi-class metric is defined as the arithmetic mean of these pairwise scores:
+
+\begin{equation}
+    \text{AUC}_{\text{multi}} = \frac{2}{K(K-1)} \sum_{i < j} \text{AUC}(c_i, c_j),
+\end{equation}
+
+where $\text{AUC}(c_i, c_j)$ represents the probability that a randomly chosen member of class $c_i$ will have a higher estimated probability of belonging to class $c_i$ than a randomly chosen member of class $c_j$. This metric is robust to class imbalance and provides a coherent measure of separability across all class boundaries.
 
 \section{Synthetic data}
 \label{sec:synthetic_data}
@@ -1400,36 +1360,113 @@ For each configuration, a composite figure displays five subplots corresponding 
 \subsection{Simulation Set 1: High Dimension and 10 Classes}
 \label{sec:sim_set_1}
 
-\textbf{Configuration:} $p=10$, $k=10$, Distribution: Chi-squared, MAP: \texttt{FALSE}, Main Permutation: Dense Transposition.
+\textbf{Configuration:} $p=10$, $k=10$, Distribution: Chi-squared, MAP: \texttt{TRUE}, Main Permutation: Dense Transposition.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{img/synth_10_10_chisq_dense_trans_FALSE}
+    \includegraphics[width=\textwidth]{img/synth_10_10_chisq_dense_trans_TRUE}
     \caption{Learning curves for Simulation Set 1. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
     \label{fig:sim_set_1}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_10_10_chisq_dense_trans_TRUE_auc}
+    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 1. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_1_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_10_10_chisq_dense_trans_TRUE_spe}
+    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 1. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
+    \label{fig:sim_set_1_box}
+\end{figure}
+
 \begin{table}[H]
     \centering
-    \begin{tabular}{lllc}
-        \toprule
-        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
-        \midrule
-        qda & LDAmod & gipsLDA classic & $0.0274$ \\
-        qda & QDAmod & gipsMultQDA & $0.0032$ \\
-        gipsqda & QDAmod & gipsMultQDA & $0$ \\
-        gipsmultqda & QDAmod & gipsMultQDA & $0$ \\
-        lda & LDAmod & gipsLDA classic & $0.0204$ \\
-        lda & QDAmod & gipsMultQDA & $0.002$ \\
-        gipslda & LDAmod & gipsLDA classic & $4*10^{-4}$ \\
-        gipslda & QDAmod & gipsMultQDA & $2*10^{-4}$ \\
-        \bottomrule
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{lllc c}
+    \toprule
+    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+    \midrule
+    % --- SCENARIO: LDA ---
+    \multirow{6}{*}{lda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
+      & & & 74 & 0.0656 \\
+      \cmidrule{2-5}
+      & LDAmod & gipsLDA weighted & 34 & 0.0000 \\
+      \cmidrule{2-5}
+      & QDAmod & gipsQDA & 34 & 0.0462 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0465 \\
+      & & & 74 & 0.0000 \\
+    \midrule
+    % --- SCENARIO: GIPSLDA ---
+    \multirow{6}{*}{gipslda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
+      & & & 74 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
+      & & & 74 & 0.0017 \\
+      \cmidrule{2-5}
+      & gipsLDA classic & gipsLDA weighted & 34 & 0.0079 \\
+      \cmidrule{2-5}
+      & QDAmod & gipsMultQDA & 74 & 0.0000 \\
+    \bottomrule
     \end{tabular}
-    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 1. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
-    \label{tab:stat_sim_1}
+    \caption{Selected statistical comparison results for Simulation Set 1 - Part 1. The table presents p-values for specific model pairs in LDA-based scenarios.}
+    \label{tab:stat_sim_1_part2}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{lllc c}
+    \toprule
+    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+    \midrule
+    % --- SCENARIO: QDA ---
+    \multirow{7}{*}{qda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
+      & & & 74 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
+      & & & 74 & 0.0000 \\
+      \cmidrule{2-5}
+      & gipsLDA classic & gipsLDA weighted & 34 & 0.0439 \\
+      \cmidrule{2-5}
+      & QDAmod & gipsMultQDA & 74 & 0.0000 \\
+    \midrule
+    % --- SCENARIO: GIPSQDA ---
+    \multirow{5}{*}{gipsqda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
+      & & & 74 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
+      & & & 74 & 0.0000 \\
+      \cmidrule{2-5}
+      & QDAmod & gipsMultQDA & 74 & 0.0000 \\
+    \midrule
+    % --- SCENARIO: GIPSMULTQDA ---
+    \multirow{5}{*}{gipsmultqda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
+      & & & 74 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
+      & & & 74 & 0.0000 \\
+      \cmidrule{2-5}
+      & QDAmod & gipsMultQDA & 74 & 0.0000 \\
+    \bottomrule
+    \end{tabular}
+    \caption{Selected statistical comparison results for Simulation Set 1 - Part 2. The table presents p-values for specific model pairs in QDA-based scenarios.}
+    \label{tab:stat_sim_1_part1}
 \end{table}
 
 \textbf{Observations:}
+\textcolor{red}{Do napisania od nowa}
 In this high-dimensional multi-class setting ($p=10, k=10$) characterized by a "Dense Transposition" symmetry structure, the \texttt{gips}-based models demonstrate a decisive advantage.
 The statistical analysis reveals that \texttt{gipsMultQDA} significantly outperforms the \texttt{QDAmod} baseline across all heteroscedastic scenarios, achieving p-values near zero in both the \texttt{gipsqda} and \texttt{gipsmultqda} scenarios.
 Furthermore, within the homoscedastic \texttt{gipslda} scenario, the \texttt{gipsLDA classic} estimator provides a statistically significant improvement over \texttt{LDAmod} ($pvalue < 0.001$).
@@ -1448,35 +1485,119 @@ These results confirm that even with the Bayesian Model Averaging strategy (\tex
     \label{fig:sim_set_2}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_10_2_chisq_dense_trans_FALSE_auc}
+    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 2. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_2_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_10_2_chisq_dense_trans_FALSE_spe}
+    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 2. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
+    \label{fig:sim_set_2_box}
+\end{figure}
+
+
 \begin{table}[H]
     \centering
-    \begin{tabular}{lllc}
-        \toprule
-        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
-        \midrule
-        qda & LDAmod & gipsLDA classic & $0$ \\
-        qda & LDAmod & gipsLDA classic & $0.0104$ \\
-        qda & QDAmod & gipsMultQDA & $0$ \\
-        gipsqda & LDAmod & gipsLDA classic & $4*10^{-4}$ \\
-        gipsqda & LDAmod & gipsLDA weighted average & $0$ \\
-        gipsqda & gipsLDA classic & gipsLDA weighted average & $0.0386$ \\
-        gipsqda & QDAmod & gipsMultQDA & $4*10^{-4}$ \\
-        gipsmultqda & LDAmod & gipsLDA classic & $0$ \\
-        gipsmultqda & LDAmod & gipsLDA weighted average & $0$ \\
-        gipsmultqda & QDAmod & gipsMultQDA & $0.001$ \\
-        lda & LDAmod & gipsLDA classic & $0$ \\
-        lda & LDAmod & gipsLDA weighted average & $0$ \\
-        lda & QDAmod & gipsMultQDA & $0$ \\
-        gipslda & LDAmod & gipsLDA classic & $0$ \\
-        gipslda & LDAmod & gipsLDA weighted average & $0$ \\
-        gipslda & QDAmod & gipsMultQDA & $0$ \\
-        \bottomrule
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{lllc c}
+    \toprule
+    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+    \midrule
+    % --- SCENARIO: QDA ---
+    \multirow{9}{*}{qda}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+    \midrule
+    % --- SCENARIO: GIPSQDA ---
+    \multirow{9}{*}{gipsqda}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+    \midrule
+    % --- SCENARIO: GIPSMULTQDA ---
+    \multirow{9}{*}{gipsmultqda}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+    \bottomrule
     \end{tabular}
-    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 2. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
-    \label{tab:stat_sim_2}
+    \caption{Selected statistical comparison results for Simulation Set 2 - Part 1. The table presents p-values for specific model pairs in QDA-based scenarios.}
+    \label{tab:stat_sim_2_part1}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{lllc c}
+    \toprule
+    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+    \midrule
+    % --- SCENARIO: LDA ---
+    \multirow{9}{*}{lda}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+    \midrule
+    % --- SCENARIO: GIPSLDA ---
+    \multirow{9}{*}{gipslda}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+    \bottomrule
+    \end{tabular}
+    \caption{Selected statistical comparison results for Simulation Set 2 - Part 2. The table presents p-values for specific model pairs in LDA-based scenarios.}
+    \label{tab:stat_sim_2_part2}
 \end{table}
 
 \textbf{Observations:}
+\textcolor{red}{Do napisania}
 In this binary classification setting ($p=10, k=2$) with Chi-squared distributed data, the benefits of permutation-based regularization are profound.
 The statistical analysis reveals overwhelming evidence ($p \approx 0$) favoring the \texttt{gips}-based models over the regularized baselines across almost all scenarios.
 Notably, \texttt{gipsMultQDA} consistently outperforms \texttt{QDAmod} in heteroscedastic environments (Scenarios \texttt{gipsqda} and \texttt{gipsmultqda}), confirming that the shared "Dense Transposition" constraint effectively stabilizes estimation without sacrificing necessary flexibility.
@@ -1495,21 +1616,94 @@ Similarly, in homoscedastic scenarios, \texttt{gipsLDA classic} proves significa
     \label{fig:sim_set_3}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_10_lnorm_full_cycle_TRUE_auc}
+    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 3. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_3_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_10_lnorm_full_cycle_TRUE_spe}
+    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 3. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
+    \label{fig:sim_set_3_box}
+\end{figure}
+
 \begin{table}[H]
     \centering
-    \begin{tabular}{lllc}
-        \toprule
-        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
-        \midrule
-        gipslda & QDAmod & gipsQDA & $0.0092$ \\
-        gipslda & LDAmod & gipsMultQDA & $0$ \\
-        \bottomrule
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{lllc c}
+    \toprule
+    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+    \midrule
+    % --- SCENARIO: LDA ---
+    \multirow{2}{*}{lda}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0000 \\
+      & & & 74 & 0.0071 \\
+    \midrule
+    % --- SCENARIO: GIPSLDA ---
+    \multirow{7}{*}{gipslda}
+      & LDAmod & gipsLDA classic & 34 & 0.0040 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
+      & & & 74 & 0.0013 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{gipsLDA classic} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0013 \\
+      & & & 74 & 0.0094 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0095 \\
+      & & & 74 & 0.0001 \\
+    \bottomrule
     \end{tabular}
-    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 3. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
-    \label{tab:stat_sim_3}
+    \caption{Selected statistical comparison results for Simulation Set 3 - Part 1. The table presents p-values for specific model pairs in LDA-based scenarios.}
+    \label{tab:stat_sim_3_part2}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{lllc c}
+    \toprule
+    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+    \midrule
+    % --- SCENARIO: QDA ---
+    \multirow{1}{*}{qda}
+      & LDAmod & gipsLDA classic & 34 & 0.0031 \\
+    \midrule
+    % --- SCENARIO: GIPSQDA ---
+    \multirow{7}{*}{gipsqda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0092 \\
+      & & & 74 & 0.0618 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0001 \\
+      & & & 74 & 0.0183 \\
+      \cmidrule{2-5}
+      & gipsLDA classic & gipsLDA weighted & 34 & 0.0344 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0000 \\
+      & & & 74 & 0.0004 \\
+    \midrule
+    % --- SCENARIO: GIPSMULTQDA ---
+    \multirow{6}{*}{gipsmultqda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0012 \\
+      & & & 74 & 0.0009 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
+      & & & 74 & 0.0696 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0000 \\
+      & & & 74 & 0.0000 \\
+    \bottomrule
+    \end{tabular}
+    \caption{Selected statistical comparison results for Simulation Set 3 - Part 2. The table presents p-values for specific model pairs in QDA-based scenarios.}
+    \label{tab:stat_sim_3_part1}
 \end{table}
 
 \textbf{Observations:}
+\textcolor{red}{Do napisania od nowa}
 In this low-dimensional, multi-class setting ($p=5, k=10$) with Log-Normal distributed data, the distinction between models is more nuanced than in higher-dimensional scenarios.
 Due to the low feature count, the "curse of dimensionality" is less pronounced, allowing standard baselines to remain competitive; consequently, many direct comparisons between \texttt{gips}-based models and their baselines did not yield statistically significant differences ($p > 0.05$).
 However, the results in the \texttt{gipslda} scenario highlight the robustness of the \texttt{gipsMultQDA} approach.
@@ -1528,26 +1722,124 @@ This suggests that the shared permutation constraint captures the complex depend
     \label{fig:sim_set_4}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE_auc}
+    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_4_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_2_chisq_dense_trans_FALSE_spe}
+    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 4. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
+    \label{fig:sim_set_4_box}
+\end{figure}
+
 
 \begin{table}[H]
     \centering
-    \begin{tabular}{lllc}
-        \toprule
-        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
-        \midrule
-        qda & LDAmod & gipsLDA weighted average & $0.0028$ \\
-        qda & gipsLDA classic & gipsLDA weighted average & $0.0306$ \\
-        gipsqda & LDAmod & gipsLDA weighted average & $0.0244$ \\
-        gipsqda & gipsLDA classic & gipsLDA weighted average & $0.046$ \\
-        gipsqda & QDAmod & gipsQDA & $0.0374$ \\
-        gipsqda & QDAmod & gipsMultQDA & $0.004$ \\
-        \bottomrule
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{lllc c}
+    \toprule
+    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+    \midrule
+    % --- SCENARIO: QDA ---
+    \multirow{12}{*}{qda}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+      & & & 24 & 0.0006 \\
+      & & & 36 & 0.0024 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0003 \\
+      & & & 24 & 0.0004 \\
+      & & & 36 & 0.0167 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsQDA} & 16 & 0.0819 \\
+      & & & 24 & 0.0050 \\
+      & & & 36 & 0.0115 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0006 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0001 \\
+    \midrule
+    % --- SCENARIO: GIPSQDA ---
+    \multirow{9}{*}{gipsqda}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+      & & & 24 & 0.0001 \\
+      & & & 36 & 0.0042 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 16 & 0.0003 \\
+      & & & 24 & 0.0337 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 24 & 0.0738 \\
+      & & & 36 & 0.0072 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0165 \\
+      & & & 24 & 0.0000 \\
+    \midrule
+    % --- SCENARIO: GIPSMULTQDA ---
+    \multirow{11}{*}{gipsmultqda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 24 & 0.0001 \\
+      & & & 36 & 0.0068 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0009 \\
+      & & & 24 & 0.0002 \\
+      & & & 36 & 0.0091 \\
+      \cmidrule{2-5}
+      & gipsLDA classic & gipsLDA weighted & 16 & 0.0163 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 24 & 0.0117 \\
+      & & & 36 & 0.0000 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
+      & & & 24 & 0.0000 \\
+      & & & 36 & 0.0000 \\
+    \bottomrule
     \end{tabular}
-    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 4. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
-    \label{tab:stat_sim_4}
+    \caption{Selected statistical comparison results for Simulation Set 4 - Part 1. The table presents p-values for specific model pairs in QDA-based scenarios.}
+    \label{tab:stat_sim_4_part1}
 \end{table}
 
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{lllc c}
+    \toprule
+    \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+    \midrule
+    % --- SCENARIO: LDA ---
+    \multirow{3}{*}{lda}
+      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 16 & 0.0041 \\
+      & & & 24 & 0.0209 \\
+      \cmidrule{2-5}
+      & LDAmod & gipsLDA weighted & 16 & 0.0200 \\
+    \midrule
+    % --- SCENARIO: GIPSLDA ---
+    \multirow{10}{*}{gipslda}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
+      & & & 24 & 0.0039 \\
+      & & & 36 & 0.0011 \\
+      \cmidrule{2-5}
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
+      & & & 24 & 0.0022 \\
+      & & & 36 & 0.0298 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsQDA} & 16 & 0.0077 \\
+      & & & 36 & 0.0014 \\
+      \cmidrule{2-5}
+      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0000 \\
+      & & & 36 & 0.0071 \\
+    \bottomrule
+    \end{tabular}
+    \caption{Selected statistical comparison results for Simulation Set 4 - Part 2. The table presents p-values for specific model pairs in LDA-based scenarios.}
+    \label{tab:stat_sim_4_part2}
+\end{table}
+
+
 \textbf{Observations:}
+\textcolor{red}{Do Napisania od nowa}
 In this low-dimensional binary setting ($p=5, k=2$), the classification task proves to be relatively straightforward, with all models rapidly converging to near-perfect accuracy (saturation effect). Despite this ceiling effect, the \texttt{gips}-based regularization still yields statistically significant improvements. In the heteroscedastic \texttt{gipsqda} scenario, both \texttt{gipsQDA} and \texttt{gipsMultQDA} significantly outperform the standard \texttt{QDAmod} ($pvalue < 0.05$). A notable deviation from previous trends is observed here: the \texttt{gipsLDA weighted average} estimator demonstrates a statistically significant advantage over both \texttt{LDAmod} and the \texttt{gipsLDA classic} estimator. This suggests that in specific low-dimensional, non-Gaussian (Chi-squared) regimes, averaging over the permutation posterior captures the data structure more effectively than a single point estimate.
 
 \subsection{Simulation Set 5: Low Dimension and 5 Classes}
@@ -1558,25 +1850,66 @@ In this low-dimensional binary setting ($p=5, k=2$), the classification task pro
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE}
-    \caption{Learning curves for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \caption{Learning curves showing \textbf{Classification Accuracy} for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
     \label{fig:sim_set_5}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE_auc}
+    \caption{Learning curves showing the \textbf{Area Under the ROC Curve (AUC)} for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title). All six models are compared within each scenario.}
+    \label{fig:sim_set_5_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/synth_5_5_exp_sparse_trans_FALSE_spe}
+    \caption{\textbf{Comparative boxplots} illustrating the distribution of performance for Simulation Set 5. The figure contains five subplots, each corresponding to a specific ground-truth scenario (indicated by the facet title), visualizing the variability of the models.}
+    \label{fig:sim_set_5_box}
 \end{figure}
 
 
 \begin{table}[H]
-    \centering
-    \begin{tabular}{lllc}
-        \toprule
-        \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{p-value} \\
-        \midrule
-        gipsmultqda & LDAmod & gipsLDA classic & $0.0338$ \\
-        \bottomrule
-    \end{tabular}
-    \caption{Selected statistical comparison results (Blocked Permutation Test) for Simulation Set 5. The table presents p-values for specific model pairs deemed most relevant for the analysis.}
-    \label{tab:stat_sim_5}
+\centering
+\label{tab:stat_sim_5}
+\begin{tabular}{lllcS[table-format=1.4]}
+\toprule
+\textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
+\midrule
+\multirow{2}{*}{qda}
+  & LDAmod & gipsLDA classic & 16 & 0.0049 \\
+  & LDAmod & gipsLDA weighted & 16 & 0.0099 \\
+\midrule
+\multirow{3}{*}{gipsqda}
+  & LDAmod & gipsLDA classic & 16 & 0.0331 \\
+  & LDAmod & gipsLDA weighted & 16 & 0.0287 \\
+  & QDAmod & gipsMultQDA & 16 & 0.0029 \\
+\midrule
+\multirow{6}{*}{gipsmultqda}
+  & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0001 \\
+  & & & 29 & 0.0000 \\
+  & & & 54 & 0.0028 \\
+  \cmidrule{2-5}
+  & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0008 \\
+  & & & 29 & 0.0025 \\
+  & & & 54 & 0.0017 \\
+\midrule
+\multirow{3}{*}{lda}
+  & LDAmod & gipsLDA classic & 16 & 0.0654 \\
+  \cmidrule{2-5}
+  & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0032 \\
+  & & & 29 & 0.0000 \\
+\midrule
+\multirow{2}{*}{gipslda}
+  & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 16 & 0.0809 \\
+  & & & 29 & 0.0589 \\
+\bottomrule
+\end{tabular}
+\caption{Selected statistical comparison results including Number of Observations. The table presents p-values for specific model pairs derived from the raw simulation data.}
 \end{table}
 
 \textbf{Observations:}
+\textcolor{red}{Do napisania od nowa}
 This configuration ($p=5, k=5$) with Exponentially distributed data and a "Sparse Transposition" symmetry presents a scenario where the performance gap between the proposed models and the baselines narrows significantly. The statistical analysis indicates that for the majority of comparisons, including the primary \texttt{gipsQDA} vs. \texttt{QDAmod} case, the difference in accuracy is not statistically significant ($pvalue > 0.05$). This suggests that with the "Sparse Transposition" structure—which imposes relatively weak constraints—and non-Gaussian noise, the regularization benefit of the \texttt{gips} models is less pronounced than in denser symmetry settings. Additionally, the plots reaffirm the trend that for homoscedastic scenarios (\texttt{lda} and \texttt{gipslda}), the \texttt{gipsLDA classic} estimator is far superior to the \texttt{weighted average} variant, which performs poorly in this specific setup.
 
 \section{Real-World Data Results}
@@ -1599,24 +1932,54 @@ Each subsection presents the learning curve for a specific dataset, followed by 
     \label{fig:real_heart}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/heart_plot_auc}
+    \caption{Area Under the ROC Curve (AUC) on the Heart Failure dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \label{fig:heart_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/heart_boxplot}
+    \caption{Classification accuracy on the Heart Failure dataset. The boxplots compare the performance distribution of all six models.}
+    \label{fig:heart_box}
+\end{figure}
+
 \begin{table}[H]
     \centering
     \begin{tabular}{llc}
         \toprule
-        \textbf{Comparison} & \textbf{p-value} \\
+        \textbf{Comparison} & \textbf{Number of observations} & \textbf{p-value} \\
         \midrule
-        LDAmod vs gipsLDA classic & $4*10^{-4}$ \\
-        LDAmod vs gipsLDA weighted average & $0.0402$ \\
-        QDAmod vs gipsQDA & $0.0386$ \\
-        QDAmod vs gipsMultQDA & $0.0018$ \\
+        LDAmod vs gipsLDA classic & 20 & $0.0000$ \\
+                                  & 35 & $0.0000$ \\
+                                  & 76 & $0.0000$ \\
+        \midrule
+        LDAmod vs gipsLDA weighted average & 20 & $0.0000$ \\
+                                           & 35 & $0.0000$ \\
+                                           & 76 & $0.4091$ \\
+        \midrule
+        gipsLDA classic vs gipsLDA weighted average & 20 & $0.9768$ \\
+                                                    & 35 & $1.0000$ \\
+                                                    & 76 & $1.0000$ \\
+        \midrule
+        QDAmod vs gipsQDA & 20 & $0.0157$ \\
+                          & 35 & $0.0960$ \\
+                          & 76 & $0.4234$ \\
+        \midrule
+        QDAmod vs gipsMultQDA & 20 & $0.0000$ \\
+                              & 35 & $0.0000$ \\
+                              & 76 & $0.0066$ \\
         \bottomrule
     \end{tabular}
     \caption{Statistical comparison for Heart Failure dataset.}
 \end{table}
 
 \textbf{Analysis:}
-Despite the application of One-Hot Encoding, which introduces binary features and explicitly violates the multivariate normality assumption, the \texttt{gips}-based models demonstrate remarkable robustness and data efficiency. The statistical analysis reveals that \texttt{gipsLDA classic} significantly outperforms the regularized \texttt{LDAmod} baseline ($pvalue < 0.001$), confirming that the discovered symmetry structure aids in stabilization even for non-Gaussian data. Furthermore, within the quadratic family, \texttt{gipsMultQDA} proves to be the superior estimator ($pvalue = 0.0018$ vs. \texttt{QDAmod}), suggesting that constraining the two classes to share a common permutation symmetry provides a more effective regularization than allowing for fully independent covariance structures or using the standard \texttt{gipsQDA} approach ($pvalue = 0.0386$).
+Despite the application of One-Hot Encoding, which explicitly violates the multivariate normality assumption, the \texttt{gips}-based models demonstrate remarkable robustness. Visually, the plots indicate a clear trend: in the data-scarce regime (small number of observations), models utilizing \texttt{gips} regularization achieve higher accuracy, whereas for larger training sets, all models converge toward a similar performance plateau.
 
+Statistically, this advantage is most durable for the constrained models. \texttt{gipsLDA classic} consistently outperforms the regularized \texttt{LDAmod} baseline (even at $n=76$). Similarly, within the quadratic family, \texttt{gipsMultQDA} proves superior to \texttt{QDAmod}, retaining statistical significance throughout the experiment (p-value $=0.0066$ at $n=76$). In contrast, the more flexible \texttt{gipsQDA} and the \texttt{gipsLDA weighted average} estimator provide a significant benefit only in the early learning phase ($n=20$), becoming statistically indistinguishable from their baselines as data availability increases (p-value $> 0.4$ at $n=76$).
 
 \subsection{Breast Cancer Prediction}
 
@@ -1627,79 +1990,174 @@ Despite the application of One-Hot Encoding, which introduces binary features an
     \label{fig:breast}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/breast_plot_auc}
+    \caption{Area Under the ROC Curve (AUC) on the Breast Cancer dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \label{fig:breast_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/breast_boxplot}
+    \caption{Classification accuracy on the Breast Cancer dataset. The boxplots compare the performance distribution of all six models.}
+    \label{fig:breast_box}
+\end{figure}
+
 \begin{table}[H]
     \centering
     \begin{tabular}{llc}
         \toprule
-        \textbf{Comparison} & \textbf{p-value} \\
+        \textbf{Comparison} & \textbf{Number of observations} & \textbf{p-value} \\
         \midrule
-        LDAmod vs gipsLDA classic & $0.0208$ \\
-        LDAmod vs gipsLDA weighted average & $0.8234$ \\
-        QDAmod vs gipsQDA & $0.0054$ \\
-        QDAmod vs gipsMultQDA & $6*10^{-4}$ \\
+        LDAmod vs gipsLDA classic & 20 & $0.0010$ \\
+                                  & 30 & $0.0096$ \\
+                                  & 51 & $0.0833$ \\
+        \midrule
+        LDAmod vs gipsLDA weighted average & 20 & $0.0000$ \\
+                                           & 30 & $0.8072$ \\
+                                           & 51 & $1.0000$ \\
+        \midrule
+        gipsLDA classic vs gipsLDA weighted average & 20 & $0.3287$ \\
+                                                    & 30 & $0.9999$ \\
+                                                    & 51 & $1.0000$ \\
+        \midrule
+        QDAmod vs gipsQDA & 20 & $0.1302$ \\
+                          & 30 & $0.0046$ \\
+                          & 51 & $0.1852$ \\
+        \midrule
+        QDAmod vs gipsMultQDA & 20 & $0.0311$ \\
+                              & 30 & $0.0004$ \\
+                              & 51 & $0.0478$ \\
         \bottomrule
     \end{tabular}
-    \caption{Statistical comparison for Breast Cancer dataset.}
+    \caption{Statistical comparison results for varying numbers of observations for Breast Cancer dataset.}
+    \label{tab:stat_comparison_obs_breast}
 \end{table}
 
 \textbf{Analysis:}
-This dataset highlights the exceptional data efficiency of the \texttt{gipsLDA classic} model, which achieves robust performance even with minimal training samples. The statistical comparison confirms that imposing symmetry yields a significant advantage over the regularized baseline, with \texttt{gipsLDA classic} outperforming \texttt{LDAmod} ($pvalue = 0.0208$). Among the quadratic models, the benefit of the \texttt{gips} methodology is even more pronounced; \texttt{gipsMultQDA} achieves a highly significant improvement over \texttt{QDAmod} ($pvalue < 0.001$). This aligns with the domain intuition that geometric features of cell nuclei (e.g., radius, texture) share strong, structured correlations that are effectively captured by permutation symmetry. Conversely, the \texttt{gipsLDA weighted average} variant fails to improve upon the baseline ($pvalue = 0.8234$), visibly plateauing at a lower accuracy as the sample size increases.
+The dual evaluation using Classification Accuracy and AUC highlights the efficiency of the \texttt{gipsLDA} models in data-scarce regimes ($n < 30$). Statistical tests confirm that \texttt{gipsLDA classic} significantly outperforms the regularized \texttt{LDAmod} baseline at small sample sizes ($n=20$ and $n=30$, with p-values $< 0.01$), achieving high discriminative power (AUC $> 0.90$) faster than the baselines. However, this linear advantage diminishes as the sample size increases to $n=51$ (p-value $> 0.05$).
 
+The quadratic family benefits significantly from the symmetry constraints here. \texttt{gipsMultQDA} consistently outperforms \texttt{QDAmod} across all tested sample sizes (p-value $< 0.05$ for $n=20, 30, 51$), proving that the shared permutation constraint effectively regularizes the complex quadratic decision boundary even when linear models perform well. Finally, regarding the weighted approach, while \texttt{gipsLDA weighted average} shows extreme statistical significance at the very start ($n=20$, p-value $\approx 0$), it loses this advantage completely by $n=30$ (p-value $> 0.05$), reinforcing the visual observation that it plateaus \textbf{at a much lower accuracy} compared to the \texttt{classic} estimator as the dataset grows.
 
 \subsection{Sensorless Drive Diagnosis Prediction}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/sensorless_plot}
-    \caption{Classification accuracy on the Sensorless Drive Diagnosis dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \caption{Classification accuracy on the Sensorless Drive Diagnosis dataset. The plot compares the performance of all six models as a function of training sample size.
+    Note that the curves for \texttt{qda} and \texttt{gipsqda} overlap significantly.}
     \label{fig:sensorless}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/sensorless_plot_auc}
+    \caption{Area Under the ROC Curve (AUC) on the Sensorless Drive Diagnosis dataset. The plot compares the performance of all six models as a function of training sample size.
+    Note that the curves for \texttt{qda} and \texttt{gipsqda} overlap significantly.}
+    \label{fig:sensor_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/sensorless_boxplot}
+    \caption{Classification accuracy on the Sensorless Drive Diagnosis dataset. The boxplots compare the performance distribution of all six models.}
+    \label{fig:sensor_box}
 \end{figure}
 
 \begin{table}[H]
     \centering
     \begin{tabular}{llc}
         \toprule
-        \textbf{Comparison} & \textbf{p-value} \\
+        \textbf{Comparison} & \textbf{Number of observations} & \textbf{p-value} \\
         \midrule
-        LDAmod vs gipsLDA classic & $0.9218$ \\
-        LDAmod vs gipsLDA weighted average & $0.952$ \\
-        QDAmod vs gipsQDA & $0.9874$ \\
-        QDAmod vs gipsMultQDA & $0.9904$ \\
+        LDAmod vs gipsLDA classic & 20 & $0.6566$ \\
+                                  & 58 & $0.0349$ \\
+                                  & 237 & $1.0000$ \\
+        \midrule
+        LDAmod vs gipsLDA weighted average & 20 & $1.0000$ \\
+                                           & 58 & $0.0000$ \\
+                                           & 237 & $0.0000$ \\
+        \midrule
+        gipsLDA classic vs gipsLDA weighted average & 20 & $1.0000$ \\
+                                                    & 58 & $0.0000$ \\
+                                                    & 237 & $0.0000$ \\
+        \midrule
+        QDAmod vs gipsQDA & 20 & $1.0000$ \\
+                          & 58 & $0.5396$ \\
+                          & 237 & $0.6516$ \\
+        \midrule
+        QDAmod vs gipsMultQDA & 20 & $1.0000$ \\
+                              & 58 & $1.0000$ \\
+                              & 237 & $0.0072$ \\
         \bottomrule
     \end{tabular}
     \caption{Statistical comparison for Sensorless Drive Diagnosis dataset.}
 \end{table}
 
 \textbf{Analysis:}
-The results for this dataset reveal a striking dichotomy between linear and quadratic classifiers. The data appears to possess an inherently linear decision boundary, as evidenced by the \texttt{LDA} family achieving accuracies above $0.80$, while all \texttt{QDA} variants fail to surpass $0.30$, likely due to the parameter explosion associated with estimating 11 distinct $48 \times 48$ covariance matrices. In this specific context, the \texttt{gips}-based regularization does not provide a statistically significant advantage over the baselines (all p-values $> 0.9$). The high p-values indicate that the standard regularized \texttt{LDAmod} is sufficient and potentially optimal; imposing additional permutation symmetries does not refine the decision boundary further, though notably, the \texttt{gipsLDA} models maintain competitive performance without degrading the results.
+The results for this dataset reveal a striking dichotomy between linear and quadratic classifiers, driven by the high dimensionality and the multi-class nature ($k=11$) of the problem. The data appears to possess an inherently linear decision boundary, as evidenced by the \texttt{LDA} family achieving accuracies above $0.90$, while all \texttt{QDA} variants fail to surpass $0.80$. This failure is attributed to the "parameter explosion"; estimating 11 distinct covariance matrices requires far more data than available, leading to fitting failures or extreme overfitting in the low-sample regime.
 
+In the extreme data-scarce region ($n=20$), many models fail to fit entirely. However, \texttt{gipsLDA classic} and \texttt{LDAmod} demonstrate superior robustness, successfully learning a viable decision boundary where others fail. Notably, at the intermediate stage ($n=58$), \texttt{gipsLDA classic} achieves a statistically significant improvement over the baseline (p-value $= 0.0349$), confirming that the symmetry constraint aids in stabilizing the pooled covariance estimate before asymptotic convergence is reached.
+
+While the linear models generally perform well, the \texttt{gipsLDA weighted average} estimator emerges as a standout performer when the Number of Observations is 237. Far from underperforming, it achieves exceptional accuracy, significantly outpacing both the baseline and the \texttt{classic} estimator (p-value $\approx 0$). This suggests that in this specific regime, the \texttt{gipsLDA weighted average} estimator effectively captures the underlying structure, acting as a "dark horse" that delivers superior predictive power compared to the standard pooled estimates.
 
 \subsection{Credit Card Fraud Prediction}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/creditcard_plot}
-    \caption{Classification accuracy on the Credit Card Fraud dataset. The plot compares the performance of all six models as a function of training sample size.}
+    \caption{Classification accuracy on the Credit Card Fraud dataset. The plot compares the performance of all six models as a function of training sample size. Note that the curves for \texttt{qda}, \texttt{gipsqda}, and \texttt{gipsmultqda} overlap significantly.}
     \label{fig:creditcard}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/creditcard_plot_auc}
+    \caption{Area Under the ROC Curve (AUC) on the Credit Card Fraud dataset. The plot compares the performance of all six models as a function of training sample size.
+    Note that the curves for \texttt{qda}, \texttt{gipsqda}, and \texttt{gipsmultqda} overlap significantly.}
+    \label{fig:creditcard_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/creditcard_boxplot}
+    \caption{Classification accuracy on the Credit Card Fraud dataset. The boxplots compare the performance distribution of all six models.}
+    \label{fig:creditcard_box}
 \end{figure}
 
 \begin{table}[H]
     \centering
     \begin{tabular}{llc}
         \toprule
-        \textbf{Comparison} & \textbf{p-value} \\
+        \textbf{Comparison} & \textbf{Number of observations} & \textbf{p-value} \\
         \midrule
-        LDAmod vs gipsLDA classic & $0.0062$ \\
-        LDAmod vs gipsLDA weighted average & $1$ \\
-        QDAmod vs gipsQDA & $1$ \\
-        QDAmod vs gipsMultQDA & $1$ \\
+        LDAmod vs gipsLDA classic & 20 & $< 0.0001$ \\
+                                  & 41 & $< 0.0001$ \\
+                                  & 109 & $0.1400$ \\
+        \midrule
+        LDAmod vs gipsLDA weighted average & 20 & $1.0000$ \\
+                                           & 41 & $1.0000$ \\
+                                           & 109 & $1.0000$ \\
+        \midrule
+        gipsLDA classic vs gipsLDA weighted average & 20 & $1.0000$ \\
+                                                    & 41 & $1.0000$ \\
+                                                    & 109 & $1.0000$ \\
+        \midrule
+        QDAmod vs gipsQDA & 20 & $0.5005$ \\
+                          & 41 & $0.5005$ \\
+                          & 109 & $0.5005$ \\
+        \midrule
+        QDAmod vs gipsMultQDA & 20 & $0.5005$ \\
+                              & 41 & $0.5005$ \\
+                              & 109 & $0.5005$ \\
         \bottomrule
     \end{tabular}
-    \caption{Statistical comparison for Credit Card Fraud dataset.}
+    \caption{Statistical comparison results for varying numbers of observations for Credit Card Fraud dataset.}
 \end{table}
 
 \textbf{Analysis:}
-In this fraud detection scenario, characterized by a balanced undersampled dataset, the \texttt{gipsLDA classic} estimator demonstrates a distinct advantage. The statistical analysis confirms a significant improvement over the \texttt{LDAmod} baseline ($pvalue = 0.0062$), suggesting that the pooled covariance matrix benefits effectively from the imposed permutation constraint. Conversely, within the quadratic family, the \texttt{gips}-based regularization does not yield a statistically significant gain over standard \texttt{QDAmod} ($pvalue=1$), as all quadratic variants converge to a similarly high accuracy plateau. Notably, the plot highlights the suboptimal performance of the \texttt{gipsLDA weighted average} estimator, which fails to converge to the level of the other classifiers, reinforcing the observation that the Bayesian Model Averaging approach can be detrimental in specific homoscedastic settings.
+The quadratic models (\texttt{qda}, \texttt{gipsqda}, and \texttt{gipsmultqda}) exhibit identical performance trajectories, with statistical tests (p-value $\approx 0.5$) confirming that \texttt{gips} regularization converged to the standard QDA solution, likely identifying the identity permutation as optimal. Within the linear family, \texttt{gipsLDA classic} significantly outperforms the baseline \texttt{LDAmod} in the early training phase ($n=41$, p-value $\approx 0$), indicating effective stabilization via pooled symmetry when data is scarce. This advantage diminishes at $n=109$ (p-value $= 0.1400$) as the baseline converges to the high performance level of the QDA variants. Conversely, the \texttt{gipsLDA weighted average} estimator stands out as a significant outlier, consistently underperforming compared to all other models and failing to converge to the optimal accuracy plateau.
 
 \subsection{EEG Brainwave Prediction}
 
@@ -1710,55 +2168,117 @@ In this fraud detection scenario, characterized by a balanced undersampled datas
     \label{fig:emotions}
 \end{figure}
 
-\begin{table}[H]
+\begin{figure}[H]
     \centering
-    \begin{tabular}{llc}
-        \toprule
-        \textbf{Comparison} & \textbf{p-value} \\
-        \midrule
-        LDAmod vs gipsLDA classic & $0.038$ \\
-        LDAmod vs gipsLDA weighted average & $1$ \\
-        QDAmod vs gipsQDA & $0.3908$ \\
-        QDAmod vs gipsMultQDA & $0.9274$ \\
-        \bottomrule
-    \end{tabular}
-    \caption{Statistical comparison for EEG Brainwave dataset.}
-\end{table}
-
-\textbf{Analysis:}
-The results for the EEG Brainwave dataset reveal a distinct separation between linear and quadratic classifiers, with the linear family consistently achieving higher accuracy. This suggests that the covariance structures of the different emotional states are largely similar (homoscedastic). Within this favorable linear regime, the \texttt{gips} methodology provides a tangible benefit: \texttt{gipsLDA classic} achieves a statistically significant improvement over the \texttt{LDAmod} baseline ($pvalue = 0.038$). Conversely, the quadratic models start with lower accuracy and converge more slowly, likely due to the increased parameter overhead relative to the sample size. Consequently, no significant advantage was found for the \texttt{gips}-based quadratic variants over standard \texttt{QDAmod} in this specific context ($pvalue > 0.05$).
-
-
-\subsection{Steel Plates Faults Prediction}
+    \includegraphics[width=0.9\textwidth]{img/emotions_plot_auc}
+    \caption{Area Under the ROC Curve (AUC) on the EEG Brainwave dataset. The plot compares the performance of all six models as a function of training sample size. Note that the curves for \texttt{qda}, \texttt{gipsqda}, and \texttt{gipsmultqda} overlap significantly.}
+    \label{fig:emotions_auc}
+\end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{img/steel_plot}
-    \caption{Classification accuracy on the Steel Plates Faults dataset. The plot compares the performance of all six models as a function of training sample size.}
-    \label{fig:steel}
+    \includegraphics[width=0.9\textwidth]{img/emotions_boxplot}
+    \caption{Classification accuracy on the Credit EEG Brainwave dataset. The boxplots compare the performance distribution of all six models.}
+    \label{fig:emotions_box}
 \end{figure}
 
 \begin{table}[H]
     \centering
     \begin{tabular}{llc}
         \toprule
-        \textbf{Comparison} & \textbf{p-value} \\
+        \textbf{Comparison} & \textbf{Number of observations} & \textbf{p-value} \\
         \midrule
-        LDAmod vs gipsLDA classic & $0.2888$ \\
-        LDAmod vs gipsLDA weighted average & $1$ \\
-        QDAmod vs gipsQDA & $1$ \\
-        QDAmod vs gipsMultQDA & $1$ \\
+        LDAmod vs gipsLDA classic & 20 & $0.0381$ \\
+                                  & 38 & $0.1504$ \\
+                                  & 90 & $0.5880$ \\
+        \midrule
+        LDAmod vs gipsLDA weighted average & 20 & $0.5510$ \\
+                                           & 38 & $1.0000$ \\
+                                           & 90 & $1.0000$ \\
+        \midrule
+        gipsLDA classic vs gipsLDA weighted average & 20 & $0.9655$ \\
+                                                    & 38 & $1.0000$ \\
+                                                    & 90 & $1.0000$ \\
+        \midrule
+        QDAmod vs gipsQDA & 20 & $0.7302$ \\
+                          & 38 & $0.5097$ \\
+                          & 90 & $0.4824$ \\
+        \midrule
+        QDAmod vs gipsMultQDA & 20 & $0.9310$ \\
+                              & 38 & $0.4625$ \\
+                              & 90 & $0.4776$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Statistical comparison for EEG Brainwave dataset.}
+\end{table}
+
+\textbf{Analysis:}
+The results for the EEG Brainwave dataset reveal a distinct separation between linear and quadratic classifiers, with the linear family consistently achieving higher accuracy, suggesting a homoscedastic underlying structure. Within this favorable linear regime, \texttt{gipsLDA classic} provides a tangible benefit in the data-scarce region, achieving a statistically significant improvement over \texttt{LDAmod} at $n=20$ (p-value $= 0.0381$). However, as the sample size increases ($n=38, 90$), this advantage diminishes (p-value $> 0.05$) as the baseline model catches up and both linear models behave identically.
+
+In contrast, all quadratic variants (\texttt{QDAmod}, \texttt{gipsQDA}, \texttt{gipsMultQDA}) exhibit nearly identical performance trajectories with no statistically significant differences, starting with lower accuracy and converging more slowly due to higher parameter overhead. Notably, the \texttt{gipsLDA weighted average} estimator stands out negatively; while it surpasses the struggling quadratic models at the very smallest sample sizes, it consistently underperforms compared to the rest of the linear family and fails to reach the optimal accuracy plateau.
+
+\subsection{Steel Plates Faults Prediction}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/steel_plot}
+    \caption{Classification accuracy on the Steel Plates Faults dataset. The plot compares the performance of all six models as a function of training sample size.
+    Note that the curves for \texttt{qda}, \texttt{gipsqda}, and \texttt{gipsmultqda} overlap significantly.}
+    \label{fig:steel}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/steel_plot_auc}
+    \caption{Area Under the ROC Curve (AUC) on the Steel Plates Faults dataset. The plot compares the performance of all six models as a function of training sample size.
+    Note that the curves for \texttt{qda}, \texttt{gipsqda}, and \texttt{gipsmultqda} overlap significantly.}
+    \label{fig:steel_auc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/steel_boxplot}
+    \caption{Classification accuracy on the Steel Plates Faults dataset. The boxplots compare the performance distribution of all six models.}
+    \label{fig:steel_box}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Comparison} & \textbf{Number of observations} & \textbf{p-value} \\
+        \midrule
+        LDAmod vs gipsLDA classic & 20 & $0.0502$ \\
+                                  & 42 & $0.0209$ \\
+                                  & 112 & $0.7386$ \\
+        \midrule
+        LDAmod vs gipsLDA weighted average & 20 & $1.0000$ \\
+                                           & 42 & $1.0000$ \\
+                                           & 112 & $1.0000$ \\
+        \midrule
+        gipsLDA classic vs gipsLDA weighted average & 20 & $1.0000$ \\
+                                                    & 42 & $1.0000$ \\
+                                                    & 112 & $1.0000$ \\
+        \midrule
+        QDAmod vs gipsQDA & 20 & $1.0000$ \\
+                          & 42 & $0.5010$ \\
+                          & 112 & $0.5005$ \\
+        \midrule
+        QDAmod vs gipsMultQDA & 20 & $1.0000$ \\
+                              & 42 & $0.5010$ \\
+                              & 112 & $0.5005$ \\
         \bottomrule
     \end{tabular}
     \caption{Statistical comparison for Steel Plates Faults dataset.}
 \end{table}
 
 \textbf{Analysis:}
-In this multi-class industrial classification task, the data exhibits a structure that strongly favors linear decision boundaries. The linear models (\texttt{LDAmod} and \texttt{gipsLDA classic}) consistently outperform their quadratic counterparts, achieving an asymptotic accuracy of approximately 70\%. The statistical analysis yields a p-value of $0.2888$ for the comparison between \texttt{gipsLDA classic} and \texttt{LDAmod}, indicating that while the permutation constraint maintains competitive performance, it does not offer a statistically significant improvement over the standard regularized baseline in this specific context. Conversely, the quadratic models and the \texttt{gipsLDA weighted average} estimator struggle significantly in the low-sample regime, likely due to the increased estimation variance inherent in the multi-class setting (7 classes), which exacerbates the curse of dimensionality.
+In this multi-class industrial classification task, the performance dynamics shift notably as the Number of Observations increases. Initially, the linear models dominate, with \texttt{gipsLDA classic} demonstrating a tangible advantage over the standard baseline. The statistical analysis confirms this observation: \texttt{gipsLDA classic} achieves a statistically significant improvement over \texttt{LDAmod} when the Number of Observations is 42 (p-value $= 0.0209$) and sits on the threshold of significance when the Number of Observations is 20 (p-value $= 0.0502$). This indicates that the pooled symmetry constraint effectively stabilizes the decision boundary when data is limited.
 
+Regarding the quadratic family, all variants (\texttt{QDAmod}, \texttt{gipsQDA}, \texttt{gipsMultQDA}) exhibit identical behavior, implying that the regularization identified the trivial symmetry as optimal. While these models struggle when the Number of Observations is small due to the parameter explosion inherent in 7-class classification, visual inspection reveals that they eventually surpass the linear models as data becomes abundant and the high variance of the estimator is overcome. Finally, the \texttt{gipsLDA weighted average} estimator occupies a distinct middle ground in the early phase—performing better than the struggling quadratic models but falling significantly behind the robust \texttt{gipsLDA classic} and \texttt{LDAmod} variants.
 
 \section{Summary of Findings}
-
+\textcolor{red}{Sekcja do Napisania od nowa na podstawie wszystkich nowych eksperymentów, jak jest niezle to trzeba przynajmniej minimalnie zmienic}
 Based on the detailed analysis of both the synthetic simulation sets and the diverse real-world benchmarks, we can synthesize the following key findings regarding the proposed \texttt{gipsDA} framework:
 
 \begin{itemize}
@@ -1784,7 +2304,7 @@ Based on the detailed analysis of both the synthetic simulation sets and the div
 
 \chapter{Conclusion and Discussion}
 \label{ch:conclusion}
-
+\textcolor{red}{Trzeba to skorygowac na podstawie tego co sie zmienilo w eksperymentach}
 This thesis set out to address the limitations of classical discriminant analysis in high-dimensional, data-scarce environments. By developing the \texttt{gipsDA} package, we successfully integrated the theory of permutation-invariant covariance estimation with standard classification workflows. This final chapter summarizes the broader implications of our approach, reflects on the engineering challenges encountered, and outlines potential avenues for future research.
 
 \section{Reflection on the Approach}
