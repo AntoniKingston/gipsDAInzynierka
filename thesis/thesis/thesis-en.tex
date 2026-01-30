@@ -662,24 +662,28 @@ in scale or variance but are expected to share a common dependency structure:
 \end{equation}
 
 \subsection{Relationship between the models}
+
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}
 
-% Outer set
-\draw[fill=blue,  fill opacity=0.15] (0,0) ellipse (6cm and 4cm);
-\node [above=30mm] {$\texttt{gipsQDA}$};
+\draw[fill=gray, fill opacity=0.05] (1,0) ellipse (9cm and 5.5cm);
+\node [above=48mm] at (1,0) {\textbf{\texttt{QDA}}};
 
-% Middle set
-\draw[fill=green,fill opacity=0.15] (0,0) ellipse (4cm and 2.6cm);
-\node [above=15mm] {$\texttt{gipsmultQDA}$};
+\draw[fill=blue, fill opacity=0.15] (-1,0) ellipse (5.5cm and 4cm);
+\node at (-4, 2.5) {$\texttt{gipsQDA}$};
 
-% Inner set
-\draw[fill=red,  fill opacity=0.15] (0,0) ellipse (2cm and 1.2cm);
-\node at (0,0) {$\texttt{gipsLDA}$};
+\draw[fill=orange, fill opacity=0.15] (4,0) ellipse (5cm and 4cm);
+\node at (6.5, 2.5) {$\texttt{LDA}$};
+
+\draw[fill=green, fill opacity=0.15] (0,0) ellipse (3.8cm and 2.8cm);
+\node at (-1.5, 1.8) {$\texttt{gipsMultQDA}$};
+
+\draw[fill=red, fill opacity=0.25] (1.5,0) ellipse (1.8cm and 1.2cm);
+\node at (1.5,0) {$\texttt{gipsLDA}$};
 
 \end{tikzpicture}
-\caption{The diagram shows that \texttt{gipsLDA} is a specific case of \texttt{gipsmultQDA}, which itself is a specific case of \texttt{gipsQDA}.}
+\caption{The diagram illustrates the hierarchical relationships between the models. It clearly shows that \texttt{gipsLDA} is contained within \texttt{gipsmultQDA}, while simultaneously being a specific case of \texttt{LDA}. All models are subsets of the general \texttt{QDA}.}
 \label{fig:nested-sets}
 \end{figure}
 
