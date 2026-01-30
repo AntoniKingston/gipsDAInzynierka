@@ -36,7 +36,19 @@ accuracy_experiment <- function(cov_mats, means, n_per_class, model, n_per_class
     return(0)
   }
 
-  prediction <- predict(classifier, test_data)
+  prediction <- tryCatch({
+  predict(classifier, test_data)
+  }, error = function(e) {
+    warning(sprintf("Error during prediction with model '%s': %s", model, e$message))
+    NULL
+  })
+
+  if (is.null(prediction)) {
+    if (vuc) {
+      return(list("acc" = 0, "vuc" = 0))
+    }
+    return(0)
+  }
 
   pred <- prediction$class
 
@@ -462,9 +474,9 @@ generate_single_plot_info_real_data <- function(scenario_data,
 
 generate_splits_real_data <- function(n, total_rows, tr_ts_split, n_experiments) {
   replicate(n_experiments, {
-    subset_idx <- sample(seq_len(total_rows), size = n)
+    subset_idx <- sample(seq_len(total_rows), size = total_rows)
 
-    train_size <- floor(tr_ts_split * n)
+    train_size <- floor(n)
     train_idx <- sample(subset_idx, size = train_size)
     test_idx  <- setdiff(subset_idx, train_idx)
 

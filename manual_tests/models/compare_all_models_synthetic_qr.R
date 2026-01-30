@@ -127,7 +127,7 @@ mclapply(
   function(i) {
     with(jobs[i, ], run_job(p, n, dist, perm_type_name, MAP, opt))
   },
-  mc.cores = 12
+  mc.cores = parallel::detectCores() - 1
 )
 
 
