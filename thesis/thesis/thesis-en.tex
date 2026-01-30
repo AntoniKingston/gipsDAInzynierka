@@ -907,11 +907,11 @@ Documentation was written in the form of \texttt{roxygen2} comments and rendered
 \chapter{Testing Methodology}
 \label{ch:testing_methodology}
 
-This chapter presents the comprehensive evaluation methodology employed to assess the performance and robustness of the proposed \texttt{gipsDA} framework. To ensure a rigorous validation, the assessment strategy is twofold, encompassing controlled experiments on synthetic data and empirical benchmarking on diverse real-world datasets.
+This chapter presents evaluation methodology employed to assess the performance and robustness of the proposed \texttt{gipsDA} framework. To ensure rigorous validation, the assessment strategy is twofold, encompassing controlled experiments on synthetic data and empirical benchmarking on real-world datasets.
 
-First, we detail the procedures for the \textbf{synthetic data analysis}. This includes a description of the generative algorithms used to simulate high-dimensional data with specific covariance structures, the methodology for constructing performance visualization curves, and the statistical framework applied to quantify the significance of the results.
+First, we detail the procedures for the \textbf{synthetic data analysis}. This includes a description of the generative algorithms used to simulate high-dimensional data with specific covariance structures, methodology for constructing performance visualization curves, and statistical framework applied to quantify significance of results.
 
-Subsequently, we outline the approach for \textbf{real-world data benchmarking}. This section describes the necessary data preparation and preprocessing pipelines, explains the visualization techniques used to monitor model convergence, and provides a brief characterization of the specific datasets selected for this study.
+Subsequently, we outline approach for \textbf{real-world data benchmarking}. This section describes necessary data preparation and preprocessing pipelines, explains visualization techniques used to monitor model convergence, and provides a brief characterization of specific datasets selected for this study.
 
 In both experimental scenarios, the comparative analysis focuses on the performance of six distinct classification models. These include four variants of the proposed framework:
 \begin{itemize}
@@ -1000,7 +1000,7 @@ The exact regularization procedure is exhaustively discussed in \autoref{ch:base
 \section{Synthetic data}
 \label{sec:synthetic_data}
 
-To rigorously evaluate the performance of the proposed classification models, a comprehensive simulation study was designed. This involved generating synthetic datasets with controlled and well-defined properties, allowing us to systematically explore different assumptions regarding the underlying covariance structures of the classes.
+To evaluate the performance of the proposed classification models, a simulation study was designed. This involved generating synthetic datasets with controlled and well-defined properties, allowing us to systematically explore different assumptions regarding the underlying covariance structures of the classes.
 
 \subsection{Experimental Workflow and Reproducibility}
 
@@ -1023,7 +1023,7 @@ The core algorithm for defining the distributions consists of the following sequ
     For each of the $k$ classes, a mean vector $\boldsymbol{\mu}_k$ is sampled as a random point from a $p$-dimensional hypercube, $[0, 1]^p$. To prevent fortuitous overlap between classes, a minimum separation constraint is enforced. After sampling the set of $k$ vectors, the Euclidean distance between every pair of distinct means $(\boldsymbol{\mu}_i, \boldsymbol{\mu}_j)$ is calculated. If any pair satisfies $\|\boldsymbol{\mu}_i - \boldsymbol{\mu}_j\| \leq 0.05$, the entire set is discarded, and the sampling process is repeated. This safeguard prevents the generation of trivially difficult scenarios caused by nearly identical class centroids.
 
     \item \textbf{Covariance Matrix Construction (Spectral Decomposition):}
-    To rigorously stress-test the models under varied spectral conditions, we employ a method based on spectral decomposition. This allows for direct control over the eigenvalues and the condition number of the matrix. The procedure is as follows:
+    To stress-test the models under varied spectral conditions, we employ a method based on spectral decomposition.  The procedure is as follows:
     \begin{itemize}
         \item \textbf{Eigenvalue Generation:} A vector of eigenvalues $\boldsymbol{\lambda} = (\lambda_1, \dots, \lambda_p)$ is drawn from a specified distribution $\mathcal{D}$ (e.g., Exponential) and sorted such that $\lambda_1 \ge \dots \ge \lambda_p > 0$. Let $\Lambda = \text{diag}(\boldsymbol{\lambda})$.
         \item \textbf{Random Orthogonal Matrix:} A random matrix $\mathbf{Z} \in \mathbb{R}^{p \times p}$ is generated with entries $Z_{ij} \sim \mathcal{N}(0, 1)$. To obtain a uniformly distributed orthogonal matrix (Haar measure), we perform a QR decomposition: $\mathbf{Z} = \mathbf{Q}'\mathbf{R}$. The matrix $\mathbf{Q}'$ is adjusted by the signs of the diagonal elements of $\mathbf{R}$ to ensure uniqueness:
@@ -1034,7 +1034,7 @@ The core algorithm for defining the distributions consists of the following sequ
     \end{itemize}
 
     \item \textbf{Covariance Matrix Projection:}
-    For scenarios involving the \texttt{gips} methodology, the raw covariance matrix $\boldsymbol{\Sigma}_{\text{raw}}$ is projected onto a specific permutation group structure. This step imposes the predefined symmetries required to test the specific hypotheses of our thesis (e.g., cyclic symmetry or block symmetry).
+    For scenarios involving \texttt{gips} methodology, raw a covariance matrix $\boldsymbol{\Sigma}_{\text{raw}}$ is projected onto specific permutation group structure. This step imposes predefined symmetries required to test specific hypotheses of our thesis (e.g., cyclic symmetry or block symmetry).
 
     \item \textbf{Separability Control:}
     To ensure a consistent level of classification difficulty across diverse scenarios, a scaling parameter $\psi$ is introduced. This parameter scales the covariance matrix ($\boldsymbol{\Sigma} = \boldsymbol{\Sigma}_{\text{base}} \cdot \psi$), where smaller values of $\psi$ reduce variance, making classes more compact and separable. The optimal value of $\psi$ is determined via an automated iterative search. Starting with an initial $\psi_{\text{init}}$, we iteratively test $\psi_{\text{new}} =\frac{\psi_{\text{init}}}{2^i}$ until a baseline LDA or QDA model achieves a predefined target accuracy on the generated data.
@@ -1056,13 +1056,13 @@ The core algorithm for defining the distributions consists of the following sequ
 \subsection{Data Generation Scenarios}
 \label{sec:scenarios}
 
-To systematically evaluate the proposed models, we defined five distinct data generation scenarios. Each scenario corresponds to a specific set of assumptions regarding the covariance structure and symmetry of the underlying classes. These scenarios range from the most constrained (homoscedastic and symmetric) to the most flexible (heteroscedastic and unstructured), effectively creating "ideal" conditions for each of the tested algorithms.
+To systematically evaluate the proposed models, we define five distinct data generation scenarios. Each scenario corresponds to a specific set of assumptions regarding the covariance structure and symmetry of the underlying classes. These scenarios range from the most constrained (homoscedastic and symmetric) to the most flexible (heteroscedastic and unstructured), effectively creating "ideal" conditions for each of the tested algorithms.
 
-Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance matrix for class $g$, and $\Gamma$ a permutation group defining the symmetry.
+Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance matrix for class $g$, and $\Gamma$ the permutation group defining symmetry.
 
 \begin{description}
     \item[Scenario 1: gipsLDA (Homoscedastic / Symmetric)] \hfill \\
-    This scenario represents the strictest set of assumptions, targeting the \texttt{gipsLDA} model.
+    This scenario represents the strictest set of assumptions, targeting \texttt{gipsLDA} model.
     \begin{itemize}
         \item \textbf{Covariance Structure:} We assume homoscedasticity, meaning all classes share a single, common covariance matrix:
         \[ \boldsymbol{\Sigma}_1 = \boldsymbol{\Sigma}_2 = \dots = \boldsymbol{\Sigma}_K = \boldsymbol{\Sigma}_{\text{common}}. \]
