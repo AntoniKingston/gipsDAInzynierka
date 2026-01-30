@@ -684,7 +684,7 @@ in scale or variance but are expected to share a common dependency structure:
 \end{figure}
 
 \subsection{Regularization}
-It should be also noted that all covariance estimates are passed to regularizing function after being projected. The exact procedure is discussed in appendix \ref{sec:baseline_regularization}.
+It should be also noted that all covariance estimates are passed to regularizing function after being projected. The exact procedure is discussed in \autoref{ch:baseline_regularization}.
 
 
 
@@ -703,7 +703,7 @@ The framework of \texttt{gipsDA} was implemented in R. All the necessary code wa
 
 The source code and the documentation of the package are available at  \href{https://github.com/AntoniKingston/gipsDAInzynierka}{github.com/AntoniKingston/gipsDAInzynierka} and \href{https://antonikingston.github.io/gipsDA/}{https://antonikingston.github.io/gipsDA/} repectively.
 \section{Example usage}
-After installation one can import package in the standard R way and call it's functions. In this case gipsqda() is used to build a classifier on widely known \textit{Iris} dataset\cite{iris_53}.
+After installation one can import package in the standard R way and call its functions. In this case gipsqda() is used to build a classifier on widely known \textit{Iris} dataset\cite{iris_53}.
 \begin{RCode}{Training gipsQDA}
 library(gipsDA)
 # MAP = FALSE uses the weighted posterior estimator
@@ -888,7 +888,7 @@ A utility file (\texttt{models\_utils.R}) contains the core bridge functions tha
         \item[\texttt{x}] Any R object.
     \end{description}
     The function returns the number of atomic elements in an object
-    \item \texttt{desingularize(A, target)}: A function regularizing a square matrix so that the module of it's smallest eigenvalue is the target, it takes in 2 arguments:
+    \item \texttt{desingularize(A, target)}: A function regularizing a square matrix so that the module of its smallest eigenvalue is the target, it takes in 2 arguments:
     \begin{description}
         \item[\texttt{A}] A square nonsigular matrix.
         \item[\texttt{target}] Desired module of the smaller eigenvalue.
@@ -932,12 +932,14 @@ To quantitatively assess and compare the predictive power of these models, we em
 
 where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
 
-%\section{Baseline Regularization Strategy}
-%\label{sec:baseline_regularization}
-%
-%Standard estimators for Linear and Quadratic Discriminant Analysis (LDA and QDA) rely on the inversion of the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$. In high-dimensional settings, particularly when $p > n$, $\hat{\boldsymbol{\Sigma}}$ becomes singular or near-singular, possessing eigenvalues close to or equal to zero. This renders the standard precision matrix calculation unstable or impossible.
-%
-%To ensure a fair comparison between the proposed \texttt{gips}-based models and the classical approaches, we implemented a modified version of the standard algorithms, denoted as \texttt{LDAmod} and \texttt{QDAmod}. These models incorporate a deterministic regularization step—referred to as \textit{desingularization}—which guarantees that the covariance matrix is strictly positive-definite with a bounded condition number.
+\section{Baseline Regularization Strategy}
+\label{sec:baseline_regularization}
+
+Standard estimators for Linear and Quadratic Discriminant Analysis (LDA and QDA) rely on the inversion of the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$. In high-dimensional settings, particularly when $p > n$, $\hat{\boldsymbol{\Sigma}}$ becomes singular or near-singular, possessing eigenvalues close to or equal to zero. This renders the standard precision matrix calculation unstable or impossible.
+
+To ensure a fair comparison between the proposed \texttt{gips}-based models and the classical approaches, we implemented modified versions of the standard algorithms, denoted as \texttt{LDAmod} and \texttt{QDAmod}. These models incorporate a deterministic regularization step—referred to as \textit{desingularization}—which guarantees that the covariance matrix is strictly positive-definite with a lower bound on the smallest module of eigenvalue.
+
+The exact regularization procedure is exhaustively discussed in \autoref{ch:baseline_regularization}.
 %
 %\subsection{Mathematical Formulation}
 %
@@ -1034,7 +1036,7 @@ The core algorithm for defining the distributions consists of the following sequ
     \begin{equation}
         Acc_{\text{target}} = \min(0.90, Acc_{\text{test}} + 0.10).
     \end{equation}
-    This calibration guarantees that all scenarios are normalized to a comparable difficulty level before the main evaluation begins.
+    This calibration aims to guarantee that all scenarios are normalized to a comparable difficulty level before the main evaluation begins.
 
     \item \textbf{Final Data Generation:}
     Finally, for a given experiment with sample size $n_k$ for class $k$, the observations are sampled from the multivariate normal distribution $\mathcal{N}_p(\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$.
@@ -1084,6 +1086,7 @@ Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance mat
         \item \textbf{Symmetry:} Similar to Scenario 4, no permutation constraints are applied. Each matrix is independently generated and unstructured. This represents the most difficult setting for estimation when $n$ is small, as the number of parameters to estimate is maximal ($\frac{Kp(p+1)}{2}$).
     \end{itemize}
 \end{description}
+In every scenario scenario $n_k$ (number of observations generated from class k) varies between $\lceil\frac{16}{n_classes}\rceil$ and 50.
 
 
 \section{Real data}
@@ -1477,7 +1480,7 @@ These results confirm that even with the Bayesian Model Averaging strategy (\tex
 \end{table}
 
 \textbf{Observations:}
-In this binary classification setting ($p=10, k=2$) with Chi-squared distributed data, the benefits of permutation-based regularization are profound.
+In this binary classification setting ($p=10, k=2$) with covariance matrix with eigenvalues coming form Chi-squared distribution, the benefits of permutation-based regularization are profound.
 The statistical analysis reveals overwhelming evidence ($p \approx 0$) favoring the \texttt{gips}-based models over the regularized baselines across almost all scenarios.
 Notably, \texttt{gipsMultQDA} consistently outperforms \texttt{QDAmod} in heteroscedastic environments (Scenarios \texttt{gipsqda} and \texttt{gipsmultqda}), confirming that the shared "Dense Transposition" constraint effectively stabilizes estimation without sacrificing necessary flexibility.
 Similarly, in homoscedastic scenarios, \texttt{gipsLDA classic} proves significantly superior to \texttt{LDAmod}, demonstrating that even with a small number of classes, the reduction in free parameters yields a substantial gain in predictive accuracy.
@@ -1510,7 +1513,7 @@ Similarly, in homoscedastic scenarios, \texttt{gipsLDA classic} proves significa
 \end{table}
 
 \textbf{Observations:}
-In this low-dimensional, multi-class setting ($p=5, k=10$) with Log-Normal distributed data, the distinction between models is more nuanced than in higher-dimensional scenarios.
+In this low-dimensional, multi-class setting ($p=5, k=10$) with covariance matrix with eigenvalues coming form Log-Normal distribution, the distinction between models is more nuanced than in higher-dimensional scenarios.
 Due to the low feature count, the "curse of dimensionality" is less pronounced, allowing standard baselines to remain competitive; consequently, many direct comparisons between \texttt{gips}-based models and their baselines did not yield statistically significant differences ($p > 0.05$).
 However, the results in the \texttt{gipslda} scenario highlight the robustness of the \texttt{gipsMultQDA} approach.
 Even when the ground truth implies homoscedasticity, the \texttt{gipsMultQDA} model—which enforces the "Full Cycle" symmetry while allowing for potential scale variations—significantly outperforms the regularized \texttt{LDAmod} ($pvalue \approx 0$).
@@ -1577,7 +1580,7 @@ In this low-dimensional binary setting ($p=5, k=2$), the classification task pro
 \end{table}
 
 \textbf{Observations:}
-This configuration ($p=5, k=5$) with Exponentially distributed data and a "Sparse Transposition" symmetry presents a scenario where the performance gap between the proposed models and the baselines narrows significantly. The statistical analysis indicates that for the majority of comparisons, including the primary \texttt{gipsQDA} vs. \texttt{QDAmod} case, the difference in accuracy is not statistically significant ($pvalue > 0.05$). This suggests that with the "Sparse Transposition" structure—which imposes relatively weak constraints—and non-Gaussian noise, the regularization benefit of the \texttt{gips} models is less pronounced than in denser symmetry settings. Additionally, the plots reaffirm the trend that for homoscedastic scenarios (\texttt{lda} and \texttt{gipslda}), the \texttt{gipsLDA classic} estimator is far superior to the \texttt{weighted average} variant, which performs poorly in this specific setup.
+This configuration ($p=5, k=5$) with covariance matrix with eigenvalues coming form Exponential distribution and a "Sparse Transposition" symmetry presents a scenario where the performance gap between the proposed models and the baselines narrows significantly. The statistical analysis indicates that for the majority of comparisons, including the primary \texttt{gipsQDA} vs. \texttt{QDAmod} case, the difference in accuracy is not statistically significant ($pvalue > 0.05$). This suggests that with the "Sparse Transposition" structure—which imposes relatively weak constraints—and non-Gaussian noise, the regularization benefit of the \texttt{gips} models is less pronounced than in denser symmetry settings. Additionally, the plots reaffirm the trend that for homoscedastic scenarios (\texttt{lda} and \texttt{gipslda}), the \texttt{gipsLDA classic} estimator is far superior to the \texttt{weighted average} variant, which performs poorly in this specific setup.
 
 \section{Real-World Data Results}
 
@@ -1993,11 +1996,7 @@ Applying results from \cite{JSSv112i07} for each factor we arrive at the result:
 \end{equation}
 
 \chapter{Baseline regularization strategy}
-\label{sec:baseline_regularization}
-
-Standard estimators for Linear and Quadratic Discriminant Analysis (LDA and QDA) rely on the inversion of the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$. In high-dimensional settings, particularly when $p > n$, $\hat{\boldsymbol{\Sigma}}$ becomes singular or near-singular, possessing eigenvalues close to or equal to zero. This renders the standard precision matrix calculation unstable or impossible.
-
-To ensure a fair comparison between the proposed \texttt{gips}-based models and the classical approaches, we implemented a modified version of the standard algorithms, denoted as \texttt{LDAmod} and \texttt{QDAmod}. These models incorporate a deterministic regularization step—referred to as \textit{desingularization}—which guarantees that the covariance matrix is strictly positive-definite with a bounded condition number.
+\label{ch:baseline_regularization}
 
 \section{Mathematical Formulation}
 
@@ -2042,7 +2041,7 @@ This yields the closed-form solution for the scaling factor:
     s = \frac{\tau - \lambda}{1 - \tau}.
 \end{equation}
 
-This transformation ensures that \texttt{LDAmod} and \texttt{QDAmod} remain numerically solvable even in high-dimensional scenarios where standard implementations would fail due to singularity, providing a robust baseline for benchmarking the performance of \texttt{gipsDA}.
+This transformation aims to ensure that \texttt{LDAmod} and \texttt{QDAmod} remain numerically solvable even in high-dimensional scenarios where standard implementations would fail due to singularity, providing a robust baseline for benchmarking the performance of \texttt{gipsDA}.
 
 
 
