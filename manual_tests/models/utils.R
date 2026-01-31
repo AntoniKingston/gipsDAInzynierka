@@ -303,7 +303,8 @@ create_multilevel_boxplot <- function(
     legend.position = "bottom",
     strip.background = element_rect(fill = "gray90"),
     text = element_text(size = 12)
-  )
+  ) +
+  coord_cartesian(ylim = c(0, 1))
 
   return(gg_plot)
 }
