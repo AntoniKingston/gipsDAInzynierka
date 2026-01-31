@@ -1367,7 +1367,7 @@ We conducted an extensive simulation study comprising over 100 independent large
 The optimization strategy for the \texttt{gips}-based models was strictly dependent on the problem dimensionality $p$:
 \begin{itemize}
     \item \textbf{For $p=5$:} The permutation space is sufficiently small ($5! = 120$) to allow for an exhaustive search. Therefore, the \textbf{Brute Force} optimizer was employed to guarantee finding the global maximum of the posterior probability.
-    \item \textbf{For $p=10$:} The permutation space becomes computationally intractable ($10! \approx 3.6 \times 10^6$). In these cases, the stochastic \textbf{Metropolis-Hastings} algorithm was used, constrained by a fixed \texttt{max\_iter} parameter to balance accuracy and runtime.
+    \item \textbf{For $p=10$:} For $p=10$, while exhaustive enumeration of the permutation space ($10! \approx 3.6 \times 10^6$) is technically feasible for a single instance (taking approximately 20 minutes), it becomes computationally prohibitive for large-scale benchmarking requiring thousands of repetitions. Consequently, for dimensions $p \ge 10$, we use the stochastic \textbf{Metropolis-Hastings} algorithm.
 \end{itemize}
 
 \subsection{Permutation Selection Protocol}
@@ -1451,28 +1451,18 @@ For each configuration, a composite figure displays five subplots corresponding 
     \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
     \midrule
     % --- SCENARIO: LDA ---
-    \multirow{6}{*}{lda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
-      & & & 74 & 0.0656 \\
+    \multirow{2}{*}{lda}
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA classic} & 74 & 0.0656 \\
       \cmidrule{2-5}
-      & LDAmod & gipsLDA weighted & 34 & 0.0000 \\
-      \cmidrule{2-5}
-      & QDAmod & gipsQDA & 34 & 0.0462 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0465 \\
-      & & & 74 & 0.0000 \\
+      & \multirow{1}{*}{QDAmod} & \multirow{1}{*}{gipsMultQDA} & 74 & < 0.0001 \\
     \midrule
     % --- SCENARIO: GIPSLDA ---
-    \multirow{6}{*}{gipslda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
-      & & & 74 & 0.0000 \\
+    \multirow{3}{*}{gipslda}
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA classic} & 74 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
-      & & & 74 & 0.0017 \\
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA weighted} & 74 & 0.0017 \\
       \cmidrule{2-5}
-      & gipsLDA classic & gipsLDA weighted & 34 & 0.0079 \\
-      \cmidrule{2-5}
-      & QDAmod & gipsMultQDA & 74 & 0.0000 \\
+      & QDAmod & gipsMultQDA & 74 & < 0.0001 \\
     \bottomrule
     \end{tabular}
     \caption{Selected statistical comparison results for Simulation Set 1 - Part 1. The table presents p-values for specific model pairs in LDA-based scenarios.}
@@ -1488,36 +1478,28 @@ For each configuration, a composite figure displays five subplots corresponding 
     \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
     \midrule
     % --- SCENARIO: QDA ---
-    \multirow{7}{*}{qda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
-      & & & 74 & 0.0000 \\
+    \multirow{3}{*}{qda}
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA classic} & 74 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
-      & & & 74 & 0.0000 \\
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA weighted} & 74 & < 0.0001 \\
       \cmidrule{2-5}
-      & gipsLDA classic & gipsLDA weighted & 34 & 0.0439 \\
-      \cmidrule{2-5}
-      & QDAmod & gipsMultQDA & 74 & 0.0000 \\
+      & QDAmod & gipsMultQDA & 74 & < 0.0001 \\
     \midrule
     % --- SCENARIO: GIPSQDA ---
-    \multirow{5}{*}{gipsqda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
-      & & & 74 & 0.0000 \\
+    \multirow{3}{*}{gipsqda}
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA classic} & 74 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
-      & & & 74 & 0.0000 \\
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA weighted} & 74 & < 0.0001 \\
       \cmidrule{2-5}
-      & QDAmod & gipsMultQDA & 74 & 0.0000 \\
+      & QDAmod & gipsMultQDA & 74 & < 0.0001 \\
     \midrule
     % --- SCENARIO: GIPSMULTQDA ---
-    \multirow{5}{*}{gipsmultqda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0000 \\
-      & & & 74 & 0.0000 \\
+    \multirow{3}{*}{gipsmultqda}
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA classic} & 74 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
-      & & & 74 & 0.0000 \\
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA weighted} & 74 & < 0.0001 \\
       \cmidrule{2-5}
-      & QDAmod & gipsMultQDA & 74 & 0.0000 \\
+      & QDAmod & gipsMultQDA & 74 & < 0.0001 \\
     \bottomrule
     \end{tabular}
     \caption{Selected statistical comparison results for Simulation Set 1 - Part 2. The table presents p-values for specific model pairs in QDA-based scenarios.}
@@ -1525,8 +1507,10 @@ For each configuration, a composite figure displays five subplots corresponding 
 \end{table}
 
 \textbf{Observations:}
-%\textcolor{red}{Do napisania od nowa}
-In numerous scenarios we observe null hypothesis rejection signifiyng supremacy of \texttt{gips} models. While this is a result backed with statistical machinery, overall look of accuracy line and boxplots does not reveal a substantial advantage.
+In numerous scenarios, we observe the rejection of the null hypothesis, signifying the supremacy of \texttt{gips} models.
+It is important to note that sample sizes of 16 and 34 were insufficient for the models to successfully fit.
+While the performance advantage is backed by statistical testing on larger samples, the overall appearance of the accuracy curves and boxplots does not reveal a substantial visual difference.
+
 %In this high-dimensional multi-class setting ($p=10, k=10$) characterized by a "Dense Transposition" symmetry structure, the \texttt{gips}-based models demonstrate a decisive advantage.
 %The statistical analysis reveals that \texttt{gipsMultQDA} significantly outperforms the \texttt{QDAmod} baseline across all heteroscedastic scenarios, achieving p-values near zero in both the \texttt{gipsqda} and \texttt{gipsmultqda} scenarios.
 %Furthermore, within the homoscedastic \texttt{gipslda} scenario, the \texttt{gipsLDA classic} estimator provides a statistically significant improvement over \texttt{LDAmod} ($pvalue < 0.001$).
@@ -1570,45 +1554,45 @@ In numerous scenarios we observe null hypothesis rejection signifiyng supremacy 
     \midrule
     % --- SCENARIO: QDA ---
     \multirow{9}{*}{qda}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
     \midrule
     % --- SCENARIO: GIPSQDA ---
     \multirow{9}{*}{gipsqda}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
     \midrule
     % --- SCENARIO: GIPSMULTQDA ---
     \multirow{9}{*}{gipsmultqda}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
     \bottomrule
     \end{tabular}
     \caption{Selected statistical comparison results for Simulation Set 2 - Part 1. The table presents p-values for specific model pairs in QDA-based scenarios.}
@@ -1625,31 +1609,31 @@ In numerous scenarios we observe null hypothesis rejection signifiyng supremacy 
     \midrule
     % --- SCENARIO: LDA ---
     \multirow{9}{*}{lda}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
     \midrule
     % --- SCENARIO: GIPSLDA ---
     \multirow{9}{*}{gipslda}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA classic} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{LDAmod} & \multirow{3}{*}{gipsLDA weighted} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
       \cmidrule{2-5}
-      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & 0.0000 \\
-      & & & 24 & 0.0000 \\
-      & & & 36 & 0.0000 \\
+      & \multirow{3}{*}{QDAmod} & \multirow{3}{*}{gipsMultQDA} & 16 & < 0.0001 \\
+      & & & 24 & < 0.0001 \\
+      & & & 36 & < 0.0001 \\
     \bottomrule
     \end{tabular}
     \caption{Selected statistical comparison results for Simulation Set 2 - Part 2. The table presents p-values for specific model pairs in LDA-based scenarios.}
@@ -1657,7 +1641,6 @@ In numerous scenarios we observe null hypothesis rejection signifiyng supremacy 
 \end{table}
 
 \textbf{Observations:}
-%\textcolor{red}{Do napisania}
 As binary classification is a much simpler task that predicting 1 of 10 classes line and boxplots seem even less informative, at the same time statistical testing suggests an even bigger advantage of \texttt{gips} models than in the previous scenario.
 %In this binary classification setting ($p=10, k=2$) with covariance matrix with eigenvalues coming form Chi-squared distribution, the benefits of permutation-based regularization are profound.
 %The statistical analysis reveals overwhelming evidence ($p \approx 0$) favoring the \texttt{gips}-based models over the regularized baselines across almost all scenarios.
@@ -1700,22 +1683,16 @@ As binary classification is a much simpler task that predicting 1 of 10 classes 
     \textbf{Scenario} & \textbf{Model A} & \textbf{Model B} & \textbf{No. Obs.} & \textbf{p-value} \\
     \midrule
     % --- SCENARIO: LDA ---
-    \multirow{2}{*}{lda}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0000 \\
-      & & & 74 & 0.0071 \\
+    \multirow{1}{*}{lda}
+      & \multirow{1}{*}{QDAmod} & \multirow{1}{*}{gipsMultQDA} & 74 & 0.0071 \\
     \midrule
     % --- SCENARIO: GIPSLDA ---
-    \multirow{7}{*}{gipslda}
-      & LDAmod & gipsLDA classic & 34 & 0.0040 \\
+    \multirow{3}{*}{gipslda}
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA weighted} & 74 & 0.0013  \\
       \cmidrule{2-5}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
-      & & & 74 & 0.0013 \\
+      & \multirow{1}{*}{gipsLDA classic} & \multirow{1}{*}{gipsLDA weighted} & 74 & 0.0094 \\
       \cmidrule{2-5}
-      & \multirow{2}{*}{gipsLDA classic} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0013 \\
-      & & & 74 & 0.0094 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0095 \\
-      & & & 74 & 0.0001 \\
+      & \multirow{1}{*}{QDAmod} & \multirow{1}{*}{gipsMultQDA} & 74 & 0.0001 \\
     \bottomrule
     \end{tabular}
     \caption{Selected statistical comparison results for Simulation Set 3 - Part 1. The table presents p-values for specific model pairs in LDA-based scenarios.}
@@ -1735,28 +1712,20 @@ As binary classification is a much simpler task that predicting 1 of 10 classes 
       & LDAmod & gipsLDA classic & 34 & 0.0031 \\
     \midrule
     % --- SCENARIO: GIPSQDA ---
-    \multirow{7}{*}{gipsqda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0092 \\
-      & & & 74 & 0.0618 \\
+    \multirow{3}{*}{gipsqda}
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA classic} & 74 & 0.0618 \\
       \cmidrule{2-5}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0001 \\
-      & & & 74 & 0.0183 \\
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA weighted} & 74 & 0.0183 \\
       \cmidrule{2-5}
-      & gipsLDA classic & gipsLDA weighted & 34 & 0.0344 \\
-      \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0000 \\
-      & & & 74 & 0.0004 \\
+      & \multirow{1}{*}{QDAmod} & \multirow{1}{*}{gipsMultQDA} & 74 & 0.0004 \\
     \midrule
     % --- SCENARIO: GIPSMULTQDA ---
-    \multirow{6}{*}{gipsmultqda}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA classic} & 34 & 0.0012 \\
-      & & & 74 & 0.0009 \\
+    \multirow{3}{*}{gipsmultqda}
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA classic} & 74 & 0.0009\\
       \cmidrule{2-5}
-      & \multirow{2}{*}{LDAmod} & \multirow{2}{*}{gipsLDA weighted} & 34 & 0.0000 \\
-      & & & 74 & 0.0696 \\
+      & \multirow{1}{*}{LDAmod} & \multirow{1}{*}{gipsLDA weighted} & 74 & 0.0696 \\
       \cmidrule{2-5}
-      & \multirow{2}{*}{QDAmod} & \multirow{2}{*}{gipsMultQDA} & 34 & 0.0000 \\
-      & & & 74 & 0.0000 \\
+      & \multirow{1}{*}{QDAmod} & \multirow{1}{*}{gipsMultQDA} & 74 & < 0.0001 \\
     \bottomrule
     \end{tabular}
     \caption{Selected statistical comparison results for Simulation Set 3 - Part 2. The table presents p-values for specific model pairs in QDA-based scenarios.}
@@ -1764,9 +1733,10 @@ As binary classification is a much simpler task that predicting 1 of 10 classes 
 \end{table}
 
 \textbf{Observations:}
-%\textcolor{red}{Do napisania od nowa}
-Due to disparity in dimensionality and the number of classes in favor of the former this problem is much more difficult than the 2 previous ones. This manifests in the form of lower plateaus of accuracy and a visible difference in model performance.
-Tests results similarly to the previously discussed scenarios do stem from visualized data at the first glance though.
+The significant disparity between dimensionality and the number of classes renders this scenario considerably more challenging than the previous two.
+This complexity manifests as lower accuracy plateaus and distinct performance gaps between models. Critically, sample sizes of 16 and 34 observations proved insufficient for the models to successfully fit parameters.
+Consequently, the statistical test results, consistent with the visual trends, are only applicable to larger sample sizes.
+
 %In this low-dimensional, multi-class setting ($p=5, k=10$) with covariance matrix with eigenvalues coming form Log-Normal distribution, the distinction between models is more nuanced than in higher-dimensional scenarios.
 %Due to the low feature count, the "curse of dimensionality" is less pronounced, allowing standard baselines to remain competitive; consequently, many direct comparisons between \texttt{gips}-based models and their baselines did not yield statistically significant differences ($p > 0.05$).
 %However, the results in the \texttt{gipslda} scenario highlight the robustness of the \texttt{gipsMultQDA} approach.
@@ -2015,12 +1985,12 @@ Each subsection presents the learning curve for a specific dataset, followed by 
         \toprule
         \textbf{Comparison} & \textbf{Number of observations} & \textbf{p-value} \\
         \midrule
-        LDAmod vs gipsLDA classic & 20 & $0.0000$ \\
-                                  & 35 & $0.0000$ \\
-                                  & 76 & $0.0000$ \\
+        LDAmod vs gipsLDA classic & 20 & $<0.0001$ \\
+                                  & 35 & $<0.0001$ \\
+                                  & 76 & $<0.0001$ \\
         \midrule
-        LDAmod vs gipsLDA weighted average & 20 & $0.0000$ \\
-                                           & 35 & $0.0000$ \\
+        LDAmod vs gipsLDA weighted average & 20 & $<0.0001$ \\
+                                           & 35 & $<0.0001$ \\
                                            & 76 & $0.4091$ \\
         \midrule
         gipsLDA classic vs gipsLDA weighted average & 20 & $0.9768$ \\
@@ -2031,8 +2001,8 @@ Each subsection presents the learning curve for a specific dataset, followed by 
                           & 35 & $0.0960$ \\
                           & 76 & $0.4234$ \\
         \midrule
-        QDAmod vs gipsMultQDA & 20 & $0.0000$ \\
-                              & 35 & $0.0000$ \\
+        QDAmod vs gipsMultQDA & 20 & $<0.0001$ \\
+                              & 35 & $<0.0001$ \\
                               & 76 & $0.0066$ \\
         \bottomrule
     \end{tabular}
@@ -2077,7 +2047,7 @@ Statistically, this advantage is most durable for the constrained models. \textt
                                   & 30 & $0.0096$ \\
                                   & 51 & $0.0833$ \\
         \midrule
-        LDAmod vs gipsLDA weighted average & 20 & $0.0000$ \\
+        LDAmod vs gipsLDA weighted average & 20 & $<0.0001$ \\
                                            & 30 & $0.8072$ \\
                                            & 51 & $1.0000$ \\
         \midrule
@@ -2139,12 +2109,12 @@ The quadratic family benefits significantly from the symmetry constraints here. 
                                   & 237 & $1.0000$ \\
         \midrule
         LDAmod vs gipsLDA weighted average & 20 & $1.0000$ \\
-                                           & 58 & $0.0000$ \\
-                                           & 237 & $0.0000$ \\
+                                           & 58 & $<0.0001$ \\
+                                           & 237 & $<0.0001$ \\
         \midrule
         gipsLDA classic vs gipsLDA weighted average & 20 & $1.0000$ \\
-                                                    & 58 & $0.0000$ \\
-                                                    & 237 & $0.0000$ \\
+                                                    & 58 & $<0.0001$ \\
+                                                    & 237 & $<0.0001$ \\
         \midrule
         QDAmod vs gipsQDA & 20 & $1.0000$ \\
                           & 58 & $0.5396$ \\
@@ -2414,7 +2384,7 @@ While \texttt{gipsDA} provides a robust foundation for symmetry-based classifica
 
     \item \textbf{Computational Scalability via C++ Integration:} While the current implementation is efficient for moderate dimensions, searching the permutation space in extremely high-dimensional settings (e.g., genomic data where $p > 1000$) remains computationally intensive. A critical next step is to rewrite the bottleneck matrix operations using the \texttt{Rcpp} library to interface directly with C++, which would significantly reduce overhead and improve scalability.
 
-    \item \textbf{Optimized Optimization:} For $p \ge 10$, the current Metropolis–Hastings sampler with transposition-based proposals mix slowly. Future work  may include exploring more efficient discrete optimization/sampling methods that can outperform vanilla MH, e.g., other proposals distributions, simulated annealing, or evolutionary algorithms.
+    \item \textbf{Advanced Optimization Strategies:} For dimensions $p \ge 10$, the current Metropolis–Hastings sampler utilizing transposition-based proposals exhibits slow mixing. Future work should investigate more efficient discrete optimization and sampling techniques to surpass the performance of the standard MH algorithm. Potential avenues include alternative proposal distributions, simulated annealing, or evolutionary algorithms.
 \end{itemize}
 % ======================================================================
 %                          Rest
