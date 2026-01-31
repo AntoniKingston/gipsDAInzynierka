@@ -2414,7 +2414,7 @@ While \texttt{gipsDA} provides a robust foundation for symmetry-based classifica
 
     \item \textbf{Computational Scalability via C++ Integration:} While the current implementation is efficient for moderate dimensions, searching the permutation space in extremely high-dimensional settings (e.g., genomic data where $p > 1000$) remains computationally intensive. A critical next step is to rewrite the bottleneck matrix operations using the \texttt{Rcpp} library to interface directly with C++, which would significantly reduce overhead and improve scalability.
 
-    \item \textbf{Optimized Optimization:} For $p \ge 10$, the current Metropolis–Hastings sampler with transposition-based proposals mix slowly. Future work  may include exploring more efficient discrete optimization/sampling methods that can outperform vanilla MH, e.g., other proposals distributions, simulated annealing, or evolutionary algorithms.
+    \item \textbf{Advanced Optimization Strategies:} For dimensions $p \ge 10$, the current Metropolis–Hastings sampler utilizing transposition-based proposals exhibits slow mixing. Future work should investigate more efficient discrete optimization and sampling techniques to surpass the performance of the standard MH algorithm. Potential avenues include alternative proposal distributions, simulated annealing, or evolutionary algorithms.
 \end{itemize}
 % ======================================================================
 %                          Rest
