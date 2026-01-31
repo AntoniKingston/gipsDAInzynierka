@@ -1101,7 +1101,7 @@ Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance mat
         \item \textbf{Symmetry:} Similar to Scenario 4, no permutation constraints are applied. Each matrix is independently generated and unstructured. This represents the most difficult setting for estimation when $n$ is small, as the number of parameters to estimate is maximal ($\frac{Kp(p+1)}{2}$).
     \end{itemize}
 \end{description}
-In every scenario scenario $n_k$ (number of observations generated from class k) varies between $\lceil\frac{16}{n_classes}\rceil$ and 50.
+In every scenario scenario $n_k$ (number of observations generated from class k) ranges between $\left\lceil\frac{16}{n_{classes}}\right\rceil$ and 50.
 
 
 \section{Real data}
@@ -1174,7 +1174,7 @@ The data was already in a clean, numerical format suitable for analysis. No addi
 The extreme class imbalance poses a problem for standard classifiers. We applied a strict \textbf{undersampling} strategy to create a balanced subset for training:
 \begin{enumerate}
     \item We retained all minority class samples (Fraud).
-    \item We sampled the majority class (Legitimate) such that the final dataset composition was 40\% Fraud and 60\% Legitimate.
+    \item We sampled the majority class (Legitimate) such that the final dataset composition was 40\% Fraud and 60\% Legitimate. It should be noted that \texttt{MASS} LDA and QDA implementations estimate priors based on passed data, as such in this case $\pi_{FALSE} = 0.6$ and $\pi_{TRUE} = 0.4$.
     \item This resulted in a dataset of 1230 observations.
     \item Finally, we removed 2 collinear features using a correlation cutoff of 0.9.
 \end{enumerate}
