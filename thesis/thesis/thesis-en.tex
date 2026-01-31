@@ -1352,7 +1352,7 @@ In this section, we analyze the performance of the proposed classification model
 The comparative analysis involves six distinct models. In the generated plots and subsequent discussions, the following abbreviations are used:
 
 \begin{itemize}
-    \item \textbf{\texttt{gipsldawa}}: The \texttt{gipsLDA} model utilizing the \textbf{weighted average} estimator (Bayesian Model Averaging).
+    \item \textbf{\texttt{gipsldawa}}: The \texttt{gipsLDA} model utilizing the \textbf{weighted average} estimator (Covariance Mtrices by Class Averaging).
     \item \textbf{\texttt{gipsldacl}}: The \texttt{gipsLDA} model utilizing the \textbf{classic} estimator (unbiased pooled covariance).
     \item \textbf{\texttt{gipsqda}}: The \texttt{gipsQDA} model, where each class has a unique covariance structure.
     \item \textbf{\texttt{gipsmultqda}}: The \texttt{gipsMultQDA} model, where classes share a common permutation symmetry.
@@ -2375,7 +2375,7 @@ The core hypothesis of this work was that imposing permutation symmetry on the c
 
 \begin{itemize}
     \item \textbf{Symmetry as a Prior:} The success of \texttt{gipsQDA} and \texttt{gipsMultQDA} in synthetic scenarios confirms that discovering latent symmetries allows the model to drastically reduce the number of free parameters without discarding the covariance structure entirely. This suggests that "data-driven parsimony" is a viable alternative to sparsity or diagonal constraints.
-    \item \textbf{The "Classic" vs. "Weighted" Dilemma:} One of the most significant findings was the underperformance of the Bayesian Model Averaging (weighted average) strategy in the homoscedastic \texttt{gipsLDA} model. The models are theoreticaly asymptoticaly equivalent the issue may be an external factor like numerical instability.
+    \item \textbf{The "Classic" vs. "Weighted" Dilemma:} One of the most significant findings was the underperformance of weighted average strategy in the homoscedastic \texttt{gipsLDA} model. The models are theoreticaly asymptoticaly equivalent the issue may be an external factor like numerical instability.
 %    \item \textbf{Practical Utility:} The integration with the \texttt{MASS} library syntax proved to be a vital design decision. By lowering the barrier to entry, we ensured that the complex mathematical backend remains accessible to data scientists, bridging the gap between advanced statistical theory and practical application. % wiem, że w listingu to min 3 wyglądae dobrze ale to już jest na prawdę zeroinformatywna linijka na granicy dezinofrmacji powiedziałbym wręcz.
 \end{itemize}
 
