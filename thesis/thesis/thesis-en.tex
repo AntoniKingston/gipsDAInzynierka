@@ -299,7 +299,7 @@
 \end{center}
 Statistical classification is a fundamental problem in machine learning and data analysis, with applications ranging from genomic sequencing and medical diagnosis to financial forecasting. Among the vast landscape of classification algorithms, generative models such as Linear and Quadratic Discriminant Analysis (LDA and QDA) remain cornerstones of the field due to their rigorous statistical foundations, interpretability, and computational efficiency. However, nowadays  these classical methods are frequently confronted with high-dimensional datasets—scenarios where the number of features rivals or exceeds the number of observations. In such environments, standard estimation techniques often fail, necessitating the development of more robust approaches. \\
 
-We propose a novel solution to this challenge by integrating the the concept of invariance under action of a subgroup of the symmetric group with discriminant analysis. Specifically, we explore how identifying and enforcing permutation symmetries within the data can serve as a powerful form of model-based regularization, stabilizing covariance estimation without resorting to arbitrary shrinkage. \\
+We propose a novel solution to this challenge by integrating the concept of invariance under action of a subgroup of the symmetric group with discriminant analysis. Specifically, we explore how identifying and enforcing permutation symmetries within the data can serve as a powerful form of model-based regularization, stabilizing covariance estimation without resorting to arbitrary shrinkage. \\
 \\
 \noindent \textbf{Keywords:} classification, discriminant analysis, high-dimensional, regularization, permutation symmetries, covariance, estimation
 \end{abstract}
@@ -317,7 +317,7 @@ We propose a novel solution to this challenge by integrating the the concept of 
 Statystyczna klasyfikacja jest podstawowym zagadnieniem uczenia maszynowego i analizy danych, jej zastosowania sięgają od sekwencjonowania genomu, przez diagnozę medyczną, po prognozowanie finansowe. Wśród szerokiej gamy algorytmów klasyfikacji, modele generatywne takie jak Liniowa i Kwadratowa Analiza Dyskryminacyjna (LDA i QDA), ze względu na swoje rygorystyczne podstawy statystyczne, interpretowalność i wydajność obliczeniową, pozostają punktem odniesienia dla tej dziedziny. Jednak obecnie te klasyczne metody często zmagają się ze zbiorami danych o wysokiej wymiarowości — scenariuszami, w których liczba cech dorównuje lub przewyższa liczbę obserwacji. W takich okolicznościach standardowe techniki estymacji często zawodzą, co wymaga opracowania bardziej spolegliwych podejść. \\
 
 
-Proponujemy nowatorskie rozwiązanie tego wyzwania poprzez połączenie koncepcji niezmienniczości pod wpływem działania podgrupy grupy symetrycznej z analizą dyskryminacyjną. W szczególności badamy, w jaki sposób wykrywanie i narzucanie symetrii permutacyjnych w danych może służyć jako skuteczna forma regularyzacji, stabilizując estymację kowariancji bez uciekania się do arbitralnych kroków. \\
+Proponujemy nowatorskie rozwiązanie tego wyzwania poprzez połączenie koncepcji niezmienniczości względem działania podgrupy grupy symetrycznej z analizą dyskryminacyjną. W szczególności badamy, w jaki sposób wykrywanie i narzucanie symetrii permutacyjnych w danych może służyć jako skuteczna forma regularyzacji, stabilizując estymację kowariancji bez uciekania się do arbitralnych kroków. \\
 \\
 \noindent \textbf{Słowa kluczowe:} klasyfikacja, analiza dyskryminacyjna, wielowymiarowy, regularyzacja, symetrie permutacyjne, kowariancja, estymacja
 \end{abstract}
@@ -523,7 +523,7 @@ This section establishes the mathematical rigor behind this generalization. We b
 Let us set $p \in \mathbb{N}$. Let $\mathfrak{S}_p$ denote the symmetric group i.e. the set of all permutastions on $V = \{1,2, \dots, p\}$
 with function composition as the operation.
 \subsubsection{Invariance under action of a subgroup of the symmetric group}
-Let $K \in \mathbb{R}^{p\times p}$ and $\Gamma \leq \mathfrak{S}_p$. We say that matrix $K$ is invariant under action of subgroup $\Gamma$ iif
+Let $K \in \mathbb{R}^{p\times p}$ and $\Gamma \leq \mathfrak{S}_p$. We say that matrix $K$ is invariant under action of subgroup $\Gamma$ iff
 \begin{equation}
     \forall_{\sigma \in \Gamma} \forall_{i,j\in V} K_{i,j} = K_{\sigma(i), \sigma(j)}
 \end{equation}.
@@ -577,7 +577,7 @@ Under analogous assumptions the posterior in \texttt{gipsmult} setting is propor
     \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)},
 \end{equation}
 So the entire logic of Bayesian selection for \texttt{gipsmult} boils down to multiplication of results from \texttt{gips}.\\
-We attach full derivation of \eqref{gipsmultposteriorformula} in the appendix A.
+We attach full derivation of \eqref{gipsmultposteriorformula} in the \autoref{app:gipsmult_derivation}.
 
 
 
@@ -673,8 +673,8 @@ in scale or variance but are expected to share a common dependency structure:
 \draw[fill=blue, fill opacity=0.15] (-1,0) ellipse (5.5cm and 4cm);
 \node at (-4, 2.5) {$\texttt{gipsQDA}$};
 
-\draw[fill=orange, fill opacity=0.15] (4,0) ellipse (5cm and 4cm);
-\node at (6.5, 2.5) {$\texttt{LDA}$};
+\draw[fill=orange, fill opacity=0.15] (4.3,0) ellipse (4.7cm and 4cm);
+\node at (6.8, 2.5) {$\texttt{LDA}$};
 
 \draw[fill=green, fill opacity=0.15] (0,0) ellipse (3.8cm and 2.8cm);
 \node at (-1.5, 1.8) {$\texttt{gipsMultQDA}$};
@@ -1355,7 +1355,7 @@ The comparative analysis involves six distinct models. In the generated plots an
     \item \textbf{\texttt{gipsldacl}}: The \texttt{gipsLDA} model utilizing the \textbf{classic} estimator (unbiased pooled covariance).
     \item \textbf{\texttt{gipsqda}}: The \texttt{gipsQDA} model, where each class has a unique covariance structure.
     \item \textbf{\texttt{gipsmultqda}}: The \texttt{gipsMultQDA} model, where classes share a common permutation symmetry.
-    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described in appendix \ref{sec:baseline_regularization} (\texttt{LDAmod}).
+    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described in section~\ref{sec:baseline_regularization} (\texttt{LDAmod}).
     \item \textbf{\texttt{qda}}: The baseline Quadratic Discriminant Analysis model, modified with eigenvalue regularization (\texttt{QDAmod}).
 \end{itemize}
 
@@ -2420,45 +2420,12 @@ While \texttt{gipsDA} provides a robust foundation for symmetry-based classifica
 \chapter{Division of Work and AI Declaration}
 
 \begin{table}[H]
-        \centering
-        \small
-        % Zwiększenie odstępów między wierszami dla lepszej czytelności
-        \renewcommand{\arraystretch}{1.1}
-
-        \begin{tabularx}{\textwidth}{l X c c}
-            \toprule
-            \textbf{Category} & \textbf{Task / Responsibility} & \textbf{Antoni} & \textbf{Norbert} \\
-            \midrule
-            \textbf{Theory} & Mathematical derivation of the \texttt{gipsmult} posterior & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
-            \addlinespace
-            \textbf{Package} & \texttt{gipsmult} module: Optimization engines (MH, BF) & \textcolor{teal}{$\checkmark$} & \textcolor{gray}{$\times$} \\
-            \addlinespace
-            \textbf{Package} & \texttt{models} module: S3 methods, API consistency & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
-            \addlinespace
-            \textbf{Package} & Model serialization (JSON engine) & \textcolor{teal}{$\checkmark$} & \textcolor{gray}{$\times$} \\
-            \addlinespace
-            \textbf{Testing} & Unit testing framework and "Negative Testing" suite & \textcolor{gray}{$\times$} & \textcolor{teal}{$\checkmark$} \\
-            \addlinespace
-            \textbf{Experiments} & Synthetic data generation and benchmarking & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
-            \addlinespace
-            \textbf{Experiments} & Real-world dataset benchmarking & \textcolor{gray}{$\times$} & \textcolor{teal}{$\checkmark$} \\
-            \addlinespace
-            \textbf{Documentation} & Technical reports, User's Manual, and Thesis Writing & \textcolor{teal}{$\checkmark$} & \textcolor{teal}{$\checkmark$} \\
-            \bottomrule
-        \end{tabularx}
-        \caption{Summary of individual and shared contributions.}
-    \end{table}
-
-\noindent
-It is important to note that our collaboration was highly interactive. We worked closely together, constantly cross-checking each other's work and frequently consulting on solutions. Often, one author would prepare the initial draft of a chapter, while the other would thoroughly review and edit it. This reciprocal approach characterized our entire workflow and cooperation.
-
-\begin{table}[H]
     \centering
     \small
     \renewcommand{\arraystretch}{1.5}
     \begin{tabularx}{\textwidth}{ >{\raggedright\arraybackslash}p{6cm} X X }
         \toprule
-        \textbf{Role} & \textbf{Norbert} \newline 327273 & \textbf{Antoni} \newline 327284 \\
+        \textbf{Role} & \textbf{Norbert Frydrysiak} \newline 327273 & \textbf{Antoni Kingston} \newline 327284 \\
         \midrule
         % --- WRITING DRAFT ---
         \textbf{Writing – original draft} &
@@ -2469,9 +2436,62 @@ It is important to note that our collaboration was highly interactive. We worked
         \textbf{Writing – review \& editing}  &
         Chapters: \newline 3, 4 &
         Chapters: \newline 1, 2, 5, 6, 7, 8 \\
+        % --- SOFTWARE REVIEW ---
+        \addlinespace[10pt]
+        \textbf{Software}  &
+        Modules: \newline unit tests suite and \texttt{models} &
+        Modules: \newline \texttt{gipsmult} and \texttt{models} \\
+        \addlinespace[10pt]
+        \textbf{Key solutions of the work} \newline
+        \textit{Conceptualization, Investigation, Methodology} &
+        Mathematical derivation of the \texttt{gipsmult} module; Designing the package API. \newline
+        Creating unit tests; Proposing the methodology for experiments on synthetic and real-world data. &
+        Mathematical derivation of the \texttt{gipsmult} module; Designing the package API. \newline
+        Proposing the covariance matrix sampling procedure; Proposing covariance matrix regularization. \\
         \bottomrule
     \end{tabularx}
-    \caption{The contribution of the authors of the thesis (Writing section).}
+    \caption{The contribution of the authors of the thesis - Part 1}
+\end{table}
+
+\noindent
+It is important to note that our collaboration was highly interactive. We worked closely together, constantly cross-checking each other's work and frequently consulting on solutions. Often, one author would prepare the initial draft of a chapter, while the other would thoroughly review and edit it. This reciprocal approach characterized our entire workflow and cooperation.
+
+\begin{table}[H]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabularx}{\textwidth}{ >{\raggedright\arraybackslash}p{6cm} X X }
+        \toprule
+        \textbf{Role} & \textbf{Norbert Frydrysiak} \newline 327273 & \textbf{Antoni Kingston} \newline 327284 \\
+        \midrule
+        \textbf{Formal Analysis} \newline
+        (including explanatory data analysis) and Validation &
+        Execution and analysis of experiments. \newline
+        Explanatory Data Analysis (EDA) for real-world datasets. \newline
+        Code validation via unit tests. &
+        Execution and analysis of experiments. \newline
+        Conducting statistical tests. \newline
+        Manual validation of \texttt{gipsmult} and \texttt{models} modules. \\
+        \addlinespace[10pt]
+        \textbf{Data curation} &
+        YES &
+        YES \\
+        \addlinespace[10pt]
+        \textbf{Project administration} &
+        YES &
+        NO \\
+        \addlinespace[10pt]
+        \textbf{Resources} &
+        NO &
+        NO \\
+        \addlinespace[10pt]
+        \textbf{Visualisation} &
+        YES &
+        YES \\
+        \addlinespace[10pt]
+        \bottomrule
+    \end{tabularx}
+    \caption{The contribution of the authors of the thesis - Part 2}
 \end{table}
 
 \section*{The use of IT tools in this thesis}
@@ -2521,6 +2541,7 @@ We hereby declare that:
 
 \appendix
 \chapter{Derivation of a posteriori distribution in \texttt{gipsmult} model}
+\label{app:gipsmult_derivation}
 We examine m multidimensional gaussian samples $Z^{(1)}_{g},\dots Z_g^{(n_g)}$ under
 set $\{\mathcal{K}_g=\kappa_g, \Gamma=c\} $ consisting of i.i.d. random
 vectors $\mathcal{N}_p(0, \kappa_g^{-1})$.
