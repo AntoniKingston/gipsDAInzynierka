@@ -525,8 +525,8 @@ with function composition as the operation.
 \subsubsection{Invariance under action of a subgroup of the symmetric group}
 Let $K \in \mathbb{R}^{p\times p}$ and $\Gamma \leq \mathfrak{S}_p$. We say that matrix $K$ is invariant under action of subgroup $\Gamma$ iff
 \begin{equation}
-    \forall_{\sigma \in \Gamma} \forall_{i,j\in V} K_{i,j} = K_{\sigma(i), \sigma(j)}
-\end{equation}.
+    \forall_{\sigma \in \Gamma} \forall_{i,j\in V} K_{i,j} = K_{\sigma(i), \sigma(j)}.
+\end{equation}
 For conciseness sake in the following sections we will say that a matrix is \textit{invariant under subgroup} or, if supgroup $\Gamma = \langle \sigma \rangle$
 is cyclic that a matrix is \textit{invariant under} $\sigma$.
 Below we attach some visual examples to explain the concept better:
@@ -576,8 +576,8 @@ Under analogous assumptions the posterior in \texttt{gipsmult} setting is propor
 \begin{equation}\label{gipsmultposteriorformula}
     \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)},
 \end{equation}
-So the entire logic of Bayesian selection for \texttt{gipsmult} boils down to multiplication of results from \texttt{gips}.\\
-We attach full derivation of \eqref{gipsmultposteriorformula} in the \autoref{app:gipsmult_derivation}.
+so the entire logic of Bayesian selection for \texttt{gipsmult} boils down to multiplication of results from \texttt{gips}.\\
+We attach full derivation of \eqref{gipsmultposteriorformula} in \autoref{app:gipsmult_derivation}.
 
 
 
@@ -662,6 +662,7 @@ in scale or variance but are expected to share a common dependency structure:
 \end{equation}
 
 \subsection{Relationship between the models}
+Model \texttt{gipsLDA} is contained within \texttt{gipsmultQDA}, while simultaneously being a specific case of \texttt{LDA}. All models are subsets of the general \texttt{QDA}.
 
 \begin{figure}[ht]
 \centering
@@ -683,7 +684,7 @@ in scale or variance but are expected to share a common dependency structure:
 \node at (1.5,0) {$\texttt{gipsLDA}$};
 
 \end{tikzpicture}
-\caption{The diagram illustrates the hierarchical relationships between the models. It clearly shows that \texttt{gipsLDA} is contained within \texttt{gipsmultQDA}, while simultaneously being a specific case of \texttt{LDA}. All models are subsets of the general \texttt{QDA}.}
+\caption{The diagram illustrates the hierarchical relationships between the models.}
 \label{fig:nested-sets}
 \end{figure}
 
@@ -911,11 +912,11 @@ Documentation was written in the form of \texttt{roxygen2} comments and rendered
 \chapter{Testing Methodology}
 \label{ch:testing_methodology}
 
-This chapter presents the comprehensive evaluation methodology employed to assess the performance and robustness of the proposed \texttt{gipsDA} framework. To ensure a rigorous validation, the assessment strategy is twofold, encompassing controlled experiments on synthetic data and empirical benchmarking on diverse real-world datasets.
+This chapter presents evaluation methodology employed to assess the performance and robustness of the proposed \texttt{gipsDA} framework. To ensure rigorous validation, the assessment strategy is twofold, encompassing controlled experiments on synthetic data and empirical benchmarking on real-world datasets.
 
-First, we detail the procedures for the \textbf{synthetic data analysis}. This includes a description of the generative algorithms used to simulate high-dimensional data with specific covariance structures, the methodology for constructing performance visualization curves, and the statistical framework applied to quantify the significance of the results.
+First, we detail the procedures for the \textbf{synthetic data analysis}. This includes a description of the generative algorithms used to simulate high-dimensional data with specific covariance structures, methodology for constructing performance visualization curves, and statistical framework applied to quantify significance of results.
 
-Subsequently, we outline the approach for \textbf{real-world data benchmarking}. This section describes the necessary data preparation and preprocessing pipelines, explains the visualization techniques used to monitor model convergence, and provides a brief characterization of the specific datasets selected for this study.
+Subsequently, we outline approach for \textbf{real-world data benchmarking}. This section describes necessary data preparation and preprocessing pipelines, explains visualization techniques used to monitor model convergence, and provides a brief characterization of specific datasets selected for this study.
 
 In both experimental scenarios, the comparative analysis focuses on the performance of six distinct classification models. These include four variants of the proposed framework:
 \begin{itemize}
@@ -934,7 +935,7 @@ To quantitatively assess and compare the predictive power of these models, we em
     \text{Accuracy} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{I}(y_i = \hat{y}_i),
 \end{equation}
 
-where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
+\noindent where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
 
 In addition to accuracy, we utilize the \textbf{Area Under the Receiver Operating Characteristic Curve (AUC-ROC)} to evaluate the models' ability to discriminate between classes, independent of specific decision thresholds. For a binary classification problem, the AUC represents the probability that the classifier ranks a randomly chosen positive instance higher than a randomly chosen negative instance \cite{fawcett2006introduction}.
 
@@ -946,7 +947,7 @@ Instead of comparing one class against all others, we calculate the AUC for ever
     \text{AUC}_{\text{multi}} = \frac{2}{K(K-1)} \sum_{i < j} \text{AUC}(c_i, c_j),
 \end{equation}
 
-where $\text{AUC}(c_i, c_j)$ represents the probability that a randomly chosen member of class $c_i$ will have a higher estimated probability of belonging to class $c_i$ than a randomly chosen member of class $c_j$. This metric is robust to class imbalance and provides a coherent measure of separability across all class boundaries.
+\noindent where $\text{AUC}(c_i, c_j)$ represents the probability that a randomly chosen member of class $c_i$ will have a higher estimated probability of belonging to class $c_i$ than a randomly chosen member of class $c_j$. This metric is robust to class imbalance and provides a coherent measure of separability across all class boundaries.
 \section{Baseline Regularization Strategy}
 \label{sec:baseline_regularization}
 
@@ -1004,7 +1005,7 @@ The exact regularization procedure is exhaustively discussed in \autoref{ch:base
 \section{Synthetic data}
 \label{sec:synthetic_data}
 
-To rigorously evaluate the performance of the proposed classification models, a comprehensive simulation study was designed. This involved generating synthetic datasets with controlled and well-defined properties, allowing us to systematically explore different assumptions regarding the underlying covariance structures of the classes.
+To evaluate the performance of the proposed classification models, a simulation study was designed. This involved generating synthetic datasets with controlled and well-defined properties, allowing us to systematically explore different assumptions regarding the underlying covariance structures of the classes.
 
 \subsection{Experimental Workflow and Reproducibility}
 
@@ -1027,7 +1028,7 @@ The core algorithm for defining the distributions consists of the following sequ
     For each of the $k$ classes, a mean vector $\boldsymbol{\mu}_k$ is sampled as a random point from a $p$-dimensional hypercube, $[0, 1]^p$. To prevent fortuitous overlap between classes, a minimum separation constraint is enforced. After sampling the set of $k$ vectors, the Euclidean distance between every pair of distinct means $(\boldsymbol{\mu}_i, \boldsymbol{\mu}_j)$ is calculated. If any pair satisfies $\|\boldsymbol{\mu}_i - \boldsymbol{\mu}_j\| \leq 0.05$, the entire set is discarded, and the sampling process is repeated. This safeguard prevents the generation of trivially difficult scenarios caused by nearly identical class centroids.
 
     \item \textbf{Covariance Matrix Construction (Spectral Decomposition):}
-    To rigorously stress-test the models under varied spectral conditions, we employ a method based on spectral decomposition. This allows for direct control over the eigenvalues and the condition number of the matrix. The procedure is as follows:
+    To stress-test the models under varied spectral conditions, we employ a method based on spectral decomposition.  The procedure is as follows:
     \begin{itemize}
         \item \textbf{Eigenvalue Generation:} A vector of eigenvalues $\boldsymbol{\lambda} = (\lambda_1, \dots, \lambda_p)$ is drawn from a specified distribution $\mathcal{D}$ (e.g., Exponential) and sorted such that $\lambda_1 \ge \dots \ge \lambda_p > 0$. Let $\Lambda = \text{diag}(\boldsymbol{\lambda})$.
         \item \textbf{Random Orthogonal Matrix:} A random matrix $\mathbf{Z} \in \mathbb{R}^{p \times p}$ is generated with entries $Z_{ij} \sim \mathcal{N}(0, 1)$. To obtain a uniformly distributed orthogonal matrix (Haar measure), we perform a QR decomposition: $\mathbf{Z} = \mathbf{Q}'\mathbf{R}$. The matrix $\mathbf{Q}'$ is adjusted by the signs of the diagonal elements of $\mathbf{R}$ to ensure uniqueness:
@@ -1038,7 +1039,7 @@ The core algorithm for defining the distributions consists of the following sequ
     \end{itemize}
 
     \item \textbf{Covariance Matrix Projection:}
-    For scenarios involving the \texttt{gips} methodology, the raw covariance matrix $\boldsymbol{\Sigma}_{\text{raw}}$ is projected onto a specific permutation group structure. This step imposes the predefined symmetries required to test the specific hypotheses of our thesis (e.g., cyclic symmetry or block symmetry).
+    For scenarios involving \texttt{gips} methodology, raw a covariance matrix $\boldsymbol{\Sigma}_{\text{raw}}$ is projected onto specific permutation group structure. This step imposes predefined symmetries required to test specific hypotheses of our thesis (e.g., cyclic symmetry or block symmetry).
 
     \item \textbf{Separability Control:}
     To ensure a consistent level of classification difficulty across diverse scenarios, a scaling parameter $\psi$ is introduced. This parameter scales the covariance matrix ($\boldsymbol{\Sigma} = \boldsymbol{\Sigma}_{\text{base}} \cdot \psi$), where smaller values of $\psi$ reduce variance, making classes more compact and separable. The optimal value of $\psi$ is determined via an automated iterative search. Starting with an initial $\psi_{\text{init}}$, we iteratively test $\psi_{\text{new}} =\frac{\psi_{\text{init}}}{2^i}$ until a baseline LDA or QDA model achieves a predefined target accuracy on the generated data.
@@ -1060,13 +1061,13 @@ The core algorithm for defining the distributions consists of the following sequ
 \subsection{Data Generation Scenarios}
 \label{sec:scenarios}
 
-To systematically evaluate the proposed models, we defined five distinct data generation scenarios. Each scenario corresponds to a specific set of assumptions regarding the covariance structure and symmetry of the underlying classes. These scenarios range from the most constrained (homoscedastic and symmetric) to the most flexible (heteroscedastic and unstructured), effectively creating "ideal" conditions for each of the tested algorithms.
+To systematically evaluate the proposed models, we define five distinct data generation scenarios. Each scenario corresponds to a specific set of assumptions regarding the covariance structure and symmetry of the underlying classes. These scenarios range from the most constrained (homoscedastic and symmetric) to the most flexible (heteroscedastic and unstructured), effectively creating "ideal" conditions for each of the tested algorithms.
 
-Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance matrix for class $g$, and $\Gamma$ a permutation group defining the symmetry.
+Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance matrix for class $g$, and $\Gamma$ the permutation group defining symmetry.
 
 \begin{description}
     \item[Scenario 1: gipsLDA (Homoscedastic / Symmetric)] \hfill \\
-    This scenario represents the strictest set of assumptions, targeting the \texttt{gipsLDA} model.
+    This scenario represents the strictest set of assumptions, targeting \texttt{gipsLDA} model.
     \begin{itemize}
         \item \textbf{Covariance Structure:} We assume homoscedasticity, meaning all classes share a single, common covariance matrix:
         \[ \boldsymbol{\Sigma}_1 = \boldsymbol{\Sigma}_2 = \dots = \boldsymbol{\Sigma}_K = \boldsymbol{\Sigma}_{\text{common}}. \]
@@ -1101,7 +1102,7 @@ Let $K$ denote the number of classes, $\boldsymbol{\Sigma}_g$ the covariance mat
         \item \textbf{Symmetry:} Similar to Scenario 4, no permutation constraints are applied. Each matrix is independently generated and unstructured. This represents the most difficult setting for estimation when $n$ is small, as the number of parameters to estimate is maximal ($\frac{Kp(p+1)}{2}$).
     \end{itemize}
 \end{description}
-In every scenario scenario $n_k$ (number of observations generated from class k) varies between $\lceil\frac{16}{n_classes}\rceil$ and 50.
+In every scenario scenario $n_k$ (number of observations generated from class k) ranges between $\left\lceil\frac{16}{n_{classes}}\right\rceil$ and 50.
 
 
 \section{Real data}
@@ -1174,7 +1175,7 @@ The data was already in a clean, numerical format suitable for analysis. No addi
 The extreme class imbalance poses a problem for standard classifiers. We applied a strict \textbf{undersampling} strategy to create a balanced subset for training:
 \begin{enumerate}
     \item We retained all minority class samples (Fraud).
-    \item We sampled the majority class (Legitimate) such that the final dataset composition was 40\% Fraud and 60\% Legitimate.
+    \item We sampled the majority class (Legitimate) such that the final dataset composition was 40\% Fraud and 60\% Legitimate. It should be noted that \texttt{MASS} LDA and QDA implementations estimate priors based on passed data, as such in this case $\pi_{FALSE} = 0.6$ and $\pi_{TRUE} = 0.4$.
     \item This resulted in a dataset of 1230 observations.
     \item Finally, we removed 2 collinear features using a correlation cutoff of 0.9.
 \end{enumerate}
@@ -1273,15 +1274,15 @@ For a given pair of models i.e., Model A (baseline, e.g., \texttt{QDAmod}) and M
     \item $H_1$ : The median of differences is less than 0.
 \end{itemize}
 \subsubsection{Test procedure}
-The Wilcoxon test is fundamentaly a one-sample test, as we are dealing with 2 samples we first create a single sample $\mathbbm{X}$ by subtracting the second one from the first:
+Wilcoxon test is fundamentaly a one-sample test, as we are dealing with 2 samples we first create a single sample $\mathbbm{X}$ by subtracting the second one from the first:
 \begin{equation}
-    \mathbbm{X} = \mathbbm{Y} - \mathbbm{Z}
-\end{equation},
+    \mathbbm{X} = \mathbbm{Y} - \mathbbm{Z},
+\end{equation}
 then the following procedure is applied:
 \begin{enumerate}
     \item Compute $|X_1|, \dots, |X_n|$.
     \item Sort $|X_1|, \dots, |X_n|$, and assign ranks $R_1, \dots, R_n$. The smallest observation is ranked 1.
-    \item Compute test statistic as the signed-rank sum $T = \sum_{i=1}^{n} sgn(X_i)R_i$
+    \item Compute test statistic as the signed-rank sum $T = \sum_{i=1}^{n} sgn(X_i)R_i$.
     \item By comparing T to its distribution under null hypothesis compute p-value.
 \end{enumerate}
 The distribution of T-statistic can be easly calculated under the assmuption of uniform distribution of rank assignment.
@@ -1392,19 +1393,19 @@ The specific permutation lists used for generation are defined as follows:
 \begin{itemize}
     \item \textbf{For $p=5$:}
     \begin{enumerate}
-        \item $(1,2)$ [sparse transposition]
-        \item $(1,2)(3,4)$ [dense transposition]
-        \item $(1,2,3,4,5)$ [full cycle]
-        \item $(1,3)(2,4)$
-        \item $(1,2,3)(4,5)$
+        \item $(1,2)$ [sparse transposition],
+        \item $(1,2)(3,4)$ [dense transposition],
+        \item $(1,2,3,4,5)$ [full cycle],
+        \item $(1,3)(2,4)$,
+        \item $(1,2,3)(4,5)$,
         \item ... (and so on up to 10 distinct permutations).
     \end{enumerate}
     \item \textbf{For $p=10$:}
     \begin{enumerate}
-        \item $(1,2)(5,6)(8,9)$ [sparse transposition]
-        \item $(1,2)(3,4)(5,6)(7,8)(9,10)$ [dense transposition]
-        \item $(1,2,\dots,10)$ [full cycle]
-        \item $(1,3)(2,4)(7,9)$
+        \item $(1,2)(5,6)(8,9)$ [sparse transposition],
+        \item $(1,2)(3,4)(5,6)(7,8)(9,10)$ [dense transposition],
+        \item $(1,2,\dots,10)$ [full cycle],
+        \item $(1,3)(2,4)(7,9)$,
         \item ... (and so on up to 10 distinct permutations).
     \end{enumerate}
 \end{itemize}
@@ -2553,19 +2554,19 @@ cyclic subgroups of $\mathfrak{S}_p$. We assume that each $\mathcal{K}_g$ under 
 \begin{equation}
     f_{\mathcal{K}_g \mid \Gamma = c}(k_g)
   = \frac{1}{I_{c}(\delta, D)}
-    \operatorname{Det}(k_g)^{(\delta - 2)/2}
+    |k_g|^{(\delta - 2)/2}
     e^{-\tfrac12 \operatorname{tr}[D^{-1} k_g] }
     \mathbf{1}_{\mathcal{P}_{c}}(k_g),
 \end{equation}
 where $\delta>1$ and $D\in \mathcal{P}_c$ are hyperparameters and $I_c(\delta, D)$ is a normalizing constant.
 We start with standard bayesian reasoning linking the probability of any given permutation conditioned by data with probability of specific data conditioned by given permutation:
 \begin{equation}
-\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
-\frac{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right) \mathbbm{P}\left(\Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto \mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right).
-\end{equation},
+p\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
+\frac{p\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right) p\left(\Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{p\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto p\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right),
+\end{equation}
 phrasing this in more probabilistic terms and conditioning $\mathbbm{X}$ directly on precision matrices we get:
 \begin{equation}
-\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \idotsint\limits_{\mathcal{P}_c^m}
+p\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \idotsint\limits_{\mathcal{P}_c^m}
     f_{\mathbbm{X} \mid \mathcal{K} = \kappa, \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x})\,
     f_{\mathcal{K} \mid \Gamma = c}(\kappa)
     \, d \kappa.
@@ -2597,7 +2598,7 @@ As for the second factor we assume precision matrices are independent:
 \begin{equation}
     f_{\mathcal{K} \mid \Gamma = c}(\kappa) = \prod_{g=1}^m f_{K_g \mid \Gamma = c} (k_g),
 \end{equation}
-Combining all of these we get:
+combining all of these we get:
 \begin{equation}
     \begin{align}
         \idotsint\limits_{\mathcal{P}_c^m}
@@ -2611,7 +2612,7 @@ Combining all of these we get:
 \end{equation}
 Applying results from \cite{JSSv112i07} for each factor we arrive at the result:
 \begin{equation}\label{UltimateAPosterioriFormula}
-    \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
+    p\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
     f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) \propto
     \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)}.
 \end{equation}
@@ -2668,16 +2669,45 @@ This transformation aims to ensure that \texttt{LDAmod} and \texttt{QDAmod} rema
 
 
 % ----------------------- LIST OF SYMBOLS AND ABBREVIATIONS ------------------
-%\chapter*{List of symbols and abbreviations}
-%
-%\begin{tabular}{cl}
-%nzw. & nadzwyczajny \\
-%* & star operator \\
-%$\widetilde{}$ & tilde
-%\end{tabular}
-%\\
-%If you don't need it, delete it.
-%\thispagestyle{empty}
+\chapter*{List of symbols and abbreviations}
+
+\begin{itemize}
+  \item[$\mathcal N(\mu,\Sigma)$] multivariate normal distribution.
+  We write $X\sim \mathcal N(\mu,\Sigma)$ for a random vector with mean $\mu$ and covariance matrix $\Sigma$
+  (optionally: in $\mathbb R^p$ we write $\mathcal N_p(\mu,\Sigma)$).
+
+  \item[$\Sigma$] covariance matrix.
+
+  \item[$K$] precision matrix, defined as the inverse covariance: $K=\Sigma^{-1}$ (when $\Sigma$ is invertible).
+
+  \item[$|A|$] determinant of a square matrix $A$, i.e.\ $|A|=\det(A)$ (in particular $|\Sigma|=\det(\Sigma)$).
+
+  \item[$\operatorname{tr}(\cdot)$] trace of a square matrix (sum of diagonal entries).
+
+  \item[$I_p$] identity matrix of size $p\times p$ (we may write $I$ when the dimension is clear).
+
+  \item[$\mathbf 1(\cdot)$] indicator function: $\mathbf 1(A)=1$ if the statement/event $A$ is true and
+  $\mathbf 1(A)=0$ otherwise.
+
+  \item[$\operatorname{sgn}(\cdot)$] sign (signum) function:
+  \[
+    \operatorname{sgn}(x)=
+    \begin{cases}
+      -1 & \text{if } x<0,\\
+      0  & \text{if } x=0,\\
+      1  & \text{if } x>0.
+    \end{cases}
+  \]
+
+  \item[$\propto$] “proportional to”; $f(x)\propto g(x)$ means $f(x)=c\,g(x)$ for some constant $c>0$
+  that does not depend on $x$.
+
+  \item[$\mathfrak{S}_p$] symmetric group on $\{1,\ldots,p\}$, i.e.\ the set of all permutations of $\{1,\ldots,p\}$
+  (with composition as the group operation).
+
+  \item[$\Gamma \le \mathfrak{S}_p$] a subgroup $\Gamma$ of the symmetric group $\mathfrak{S}_p$.
+\end{itemize}
+\thispagestyle{empty}
 
 
 % ----------------------------  LIST OF FIGURES --------------------------------
