@@ -525,8 +525,8 @@ with function composition as the operation.
 \subsubsection{Invariance under action of a subgroup of the symmetric group}
 Let $K \in \mathbb{R}^{p\times p}$ and $\Gamma \leq \mathfrak{S}_p$. We say that matrix $K$ is invariant under action of subgroup $\Gamma$ iff
 \begin{equation}
-    \forall_{\sigma \in \Gamma} \forall_{i,j\in V} K_{i,j} = K_{\sigma(i), \sigma(j)}
-\end{equation}.
+    \forall_{\sigma \in \Gamma} \forall_{i,j\in V} K_{i,j} = K_{\sigma(i), \sigma(j)}.
+\end{equation}
 For conciseness sake in the following sections we will say that a matrix is \textit{invariant under subgroup} or, if supgroup $\Gamma = \langle \sigma \rangle$
 is cyclic that a matrix is \textit{invariant under} $\sigma$.
 Below we attach some visual examples to explain the concept better:
@@ -576,8 +576,8 @@ Under analogous assumptions the posterior in \texttt{gipsmult} setting is propor
 \begin{equation}\label{gipsmultposteriorformula}
     \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)},
 \end{equation}
-So the entire logic of Bayesian selection for \texttt{gipsmult} boils down to multiplication of results from \texttt{gips}.\\
-We attach full derivation of \eqref{gipsmultposteriorformula} in the \autoref{app:gipsmult_derivation}.
+so the entire logic of Bayesian selection for \texttt{gipsmult} boils down to multiplication of results from \texttt{gips}.\\
+We attach full derivation of \eqref{gipsmultposteriorformula} in \autoref{app:gipsmult_derivation}.
 
 
 
@@ -662,6 +662,7 @@ in scale or variance but are expected to share a common dependency structure:
 \end{equation}
 
 \subsection{Relationship between the models}
+Model \texttt{gipsLDA} is contained within \texttt{gipsmultQDA}, while simultaneously being a specific case of \texttt{LDA}. All models are subsets of the general \texttt{QDA}.
 
 \begin{figure}[ht]
 \centering
@@ -683,7 +684,7 @@ in scale or variance but are expected to share a common dependency structure:
 \node at (1.5,0) {$\texttt{gipsLDA}$};
 
 \end{tikzpicture}
-\caption{The diagram illustrates the hierarchical relationships between the models. It clearly shows that \texttt{gipsLDA} is contained within \texttt{gipsmultQDA}, while simultaneously being a specific case of \texttt{LDA}. All models are subsets of the general \texttt{QDA}.}
+\caption{The diagram illustrates the hierarchical relationships between the models.}
 \label{fig:nested-sets}
 \end{figure}
 
@@ -934,7 +935,7 @@ To quantitatively assess and compare the predictive power of these models, we em
     \text{Accuracy} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{I}(y_i = \hat{y}_i),
 \end{equation}
 
-where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
+\noindent where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
 
 In addition to accuracy, we utilize the \textbf{Area Under the Receiver Operating Characteristic Curve (AUC-ROC)} to evaluate the models' ability to discriminate between classes, independent of specific decision thresholds. For a binary classification problem, the AUC represents the probability that the classifier ranks a randomly chosen positive instance higher than a randomly chosen negative instance \cite{fawcett2006introduction}.
 
@@ -946,7 +947,7 @@ Instead of comparing one class against all others, we calculate the AUC for ever
     \text{AUC}_{\text{multi}} = \frac{2}{K(K-1)} \sum_{i < j} \text{AUC}(c_i, c_j),
 \end{equation}
 
-where $\text{AUC}(c_i, c_j)$ represents the probability that a randomly chosen member of class $c_i$ will have a higher estimated probability of belonging to class $c_i$ than a randomly chosen member of class $c_j$. This metric is robust to class imbalance and provides a coherent measure of separability across all class boundaries.
+\noindent where $\text{AUC}(c_i, c_j)$ represents the probability that a randomly chosen member of class $c_i$ will have a higher estimated probability of belonging to class $c_i$ than a randomly chosen member of class $c_j$. This metric is robust to class imbalance and provides a coherent measure of separability across all class boundaries.
 \section{Baseline Regularization Strategy}
 \label{sec:baseline_regularization}
 
@@ -1273,15 +1274,15 @@ For a given pair of models i.e., Model A (baseline, e.g., \texttt{QDAmod}) and M
     \item $H_1$ : The median of differences is less than 0.
 \end{itemize}
 \subsubsection{Test procedure}
-The Wilcoxon test is fundamentaly a one-sample test, as we are dealing with 2 samples we first create a single sample $\mathbbm{X}$ by subtracting the second one from the first:
+Wilcoxon test is fundamentaly a one-sample test, as we are dealing with 2 samples we first create a single sample $\mathbbm{X}$ by subtracting the second one from the first:
 \begin{equation}
-    \mathbbm{X} = \mathbbm{Y} - \mathbbm{Z}
-\end{equation},
+    \mathbbm{X} = \mathbbm{Y} - \mathbbm{Z},
+\end{equation}
 then the following procedure is applied:
 \begin{enumerate}
     \item Compute $|X_1|, \dots, |X_n|$.
     \item Sort $|X_1|, \dots, |X_n|$, and assign ranks $R_1, \dots, R_n$. The smallest observation is ranked 1.
-    \item Compute test statistic as the signed-rank sum $T = \sum_{i=1}^{n} sgn(X_i)R_i$
+    \item Compute test statistic as the signed-rank sum $T = \sum_{i=1}^{n} sgn(X_i)R_i$.
     \item By comparing T to its distribution under null hypothesis compute p-value.
 \end{enumerate}
 The distribution of T-statistic can be easly calculated under the assmuption of uniform distribution of rank assignment.
@@ -1392,19 +1393,19 @@ The specific permutation lists used for generation are defined as follows:
 \begin{itemize}
     \item \textbf{For $p=5$:}
     \begin{enumerate}
-        \item $(1,2)$ [sparse transposition]
-        \item $(1,2)(3,4)$ [dense transposition]
-        \item $(1,2,3,4,5)$ [full cycle]
-        \item $(1,3)(2,4)$
-        \item $(1,2,3)(4,5)$
+        \item $(1,2)$ [sparse transposition],
+        \item $(1,2)(3,4)$ [dense transposition],
+        \item $(1,2,3,4,5)$ [full cycle],
+        \item $(1,3)(2,4)$,
+        \item $(1,2,3)(4,5)$,
         \item ... (and so on up to 10 distinct permutations).
     \end{enumerate}
     \item \textbf{For $p=10$:}
     \begin{enumerate}
-        \item $(1,2)(5,6)(8,9)$ [sparse transposition]
-        \item $(1,2)(3,4)(5,6)(7,8)(9,10)$ [dense transposition]
-        \item $(1,2,\dots,10)$ [full cycle]
-        \item $(1,3)(2,4)(7,9)$
+        \item $(1,2)(5,6)(8,9)$ [sparse transposition],
+        \item $(1,2)(3,4)(5,6)(7,8)(9,10)$ [dense transposition],
+        \item $(1,2,\dots,10)$ [full cycle],
+        \item $(1,3)(2,4)(7,9)$,
         \item ... (and so on up to 10 distinct permutations).
     \end{enumerate}
 \end{itemize}
@@ -2553,19 +2554,19 @@ cyclic subgroups of $\mathfrak{S}_p$. We assume that each $\mathcal{K}_g$ under 
 \begin{equation}
     f_{\mathcal{K}_g \mid \Gamma = c}(k_g)
   = \frac{1}{I_{c}(\delta, D)}
-    \operatorname{Det}(k_g)^{(\delta - 2)/2}
+    |k_g|^{(\delta - 2)/2}
     e^{-\tfrac12 \operatorname{tr}[D^{-1} k_g] }
     \mathbf{1}_{\mathcal{P}_{c}}(k_g),
 \end{equation}
 where $\delta>1$ and $D\in \mathcal{P}_c$ are hyperparameters and $I_c(\delta, D)$ is a normalizing constant.
 We start with standard bayesian reasoning linking the probability of any given permutation conditioned by data with probability of specific data conditioned by given permutation:
 \begin{equation}
-\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
-\frac{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right) \mathbbm{P}\left(\Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{\mathbbm{P}\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto \mathbbm{P}\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right).
-\end{equation},
+p\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
+\frac{p\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right) p\left(\Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{p\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto p\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right),
+\end{equation}
 phrasing this in more probabilistic terms and conditioning $\mathbbm{X}$ directly on precision matrices we get:
 \begin{equation}
-\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \idotsint\limits_{\mathcal{P}_c^m}
+p\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \idotsint\limits_{\mathcal{P}_c^m}
     f_{\mathbbm{X} \mid \mathcal{K} = \kappa, \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x})\,
     f_{\mathcal{K} \mid \Gamma = c}(\kappa)
     \, d \kappa.
@@ -2597,7 +2598,7 @@ As for the second factor we assume precision matrices are independent:
 \begin{equation}
     f_{\mathcal{K} \mid \Gamma = c}(\kappa) = \prod_{g=1}^m f_{K_g \mid \Gamma = c} (k_g),
 \end{equation}
-Combining all of these we get:
+combining all of these we get:
 \begin{equation}
     \begin{align}
         \idotsint\limits_{\mathcal{P}_c^m}
@@ -2611,7 +2612,7 @@ Combining all of these we get:
 \end{equation}
 Applying results from \cite{JSSv112i07} for each factor we arrive at the result:
 \begin{equation}\label{UltimateAPosterioriFormula}
-    \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
+    p\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
     f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) \propto
     \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)}.
 \end{equation}
@@ -2668,16 +2669,45 @@ This transformation aims to ensure that \texttt{LDAmod} and \texttt{QDAmod} rema
 
 
 % ----------------------- LIST OF SYMBOLS AND ABBREVIATIONS ------------------
-%\chapter*{List of symbols and abbreviations}
-%
-%\begin{tabular}{cl}
-%nzw. & nadzwyczajny \\
-%* & star operator \\
-%$\widetilde{}$ & tilde
-%\end{tabular}
-%\\
-%If you don't need it, delete it.
-%\thispagestyle{empty}
+\chapter*{List of symbols and abbreviations}
+
+\begin{itemize}
+  \item[$\mathcal N(\mu,\Sigma)$] multivariate normal distribution.
+  We write $X\sim \mathcal N(\mu,\Sigma)$ for a random vector with mean $\mu$ and covariance matrix $\Sigma$
+  (optionally: in $\mathbb R^p$ we write $\mathcal N_p(\mu,\Sigma)$).
+
+  \item[$\Sigma$] covariance matrix.
+
+  \item[$K$] precision matrix, defined as the inverse covariance: $K=\Sigma^{-1}$ (when $\Sigma$ is invertible).
+
+  \item[$|A|$] determinant of a square matrix $A$, i.e.\ $|A|=\det(A)$ (in particular $|\Sigma|=\det(\Sigma)$).
+
+  \item[$\operatorname{tr}(\cdot)$] trace of a square matrix (sum of diagonal entries).
+
+  \item[$I_p$] identity matrix of size $p\times p$ (we may write $I$ when the dimension is clear).
+
+  \item[$\mathbf 1(\cdot)$] indicator function: $\mathbf 1(A)=1$ if the statement/event $A$ is true and
+  $\mathbf 1(A)=0$ otherwise.
+
+  \item[$\operatorname{sgn}(\cdot)$] sign (signum) function:
+  \[
+    \operatorname{sgn}(x)=
+    \begin{cases}
+      -1 & \text{if } x<0,\\
+      0  & \text{if } x=0,\\
+      1  & \text{if } x>0.
+    \end{cases}
+  \]
+
+  \item[$\propto$] “proportional to”; $f(x)\propto g(x)$ means $f(x)=c\,g(x)$ for some constant $c>0$
+  that does not depend on $x$.
+
+  \item[$\mathfrak{S}_p$] symmetric group on $\{1,\ldots,p\}$, i.e.\ the set of all permutations of $\{1,\ldots,p\}$
+  (with composition as the group operation).
+
+  \item[$\Gamma \le \mathfrak{S}_p$] a subgroup $\Gamma$ of the symmetric group $\mathfrak{S}_p$.
+\end{itemize}
+\thispagestyle{empty}
 
 
 % ----------------------------  LIST OF FIGURES --------------------------------
