@@ -577,7 +577,7 @@ Under analogous assumptions the posterior in \texttt{gipsmult} setting is propor
     \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)},
 \end{equation}
 So the entire logic of Bayesian selection for \texttt{gipsmult} boils down to multiplication of results from \texttt{gips}.\\
-We attach full derivation of \eqref{gipsmultposteriorformula} in the appendix A.
+We attach full derivation of \eqref{gipsmultposteriorformula} in the \autoref{app:gipsmult_derivation}.
 
 
 
@@ -1355,7 +1355,7 @@ The comparative analysis involves six distinct models. In the generated plots an
     \item \textbf{\texttt{gipsldacl}}: The \texttt{gipsLDA} model utilizing the \textbf{classic} estimator (unbiased pooled covariance).
     \item \textbf{\texttt{gipsqda}}: The \texttt{gipsQDA} model, where each class has a unique covariance structure.
     \item \textbf{\texttt{gipsmultqda}}: The \texttt{gipsMultQDA} model, where classes share a common permutation symmetry.
-    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described in appendix \ref{sec:baseline_regularization} (\texttt{LDAmod}).
+    \item \textbf{\texttt{lda}}: The baseline Linear Discriminant Analysis model, modified with the eigenvalue regularization described in section~\ref{sec:baseline_regularization} (\texttt{LDAmod}).
     \item \textbf{\texttt{qda}}: The baseline Quadratic Discriminant Analysis model, modified with eigenvalue regularization (\texttt{QDAmod}).
 \end{itemize}
 
@@ -2541,6 +2541,7 @@ We hereby declare that:
 
 \appendix
 \chapter{Derivation of a posteriori distribution in \texttt{gipsmult} model}
+\label{app:gipsmult_derivation}
 We examine m multidimensional gaussian samples $Z^{(1)}_{g},\dots Z_g^{(n_g)}$ under
 set $\{\mathcal{K}_g=\kappa_g, \Gamma=c\} $ consisting of i.i.d. random
 vectors $\mathcal{N}_p(0, \kappa_g^{-1})$.
