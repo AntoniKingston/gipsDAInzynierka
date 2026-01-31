@@ -471,7 +471,7 @@ The integration of these two distinct areas, classical discriminant analysis and
 
 \section{Theoretical description of LDA and QDA}
 
-Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) are generative classifiers that model the probability density of each class, $g$, using a multivariate Gaussian distribution, $\mathbbm{P}(x|g) = \mathcal{N}(x | \mu_g, \Sigma_g)$. The key difference between them lies in their assumptions regarding the class covariance matrices, $\Sigma_g$.
+Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) are generative classifiers that model the observations from each class, $g$, as a Gaussian distributed random variable, $X|G = g \sim \mathcal{N}(x | \mu_g, \Sigma_g)$. The key difference between them lies in their assumptions regarding the class covariance matrices, $\Sigma_g$.
 
 \begin{itemize}
     \item \textbf{Linear Discriminant Analysis (LDA)} assumes that all classes share a single, common covariance matrix, i.e., $\Sigma_g = \Sigma$ for all $g$. This assumption of homoscedasticity leads to a decision boundary that is a linear function of the input features $x$.
@@ -492,7 +492,7 @@ This approach is particularly effective for high-dimensional data $(p>n)$,
 where the empirical covariance matrix is often singular. By assuming
 the distribution is invariant under a permutation subgroup $\Gamma$,
 the methodology imposes equality constraints on the covariance matrix such that
-$K_{i,j} = K_{\sigma(i), \sigma(j)}$ for all $\sigma \in \Gamma$ This reduces the number of free parameters through a form of parameter sharing \cite{JSSv112i07}.
+$K_{i,j} = K_{\sigma(i), \sigma(j)}$ for all $\sigma \in \Gamma$. This reduces the number of free parameters through a form of parameter sharing \cite{JSSv112i07}.
 
 
 
@@ -2413,6 +2413,8 @@ While \texttt{gipsDA} provides a robust foundation for symmetry-based classifica
     \item \textbf{Complex Symmetry Groups:} Currently, the library primarily optimizes for cyclic permutation subgroups. Expanding the backend to support more complex symmetry structures—such as block symmetries or direct products of groups—would allow the model to capture more intricate dependency patterns, such as those found in hierarchical biological data.
 
     \item \textbf{Computational Scalability via C++ Integration:} While the current implementation is efficient for moderate dimensions, searching the permutation space in extremely high-dimensional settings (e.g., genomic data where $p > 1000$) remains computationally intensive. A critical next step is to rewrite the bottleneck matrix operations using the \texttt{Rcpp} library to interface directly with C++, which would significantly reduce overhead and improve scalability.
+
+    \item \textbf{Optimized Optimization:} For $p \ge 10$, the current Metropolis–Hastings sampler with transposition-based proposals mix slowly. Future work  may include exploring more efficient discrete optimization/sampling methods that can outperform vanilla MH, e.g., other proposals distributions, simulated annealing, or evolutionary algorithms.
 \end{itemize}
 % ======================================================================
 %                          Rest
