@@ -441,7 +441,7 @@ In contrast, our approach introduces a paradigm shift by utilizing \textit{permu
 The specific contributions of this work are as follows:
 
 \begin{itemize}
-    \item \textbf{Development of \texttt{gipsDA} Package:} We provide a fully functional R package that integrates \texttt{gips} methodology with the standard discriminant analysis workflow. The package is designed to be API-compatible with the widely used \texttt{MASS} library, ensuring immediate accessibility for practitioners.
+    \item \textbf{Development of \texttt{gipsDA} Package:} We provide a fully functional R\cite{rcore2025} package that integrates \texttt{gips} methodology with the standard discriminant analysis workflow. The package is designed to be API-compatible with the widely used \texttt{MASS}\cite{venables2002} library, ensuring immediate accessibility for practitioners.
 
 %    \item \textbf{Novel Covariance Estimators:} We introduce three distinct classification models that leverage symmetry in different ways:
 %    \begin{itemize}
@@ -588,9 +588,9 @@ The core innovation lies in replacing the standard empirical covariance estimato
 \subsection{MAP vs average weighted by AP distribution}
 Each of models described down below:
 \begin{enumerate}
-    \item Estimates covariance matrix(ces)
-    \item Estimates most probable permutation(s) under which real covariance matrices are invariant
-    \item Projects matrix estimate(s) onto the space of those invariant under found permutation(s)
+    \item Estimates covariance matrix(ces).
+    \item Estimates most probable permutation(s) under which real covariance matrices are invariant.
+    \item Projects matrix estimate(s) onto the space of those invariant under found permutation(s).
 \end{enumerate}
 MAP option means that our estimate is a single projection:
 \begin{equation}
@@ -2533,12 +2533,12 @@ cyclic subgroups of $\mathfrak{S}_p$. We assume that each $\mathcal{K}_g$ under 
 where $\delta>1$ and $D\in \mathcal{P}_c$ are hyperparameters and $I_c(\delta, D)$ is a normalizing constant.
 We start with standard bayesian reasoning linking the probability of any given permutation conditioned by data with probability of specific data conditioned by given permutation:
 \begin{equation}
-p\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
-\frac{p\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right) p\left(\Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{p\left(\mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right)} \propto p\left(\mathbbm{X} = \mathbbm{x} \mid \Gamma = c, \mathbbm{Y} = \mathbbm{y} \right),
+\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) =
+\frac{f_{\mathbbm{X} | \Gamma = c, \mathbbm{Y} = \mathbbm{y}}\left(\mathbbm{x}\right) \cdot \mathbbm{P}\left(\Gamma = c, \mathbbm{Y} = \mathbbm{y} \right)}{\mathbbm{P}\left(\mathbbm{Y} = \mathbbm{y}\right) \cdot f_{\mathbbm{X} | \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x})} \propto f_{\mathbbm{X} | \Gamma = c, \mathbbm{Y} = \mathbbm{y}}\left(\mathbbm{x}\right),
 \end{equation}
-phrasing this in more probabilistic terms and conditioning $\mathbbm{X}$ directly on precision matrices we get:
+conditioning $\mathbbm{X}$ directly on precision matrices we get:
 \begin{equation}
-p\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \idotsint\limits_{\mathcal{P}_c^m}
+\mathbbm{P}\left( \Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y}=\mathbbm{y}\right) \propto f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) = \idotsint\limits_{\mathcal{P}_c^m}
     f_{\mathbbm{X} \mid \mathcal{K} = \kappa, \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x})\,
     f_{\mathcal{K} \mid \Gamma = c}(\kappa)
     \, d \kappa.
@@ -2584,7 +2584,7 @@ combining all of these we get:
 \end{equation}
 Applying results from~\cite{JSSv112i07} for each factor we arrive at the result:
 \begin{equation}\label{UltimateAPosterioriFormula}
-    p\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
+    \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
     f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) \propto
     \prod_{g=1}^m\frac{I_c\left(\delta + n_g, D+U_g\right)}{I_c\left(\delta, D\right)}.
 \end{equation}
