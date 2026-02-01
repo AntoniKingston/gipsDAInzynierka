@@ -366,62 +366,62 @@ Proponujemy nowatorskie rozwiązanie tego wyzwania poprzez połączenie koncepcj
 
 The chapter provides the necessary context for the project and is organized into three sections:
 \begin{itemize}
-    \item \textbf{Section \ref{sec:motivation}: Motivation and Goal} identifies the specific limitations of classical classifiers in high-dimensional settings, particularly the issues of parameter instability and singularity, and defines the primary objective of this thesis.
-    \item \textbf{Section \ref{sec:symmetry}: Potential causes of Symmetries} provides the rationale behind the proposed solution, explaining why permutation invariance is a plausible and valuable assumption in many real-world datasets.
+    \item \textbf{Section \ref{sec:motivation}: Motivation and Goal} identifies specific limitations of renowed classifiers in high-dimensional settings, particularly the issues of parameter instability and singularity, and defines the primary objective of this thesis.
+    \item \textbf{Section \ref{sec:symmetry}: Potential causes of Symmetries} provides rationale behind proposed solution, explaining why permutation invariance is plausible and valuable assumption in many real-world datasets.
 %    \item \textbf{Section \ref{sec:da_desc}: General Description of Discriminant Analysis} briefly establishes the theoretical baseline, outlining the mechanics of LDA and QDA that will be modified in our work.
-    \item \textbf{Section \ref{sec:contribution}: Contribution} summarizes the specific achievements of this project, including the development of the \texttt{gipsDA} package and the implementation of novel estimators.
+    \item \textbf{Section \ref{sec:contribution}: Contribution} summarizes specific achievements of this project, including development of \texttt{gipsDA} package and implementation of novel estimators.
 \end{itemize}
 
 \section{Motivation and Goal}
 \label{sec:motivation}
 
-Classical generative classifiers, such as Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA), remain fundamental tools in statistical machine learning\cite{elemstats} due to their interpretability and closed-form solutions.
-However, the performance of these methods is critically dependent on the accurate estimation of the class-conditional covariance matrices, denoted as $\boldsymbol{\Sigma}$.
+Well-established generative classifiers, such as Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA), remain fundamental tools in statistical machine learning~\cite{elemstats} due to their interpretability and closed-form solutions.
+However, the performance of these methods is critically dependent on accurate estimation of class-conditional covariance matrices, denoted as $\boldsymbol{\Sigma}$.
 Nowadays it is not uncommon for researchers to frequently encounter high-dimensional datasets where the number of features ($p$) is large relative to the number of available observations ($n$).
 In such settings, standard estimators often fail, rendering classical methods suboptimal or entirely inapplicable.
 
 The bottleneck of these algorithms lies in the sample covariance matrix, $\hat{\boldsymbol{\Sigma}}$.
 For a dataset with $p$ features, the covariance matrix contains $p(p+1)/2$ unique parameters that must be estimated.
-This implies that the model complexity grows quadratically with the dimension of the feature space ($\Theta(p^2)$).
+This implies that model's complexity grows quadratically with the dimension of the feature space ($\Theta(p^2)$).
 This phenomenon leads to two primary challenges:
 
 \begin{enumerate}
     \item \textbf{Parameter Instability:} When $p$ is large, the number of parameters to estimate can easily exceed the information content available in the training data. This results in estimates with high variance, leading to overfitting and poor generalization performance on unseen data.
-    \item \textbf{Estimator Singularity:} In the extreme regime where the number of features exceeds the sample size ($p > n$), the sample covariance matrix $\hat{\boldsymbol{\Sigma}}$ becomes rank-deficient. Consequently, it is no longer positive definite and, crucially, not invertible. Since the decision functions for both LDA and QDA require the computation of the precision matrix $\hat{\boldsymbol{\Sigma}}^{-1}$, classical algorithms mathematically break down in these \("\)small $n$, large $p$\("\) scenarios.
+    \item \textbf{Estimator Singularity:} In extreme regimes where the number of features exceeds the sample size ($p > n$), the sample covariance matrix $\hat{\boldsymbol{\Sigma}}$ becomes rank-deficient. Consequently, it is no longer positive definite and, as such, not invertible. Since the decision functions for both LDA and QDA require computation of the precision matrix $\hat{\boldsymbol{\Sigma}}^{-1}$, classical algorithms break down in these scenarios.
 \end{enumerate}
 
 To mitigate these issues, regularization techniques are necessary.
-While standard approaches often involve scalar shrinkage (e.g., shrinking towards the identity matrix)\cite{friedman1989regularized, ledoit2004well}, this project explores a structural approach.
-We posit that by identifying and enforcing permutation symmetries within the data—where certain variables are exchangeable—we can significantly reduce the number of free parameters required to estimate the covariance structure.
+While standard approaches often involve scalar shrinkage (e.g., shrinking towards the identity matrix)~\cite{friedman1989regularized, ledoit2004well}, this project explores a structural approach.
+We posit that by identifying and enforcing permutation symmetries within the data — where certain variables are exchangeable — we can significantly reduce the number of free parameters required to estimate the covariance structure.
 
 \subsection*{Goal of the Thesis}
 
 The primary objective of this project is to develop \texttt{gipsDA}, a novel R library that adapts discriminant analysis for high-dimensional environments.
-By integrating the methodology of the \texttt{gips}\cite{JSSv112i07} (Gaussian model Invariant by Permutation Symmetry) package, we aim to construct robust classifiers that impose statistically justified symmetry constraints on the covariance matrix.
+By integrating the methodology of \texttt{gips}~\cite{JSSv112i07} (Gaussian model Invariant by Permutation Symmetry) package, we aim to construct robust classifiers that impose statistically justified symmetry constraints on the covariance matrix.
 
 Specifically, the goal is to provide a solution that:
 \begin{itemize}
     \item Maintains high classification accuracy in high-dimensional settings where standard LDA/QDA overfit.
-    \item Remains mathematically valid and computationally stable in the $p > n$ regime by ensuring the estimated matrices are positive definite through symmetry projection.
-    \item Offers a user-friendly interface compatible with the standard R ecosystem, bridging the gap between advanced theoretical statistics and practical data science applications.
+    \item Remains mathematically valid and computationally stable in $p > n$ regime by ensuring the estimated matrices are positive definite through symmetry projection.
+    \item Offers a user-friendly interface compatible with standard R ecosystem, bridging the gap between advanced theoretical statistics and practical data science applications.
 \end{itemize}
 
 \section{Potential causes of Symmetries}
 \label{sec:symmetry}
 
-At first glance, the assumption that distinct features in a dataset share a permutation symmetry—meaning they remain invariant under specific reorderings—may appear overly restrictive\cite{andersson1998symmetry}. In classical multivariate analysis, features are often treated as distinct entities with unique variances and pairwise correlations. However, in the context of high-dimensional data, the assumption of symmetry is not only mathematically convenient but often empirically justified by the underlying nature of the data itself
+At first glance, the assumption that distinct features in a dataset share a permutation symmetry—meaning they remain invariant under specific reorderings—may appear overly restrictive~\cite{andersson1998symmetry}. In classical multivariate analysis, features are often treated as distinct entities with unique variances and pairwise correlations. However, in the context of high-dimensional data, the assumption of symmetry is not only mathematically convenient but often empirically justified by the underlying nature of data itself
 
-The core may be the concept of \textit{exchangeability}. In many datasets, features are not arbitrary measurements but rather collections of comparable units. Consider the following domains where symmetry naturally arises:
+The core may be the concept of \textit{exchangeability}. In many datasets, features are not arbitrary measurements but rather collections of comparable units. Consider following domains where symmetry naturally arises:
 
 \begin{itemize}
-    \item \textbf{Genomics and Bioinformatics:} In gene expression data, thousands of genes are measured simultaneously \cite{dudoit2002comparison}. Genes belonging to the same biological pathway or functional group often exhibit similar behavior. It is statistically plausible to assume that the correlation between any pair of genes within such a functional cluster is roughly equivalent, regardless of their specific labels.
+    \item \textbf{Genomics and Bioinformatics:} In gene expression data, thousands of genes are measured simultaneously~\cite{dudoit2002comparison}. Genes belonging to the same biological pathway or functional group often exhibit similar behavior. It is statistically plausible to assume that correlation between any pair of genes within such a functional cluster is roughly equivalent, regardless of their specific labels.
 
-    \item \textbf{Medical Diagnostics and Imaging:} Consider the analysis of digitized images for cancer diagnosis, such as the Breast Cancer Wisconsin dataset used in this work\cite{breast}. Features are computed from the characteristics of cell nuclei present in the image (e.g., radius, texture, smoothness) \cite{street1993nuclear}. While each feature measures a distinct geometric property, groups of features derived from similar morphological aspects often display strong, structured correlations. Assuming a symmetric covariance structure among these related biometrics allows the model to capture the general "shape" of malignant cells without overfitting to the noise inherent in individual sample measurements.
+    \item \textbf{Medical Diagnostics and Imaging:} Consider an analysis of digitized images for cancer diagnosis, such as Breast Cancer Wisconsin dataset used in~\cite{breast}. Features are computed from the characteristics of cell nuclei present in the image (e.g., radius, texture, smoothness)~\cite{street1993nuclear}. While each feature measures a distinct geometric property, groups of features derived from similar morphological aspects often display strong, structured correlations. Assuming a symmetric covariance structure among these related biometrics allows the model to capture the general "shape" of malignant cells without overfitting to the noise inherent in individual sample measurements.
 
-    \item \textbf{Industrial Sensor Systems:} In predictive maintenance and fault detection, systems are often monitored by multiple sensors recording analogous physical quantities. A prime example is the Sensorless Drive Diagnosis dataset\cite{dataset_for_sensorless_drive_diagnosis_325}, which involves electric current signals from different phases of a motor \cite{seera2014classification}. In a balanced three-phase system, the physical properties of the phases are designed to be identical. Consequently, the statistical relationship between Phase A and Phase B should theoretically be invariant to the relationship between Phase B and Phase C. Treating these signals as exchangeable via permutation symmetry reflects the physical reality of the hardware design.
+    \item \textbf{Industrial Sensor Systems:} In predictive maintenance and fault detection, systems are often monitored by multiple sensors recording analogous physical quantities. A prime example is the Sensorless Drive Diagnosis dataset~\cite{dataset_for_sensorless_drive_diagnosis_325}, which involves electric current signals from different phases of a motor~\cite{seera2014classification}. In a balanced three-phase system, the physical properties of the phases are designed to be identical. Consequently, the statistical relationship between Phase A and Phase B should theoretically be invariant to the relationship between Phase B and Phase C. Treating these signals as exchangeable via permutation symmetry reflects the physical reality of the hardware design.
 \end{itemize}
 
-Furthermore, the approach proposed in this thesis does not require prior knowledge of these specific relationships. Unlike rigid regularization methods that force the covariance matrix towards a specific target (such as the identity matrix), the \texttt{gips} methodology is designed to \textit{discover} the optimal symmetry structure from the data itself\cite{JSSv112i07}.
+Furthermore, the approach proposed in this thesis does not require prior knowledge of these specific relationships. Unlike rigid regularization methods that force the covariance matrix towards a specific target (such as the identity matrix), \texttt{gips} methodology is designed to \textit{discover} the optimal symmetry structure from the data itself~\cite{JSSv112i07}.
 
 By allowing the data to reveal its own invariant structure, we adhere to the principle of parsimony (Occam's razor). If a covariance matrix with $\Theta(p^2)$ parameters can be accurately approximated by a symmetric structure requiring only $\Theta(p)$ parameters, the latter model is preferred. It reduces the variance of the estimator and mitigates the risk of overfitting, which is the primary enemy in high-dimensional classification. Thus, expecting symmetry is not about imposing an artificial constraint, but rather about recognizing and exploiting the redundancy inherent in large-scale systems.
 
@@ -432,16 +432,16 @@ By allowing the data to reveal its own invariant structure, we adhere to the pri
 \section{Contribution}
 \label{sec:contribution}
 
-The central contribution of this thesis is the proposal and implementation of a novel regularization framework for Discriminant Analysis, specifically designed for the "High Dimension, Low Sample Size" (HDLSS) regime where $p \gg n$. In such settings, classical estimators for the covariance matrix become singular and unstable \cite{bickel2004some}.
+The central contribution of this thesis is the proposal and implementation of a novel regularization framework for Discriminant Analysis, specifically designed for the "High Dimension, Low Sample Size" (HDLSS) regime where $p \gg n$. In such settings, classical estimators for the covariance matrix become singular and unstable~\cite{bickel2004some}.
 
-While numerous modifications to LDA and QDA have been proposed to address this instability—ranging from the scalar shrinkage parameters of Regularized Discriminant Analysis (RDA) \cite{friedman1989regularized} to sparsity-enforcing methods like Penalized LDA \cite{witten2011penalized} or independence assumptions in Diagonal LDA \cite{dudoit2002comparison}—these approaches often impose arbitrary constraints. They typically force the covariance structure towards a diagonal matrix or sparse representation, potentially discarding significant correlations between features.
+While numerous modifications to LDA and QDA have been proposed to address this instability—ranging from the scalar shrinkage parameters of Regularized Discriminant Analysis (RDA) \cite{friedman1989regularized} to sparsity-enforcing methods like Penalized LDA~\cite{witten2011penalized} or independence assumptions in Diagonal LDA~\cite{dudoit2002comparison}—these approaches often impose arbitrary constraints. They typically force the covariance structure towards a diagonal matrix or sparse representation, potentially discarding significant correlations between features.
 
 In contrast, our approach introduces a paradigm shift by utilizing \textit{permutation symmetry} as a form of model-based regularization. Instead of assuming correlations are zero (sparsity) or uniform (scalar shrinkage), we assume that groups of features may be exchangeable. This allows the data to dictate its own complexity through the discovery of invariant structures.
 
 The specific contributions of this work are as follows:
 
 \begin{itemize}
-    \item \textbf{Development of the \texttt{gipsDA} Package:} We provide a fully functional R package that integrates the \texttt{gips} methodology with the standard discriminant analysis workflow. The package is designed to be API-compatible with the widely used \texttt{MASS} library, ensuring immediate accessibility for practitioners.
+    \item \textbf{Development of \texttt{gipsDA} Package:} We provide a fully functional R package that integrates \texttt{gips} methodology with the standard discriminant analysis workflow. The package is designed to be API-compatible with the widely used \texttt{MASS} library, ensuring immediate accessibility for practitioners.
 
 %    \item \textbf{Novel Covariance Estimators:} We introduce three distinct classification models that leverage symmetry in different ways:
 %    \begin{itemize}
@@ -462,12 +462,12 @@ The specific contributions of this work are as follows:
 This chapter establishes the theoretical framework and reviews the existing literature fundamental to the project.
 The discussion is structured around two pivotal domains that form the basis of our proposed solution.
 
-First, we revisit classical statistical machine learning algorithms for classification, specifically focusing on Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA).
-These well-established methods serve as the foundation for the predictive models developed in this work\cite{elemstats}.
+Firstly, we revisit classical statistical machine learning algorithms for classification, specifically focusing on Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA).
+These well-established methods serve as the foundation for predictive models developed in this work~\cite{elemstats}.
 
-Second, we introduce the methodology underlying the \texttt{gips} (Gaussian model Invariant by Permutation Symmetry) package.
-We explore the mathematical principles of identifying invariant structures within covariance matrices and how this approach can be utilized for parameter estimation in high-dimensional settings\cite{JSSv112i07}.
-The integration of these two distinct areas, classical discriminant analysis and permutation symmetry discovery, constitutes the core contribution of this thesis.
+Secondly, we introduce the methodology underlying \texttt{gips} (Gaussian model Invariant by Permutation Symmetry) package.
+We explore the mathematical principles of identifying invariant structures within covariance matrices and how this approach can be utilized for parameter estimation in high-dimensional settings~\cite{JSSv112i07}.
+Integration of these two distinct areas, standard discriminant analysis and permutation symmetry discovery, constitutes the core contribution of this thesis.
 
 \section{Theoretical description of LDA and QDA}
 
@@ -478,21 +478,21 @@ Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) are
     \item \textbf{Quadratic Discriminant Analysis (QDA)} relaxes this assumption, allowing each class $g$ to have its own distinct covariance matrix, $\Sigma_g$. This assumption of heteroscedasticity results in a decision boundary that is a quadratic function of $x$, providing greater flexibility.
 \end{itemize}
 
-Prediction for a new observation $x$ is made by assigning it to the class $g$ that maximizes the posterior probability $\mathbbm{P}(g|x)$. Using Bayes' theorem, this is equivalent to maximizing the discriminant function, $\delta_g(x)$:
+Prediction for a new observation $x$ is made by assigning it to the class $g$ that maximizes posterior probability $\mathbbm{P}(g|x)$. Using Bayes' theorem, this is equivalent to maximizing the discriminant function, $\delta_g(x)$:
 \begin{equation}
     \delta_g(x) = -\frac{1}{2} \log |\Sigma_g| - \frac{1}{2} (x - \mu_g)^T \Sigma_g^{-1} (x - \mu_g) + \log \pi_g,
 \end{equation}
-where $\mu_g$ is the mean vector for class $g$, $\Sigma_g$ is its covariance matrix, and $\pi_g$ is the prior probability of the class. In practice, these parameters are estimated from the training data. For a more detailed treatment of these methods, we refer the reader to "The Elements of Statistical Learning" \cite{elemstats}. Our work focuses on novel estimation techniques for the $\Sigma_g$ matrices.
+where $\mu_g$ is mean vector for class $g$, $\Sigma_g$ is its covariance matrix, and $\pi_g$ is the prior probability of the class. In practice, these parameters are estimated from the training data. For a more detailed treatment of these methods, we refer the reader to "The Elements of Statistical Learning"~\cite{elemstats}. Our work focuses on novel estimation techniques for the $\Sigma_g$ matrices.
 
 
 \section{General description of gips}
-The \texttt{gips} package provides a framework for identifying and
+Package \texttt{gips} provides a framework for identifying and
 exploiting hidden permutation symmetries in Gaussian random vectors.
 This approach is particularly effective for high-dimensional data $(p>n)$,
 where the empirical covariance matrix is often singular. By assuming
 the distribution is invariant under a permutation subgroup $\Gamma$,
 the methodology imposes equality constraints on the covariance matrix such that
-$K_{i,j} = K_{\sigma(i), \sigma(j)}$ for all $\sigma \in \Gamma$. This reduces the number of free parameters through a form of parameter sharing \cite{JSSv112i07}.
+$K_{i,j} = K_{\sigma(i), \sigma(j)}$ for all $\sigma \in \Gamma$. This reduces the number of free parameters through a form of parameter sharing~\cite{JSSv112i07}.
 
 
 
@@ -503,8 +503,8 @@ $K_{i,j} = K_{\sigma(i), \sigma(j)}$ for all $\sigma \in \Gamma$. This reduces t
 
 \chapter{Solution Proposal}
 The central theme of our proposed solution is the enhancement of classical discriminant analysis methods by introducing a novel approach to estimating covariance matrices.
-We modify the standard Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) algorithms by leveraging the methodology of the \texttt{gips} R package\cite{JSSv112i07}.
-The core functionality of the \texttt{gips} library is to identify the most probable permutation group under which a given covariance matrix remains approximately invariant.
+We modify the standard Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) algorithms by leveraging the methodology of \texttt{gips} R package~\cite{JSSv112i07}.
+The core functionality of the library is to identify the most probable permutation group under which a given covariance matrix remains approximately invariant.
 By imposing such a symmetry constraint, we effectively introduce a form of model-based regularization.
 This reduces the number of free parameters that need to be estimated, which can be particularly advantageous when dealing with high-dimensional data or limited sample sizes, potentially leading to more stable and robust classifiers.
 
@@ -512,7 +512,7 @@ This reduces the number of free parameters that need to be estimated, which can 
 %\section{The \texttt{gipsmult} Methodology}
 \label{sec:gipsmult_theory}
 
-The core theoretical contribution of this work involves extending the capabilities of the \texttt{gips} framework to handle more complex data structures. While the original algorithm is designed to identify the optimal permutation symmetry for a \textit{single} covariance matrix, many statistical scenarios involve multiple distinct groups of data that may exhibit related structural properties.
+The core theoretical contribution of this work involves extending the capabilities of \texttt{gips} framework to handle more complex data structures. While the original algorithm is designed to identify the optimal permutation symmetry for a \textit{single} covariance matrix, many statistical scenarios involve multiple distinct groups of data that may exhibit related structural properties.
 
 The \texttt{gipsmult} methodology addresses the problem of estimating a shared permutation symmetry $\Gamma$ across $m$ independent groups. In this setting, we allow each group $g$ to have its own distinct covariance matrix $\boldsymbol{\Sigma}_g$—permitting differences in eigenvalues and variance scales—under the strict constraint that all such matrices remain invariant under the \textit{same} permutation group.
 
@@ -558,19 +558,19 @@ Below we attach some visual examples to explain the concept better:
 
 \subsection{\texttt{gips} vs \texttt{gipsmult}}
 \subsubsection{General comparision}
-In the setting from \cite{10.1214/22-AOS2174} a \textbf{single} symmetric SPD matrix $K \in \mathbb{R}^{p\times p}$ is invariant under $\sigma \in \mathfrak{S}$.
+In the setting from~\cite{10.1214/22-AOS2174} a \textbf{single} symmetric SPD matrix $K \in \mathbb{R}^{p\times p}$ is invariant under $\sigma \in \mathfrak{S}$.
 Let us set $m \in \mathbb{N}$, the model of \texttt{gipsmult} assumes an \textbf{entire set} of symmetric SPD matrices $\mathcal{K} = \{K_1, K_2, \dots, K_m\}$ to be invariant under $\sigma$.
 \subsubsection{Bayesian procedure}
 Under assumption of uniform prior on the set
 $
 \mathcal{C} := \{ \langle \sigma \rangle : \sigma \in \mathfrak{S}_p \}
 $
-of cyclic subgroups of $\mathfrak{S}_p$ and Diaconis-Ylvisacker\cite{diaconis1979conjugate} one on the precision
-matrix $K$, \cite{JSSv112i07} arrives at the following proportionality of posterior:
+of cyclic subgroups of $\mathfrak{S}_p$ and Diaconis-Ylvisacker~\cite{diaconis1979conjugate} one on the precision
+matrix $K$, ~\cite{JSSv112i07} arrives at the following proportionality of posterior:
 \begin{equation}\label{gipsposteriorformula}
     \mathbbm{P}\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}\right) \propto \frac{I_c\left(\delta + n, D+U\right)}{I_c\left(\delta, D\right)}.
 \end{equation}
-For more detailed explanation of this result see \cite{JSSv112i07}.
+For more detailed explanation of this result see~\cite{JSSv112i07}.
 \\
 Under analogous assumptions the posterior in \texttt{gipsmult} setting is proportional to:
 \begin{equation}\label{gipsmultposteriorformula}
@@ -582,7 +582,7 @@ We attach full derivation of \eqref{gipsmultposteriorformula} in \autoref{app:gi
 
 
 \section{Description of machine learning models}
-Building upon the theoretical framework of permutation-invariant covariance estimation established in the previous section, we now turn to the practical application of these concepts in supervised learning. The primary objective of this section is to define a new family of classifiers that integrate the \texttt{gips} methodology into the classical frameworks of Linear and Quadratic Discriminant Analysis.
+Building upon the theoretical framework of permutation-invariant covariance estimation established in the previous section, we now turn to the practical application of these concepts in supervised learning. The primary objective of this section is to define a new family of classifiers that integrate \texttt{gips} methodology into the classical frameworks of Linear and Quadratic Discriminant Analysis.
 
 The core innovation lies in replacing the standard empirical covariance estimators with structured estimators that enforce permutation symmetry. This approach serves as a form of model-based regularization, designed to improve stability and predictive performance in high-dimensional settings. However, the implementation of these constraints requires a fundamental choice regarding the statistical estimation strategy: whether to rely on a single, optimal symmetry structure or to incorporate uncertainty through a Bayesian approach. Therefore, before detailing the specific classification architectures, we first define the two primary estimation strategies employed throughout this work.
 \subsection{MAP vs average weighted by AP distribution}
@@ -608,18 +608,18 @@ Since both \texttt{gips} and \texttt{gipsmult} allow to estimate not only MAP bu
 It potentially offers a more robust estimation by incorporating uncertainty about the true underlying symmetry.
 It should be noted that formulas above  are exact only when the entire space of permutations can be exhaustively searched,
 which is feasible in \texttt{gips(mult)} implementation for $p \le 9$, where $p$ denotes the number of features (columns).
-For a larger number of features, the Metropolis-Hastings algorithm, as described in \cite{JSSv112i07},
+For a larger number of features, the Metropolis-Hastings algorithm, as described in~\cite{JSSv112i07},
 is used to approximate these estimators, as the permutation space becomes too large to explore completely.
 
 \subsection{gipsQDA}
-The \texttt{gipsQDA} model represents the most flexible approach within our framework. In this method, the \texttt{gips} library is applied independently to the data of each class. This process yields a unique estimated covariance matrix, $\hat{\Sigma}_g$, and a unique optimal permutation group, $\hat{c}_g$, for each class $g$:
+The \texttt{gipsQDA} model represents the most flexible approach within our framework. In this method, \texttt{gips} library is applied independently to the data of each class. This process yields a unique estimated covariance matrix, $\hat{\Sigma}_g$, and a unique optimal permutation group, $\hat{c}_g$, for each class $g$:
 \begin{equation}
     (\hat{\Sigma}_g, \hat{c}_g) = \texttt{gips}(\text{Data}_g) \quad \text{for each class } g=1, \dots, m.
 \end{equation}
 This model is directly analogous to the classic QDA, as it allows for heteroscedasticity, but with the additional complexity that each class can exhibit its own distinct symmetry structure. Consequently, \texttt{gipsQDA} serves as a general model that contains all other proposed models as special, more constrained cases.
 
 \subsection{gipsLDA}
-The \texttt{gipsLDA} model adapts the core idea of LDA—a single, shared covariance matrix—to the \texttt{gips} framework. The general strategy is to first pool the covariance information from all classes into a single matrix, and then use \texttt{gips} to find a common symmetry structure for this pooled matrix. The process is as follows:
+The \texttt{gipsLDA} model adapts the core idea of LDA—a single, shared covariance matrix—to \texttt{gips} framework. The general strategy is to first pool the covariance information from all classes into a single matrix, and then use \texttt{gips} to find a common symmetry structure for this pooled matrix. The process is as follows:
 \begin{enumerate}
     \item For each class $g$, estimate the sample covariance matrix, $S_g$, using the standard unbiased estimator:
     \begin{equation}
@@ -644,7 +644,7 @@ S = \frac{1}{n-m}\sum_{g=1}^m \sum^{n_g}_{i=1} (x_{g,i} -\overline{x}_g)(x_{g,i}
 This estimator is an unbiased estimate of the common covariance matrix under the assumption of homoscedasticity.
 
 \subsubsection{gipsLDA weighted average}
-This method is named "weighted average" because the contribution of each class's covariance matrix, $S_g$, to the final pooled matrix is weighted by its sample size, $n_g$. However, this weighting scheme gives more influence to smaller classes compared to the \texttt{gipsLDA classic} approach. The pooled matrix $S$ is calculated as:
+This method is named "weighted average" because the contribution of each class's covariance matrix, $S_g$, to the final pooled matrix is weighted by its sample size, $n_g$. However, this weighting scheme gives more influence to smaller classes compared to \texttt{gipsLDA classic} approach. The pooled matrix $S$ is calculated as:
 \begin{equation}
     S = \frac{1}{n}\sum_{g=1}^m n_g S_{g},
 \end{equation}
@@ -708,7 +708,7 @@ The framework of \texttt{gipsDA} was implemented in R. All the necessary code wa
 
 The source code and the documentation of the package are available at  \href{https://github.com/AntoniKingston/gipsDAInzynierka}{github.com/AntoniKingston/gipsDAInzynierka} and \href{https://antonikingston.github.io/gipsDA/}{https://antonikingston.github.io/gipsDA/} repectively.
 \section{Example usage}
-After installation one can import package in the standard R way and call its functions. In this case gipsqda() is used to build a classifier on widely known \textit{Iris} dataset\cite{iris_53}.
+After installation one can import package in the standard R way and call its functions. In this case gipsqda() is used to build a classifier on widely known \textit{Iris} dataset~\cite{iris_53}.
 \begin{RCode}{Training gipsQDA}
 library(gipsDA)
 # MAP = FALSE uses the weighted posterior estimator
@@ -834,7 +834,7 @@ This function contains the main algorithm and is where our modifications to the 
 The function's workflow begins with the same input validation as \texttt{MASS::qda.default()}. The core logic is then executed in three distinct stages:
 \begin{enumerate}
     \item \textbf{Covariance Collection:} A preliminary \texttt{for} loop iterates through all classes. In each iteration, it calculates the empirical covariance matrix for that class using \texttt{MASS::cov.mve()} and collects it into a list.
-    \item \textbf{Joint Gips Projection:} After the loop, the entire list of covariance matrices is passed to the \texttt{project\_covs()} helper function. This is the primary injection point of the \texttt{gipsmult} methodology. The helper function finds a single, common symmetry structure that is jointly optimal for all classes and returns a list of the projected covariance matrices and the optimization results.
+    \item \textbf{Joint Gips Projection:} After the loop, the entire list of covariance matrices is passed to the \texttt{project\_covs()} helper function. This is the primary injection point of \texttt{gipsmult} methodology. The helper function finds a single, common symmetry structure that is jointly optimal for all classes and returns a list of the projected covariance matrices and the optimization results.
     \item \textbf{SVD and Scaling:} A second \texttt{for} loop then iterates through the classes again. For each class, it takes the corresponding projected matrix from the list returned by the helper function and performs the standard SVD and scaling calculations, as in \texttt{qda.default()}.
 \end{enumerate}
 
@@ -842,7 +842,7 @@ The function's workflow begins with the same input validation as \texttt{MASS::q
 The function returns an object of class \texttt{gipsmultqda}. This is a \texttt{list} containing the standard components from a \texttt{MASS::qda} object (e.g., \texttt{prior}, \texttt{counts}, \texttt{means}, \texttt{scaling}, \texttt{ldet}), plus an additional element, \texttt{optimization\_info}. This element stores the results of the joint optimization, such as the single common MAP permutation or the posterior probabilities. The package provides \texttt{predict()} and \texttt{print()} methods for \texttt{gipsmultqda} objects, which are direct adaptations of their \texttt{MASS} counterparts. The \texttt{print.gipsmultqda()} method has been extended to display the contents of the \texttt{optimization\_info} element.
 
 \subsubsection{Helper Functions}
-A utility file (\texttt{models\_utils.R}) contains the core bridge functions that connect the modified \texttt{MASS} code to the \texttt{gips} logic. The implementation was streamlined to use a single, versatile function that handles both estimation strategies.
+A utility file (\texttt{models\_utils.R}) contains the core bridge functions that connect the modified \texttt{MASS} code to \texttt{gips} logic. The implementation was streamlined to use a single, versatile function that handles both estimation strategies.
 
 \begin{itemize}
     \item \texttt{project\_covs(emp\_covs, ns\_obs, MAP, optimizer, max\_iter, tol)}: This is the primary helper function that acts as a unified interface for both the argmax and weighted-average estimation methods. It takes in several arguments to control the process:
@@ -937,9 +937,9 @@ To quantitatively assess and compare the predictive power of these models, we em
 
 \noindent where $\mathbb{I}(\cdot)$ is the indicator function, taking the value $1$ if the condition $y_i = \hat{y}_i$ is met (i.e., the prediction is correct) and $0$ otherwise. This metric provides a global measure of the model's effectiveness in correctly identifying class membership across the entire test set.
 
-In addition to accuracy, we utilize the \textbf{Area Under the Receiver Operating Characteristic Curve (AUC-ROC)} to evaluate the models' ability to discriminate between classes, independent of specific decision thresholds. For a binary classification problem, the AUC represents the probability that the classifier ranks a randomly chosen positive instance higher than a randomly chosen negative instance \cite{fawcett2006introduction}.
+In addition to accuracy, we utilize the \textbf{Area Under the Receiver Operating Characteristic Curve (AUC-ROC)} to evaluate the models' ability to discriminate between classes, independent of specific decision thresholds. For a binary classification problem, the AUC represents the probability that the classifier ranks a randomly chosen positive instance higher than a randomly chosen negative instance~\cite{fawcett2006introduction}.
 
-To extend this metric to multi-class problems (where the number of classes $K > 2$), we employ the generalization proposed by \cite{hand2001simple}, often referred to as the \textbf{Hand \& Till M value}. This method adopts a "One-vs-One" strategy.
+To extend this metric to multi-class problems (where the number of classes $K > 2$), we employ the generalization proposed by~\cite{hand2001simple}, often referred to as the \textbf{Hand \& Till M value}. This method adopts a "One-vs-One" strategy.
 
 Instead of comparing one class against all others, we calculate the AUC for every possible pair of distinct classes $(c_i, c_j)$. The final multi-class metric is defined as the arithmetic mean of these pairwise scores:
 
@@ -1122,7 +1122,7 @@ Below, we provide a detailed description of each dataset and the specific prepro
     \item \textbf{Target Variable:} \texttt{HeartDisease} (1: Heart Disease, 0: Normal).
     \item \textbf{Dimensions:} 11 features, 918 observations.
     \item \textbf{Class Balance:} Normal (410), Heart Disease (508).
-    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction} \cite{heart}
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction}~\cite{heart}
 \end{itemize}
 
 \textbf{Preprocessing Pipeline:}
@@ -1136,7 +1136,7 @@ Since this dataset contains categorical variables (e.g., \texttt{Sex}, \texttt{C
     \item \textbf{Target Variable:} \texttt{diagnosis} (M: Malignant, B: Benign).
     \item \textbf{Dimensions:} 30 features, 569 observations.
     \item \textbf{Class Balance:} Benign (357), Malignant (212).
-    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic} \cite{breast}
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic}~\cite{breast}
 \end{itemize}
 
 \textbf{Preprocessing Pipeline:}
@@ -1151,7 +1151,7 @@ The data was already in a clean, numerical format suitable for analysis. No addi
     \item \textbf{Target Variable:} Condition (11 classes).
     \item \textbf{Dimensions:} 48 features, 58,509 observations.
     \item \textbf{Class Balance:} Perfectly Balanced (5,319 per class).
-    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/325/sensorless+drive+diagnosis} \cite{dataset_for_sensorless_drive_diagnosis_325}
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/325/sensorless+drive+diagnosis}~\cite{dataset_for_sensorless_drive_diagnosis_325}
 \end{itemize}
 
 \textbf{Preprocessing Pipeline:}
@@ -1168,7 +1168,7 @@ The data was already in a clean, numerical format suitable for analysis. No addi
     \item \textbf{Target Variable:} \texttt{Class} (1: Fraud, 0: Legitimate).
     \item \textbf{Dimensions:} 30 features, $\approx 285,000$ observations.
     \item \textbf{Class Balance:} Highly Imbalanced (only 492 fraud cases, $\approx 0.17\%$).
-    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud} \cite{ulb_creditcard_fraud}
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud}~\cite{ulb_creditcard_fraud}
 \end{itemize}
 
 \textbf{Preprocessing Pipeline:}
@@ -1188,7 +1188,7 @@ The extreme class imbalance poses a problem for standard classifiers. We applied
     \item \textbf{Target Variable:} \texttt{emotion} (Positive, Neutral, Negative).
     \item \textbf{Dimensions:} 2548 features, 2132 observations.
     \item \textbf{Class Balance:} Balanced ($\approx 700$ per class).
-    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/birdy654/eeg-brainwave-dataset-feeling-emotions} \cite{birdy654_eeg_emotions}
+    \item \textbf{Source:} \url{https://www.kaggle.com/datasets/birdy654/eeg-brainwave-dataset-feeling-emotions}~\cite{birdy654_eeg_emotions}
 \end{itemize}
 
 \textbf{Preprocessing Pipeline:}
@@ -1206,7 +1206,7 @@ Given the extremely high dimensionality ($p=2548$), feature selection was critic
     \item \textbf{Target Variable:} Fault Type (e.g., \texttt{Pastry}, \texttt{Z\_Scratch}, \texttt{K\_Scatch}).
     \item \textbf{Dimensions:} 27 features, 1941 observations.
     \item \textbf{Class Balance:} Multi-class, ranging from 55 to 673 samples per class.
-    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/198/steel-plates-faults} \cite{steel_plates_faults_198}
+    \item \textbf{Source:} \url{https://archive.ics.uci.edu/dataset/198/steel-plates-faults}~\cite{steel_plates_faults_198}
 \end{itemize}
 
 \textbf{Preprocessing Pipeline:}
@@ -1266,7 +1266,7 @@ Additionally, the \texttt{MAP} parameter controls the estimation logic: if \text
 \subsection{Statistical Significance Testing}
 \label{sec:statistical_testing}
 
-To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a Wilcoxon signed-rank test \cite{hollander2013nonparametric}.
+To determine whether the observed performance differences between the proposed \texttt{gips}-based models and the baselines are statistically significant rather than artifacts of random sampling, we employ a non-parametric testing framework. Specifically, we utilize a Wilcoxon signed-rank test~\cite{hollander2013nonparametric}.
 \subsubsection{Hypotheses}
 For a given pair of models i.e., Model A (baseline, e.g., \texttt{QDAmod}) and Model B (proposed, e.g., \texttt{gipsQDA}), accompanied by a pair of equal size samples $(\mathbbm{Y}, \mathbbm{Z})$ sampled from prediction of models trained on the same number of observations, null and alternative hypotheses are defined as follows:
 \begin{itemize}
@@ -2357,7 +2357,7 @@ The development of \texttt{gipsDA} was not merely a statistical exercise but a r
 \subsection{Technical Competence}
 \begin{itemize}
     \item \textbf{Advanced R Development:} We gained profound expertise in the R ecosystem, particularly the S3 object-oriented system and namespace management. Extending the functionality of the established \texttt{MASS} library required a precise understanding of method dispatch and environment scoping to ensure compatibility without shadowing existing functions.
-    \item \textbf{CRAN Compliance and Publishing Standards:} We mastered the rigorous process of preparing an R package for the Comprehensive R Archive Network (CRAN) \cite{CRAN}. This involved ensuring cross-platform compatibility, strictly resolving all \texttt{R CMD check} notes and warnings, and sanitizing the code to meet the community's high-quality standards for public distribution.
+    \item \textbf{CRAN Compliance and Publishing Standards:} We mastered the rigorous process of preparing an R package for the Comprehensive R Archive Network (CRAN)~\cite{CRAN}. This involved ensuring cross-platform compatibility, strictly resolving all \texttt{R CMD check} notes and warnings, and sanitizing the code to meet the community's high-quality standards for public distribution.
     \item \textbf{Mathematical Optimization:} Implementing the \texttt{gipsmult} backend bridged the gap between theory and code. We gained practical experience with Bayesian statistics, specifically implementing Metropolis-Hastings algorithms for discrete spaces and handling permutation group theory computationally.
     \item \textbf{Custom Serialization:} A major technical hurdle was data persistence. We learned that standard serialization (e.g., \texttt{saveRDS}) is insufficient for interoperability. Developing a custom JSON engine required mapping complex R objects—such as formulas and attributes—to text-based formats and implementing robust reconstruction logic.
 \end{itemize}
@@ -2376,7 +2376,7 @@ The development of \texttt{gipsDA} was not merely a statistical exercise but a r
 While \texttt{gipsDA} provides a robust foundation for symmetry-based classification, several avenues remain open for further development and research.
 
 \begin{itemize}
-    \item \textbf{Integration of Conditional Independence:} Recent theoretical advancements have introduced a new class of models that combine permutation symmetry with graphical modeling, known as Colored Graphical Gaussian Models \cite{chojecki2026newclasscoloredgaussian}. Expanding \texttt{gipsDA} to incorporate these constraints would allow for the simultaneous discovery of symmetries and conditional independence structures (sparsity). This is particularly relevant for high-dimensional biological networks, where variables are often both exchangeable within pathways and sparsely connected across them.
+    \item \textbf{Integration of Conditional Independence:} Recent theoretical advancements have introduced a new class of models that combine permutation symmetry with graphical modeling, known as Colored Graphical Gaussian Models~\cite{chojecki2026newclasscoloredgaussian}. Expanding \texttt{gipsDA} to incorporate these constraints would allow for the simultaneous discovery of symmetries and conditional independence structures (sparsity). This is particularly relevant for high-dimensional biological networks, where variables are often both exchangeable within pathways and sparsely connected across them.
 
     \item \textbf{Extension to Unsupervised Learning:} The principles of \texttt{gips} are currently applied to supervised classification. A natural extension would be to adapt permutation symmetry constraints to unsupervised models, such as Gaussian Mixture Models (GMM) or Model-Based Clustering. Constraining clusters to share internal symmetries could stabilize clustering in high-dimensional spaces.
 
@@ -2522,7 +2522,7 @@ Let $\Gamma$ be a discrete random variable uniformly distributed over the set of
 $
 \mathcal{C} := \{ \langle \sigma \rangle : \sigma \in \mathfrak{S}_p \}
 $
-cyclic subgroups of $\mathfrak{S}_p$. We assume that each $\mathcal{K}_g$ under set $\Gamma = c$ follows conjugate Diaconis-Ylvisacker a priori distribution \cite{diaconis1979conjugate} defined by its PDF:
+cyclic subgroups of $\mathfrak{S}_p$. We assume that each $\mathcal{K}_g$ under set $\Gamma = c$ follows conjugate Diaconis-Ylvisacker a priori distribution~\cite{diaconis1979conjugate} defined by its PDF:
 \begin{equation}
     f_{\mathcal{K}_g \mid \Gamma = c}(k_g)
   = \frac{1}{I_{c}(\delta, D)}
@@ -2582,7 +2582,7 @@ combining all of these we get:
         \exp\left(-\frac{1}{2}\sum_{g=1}^mtr\left(K_{g}U_g\right)\right) f_{K_g \mid \Gamma = c}(k_g) \, dk_g.
     \end{align}
 \end{equation}
-Applying results from \cite{JSSv112i07} for each factor we arrive at the result:
+Applying results from~\cite{JSSv112i07} for each factor we arrive at the result:
 \begin{equation}\label{UltimateAPosterioriFormula}
     p\left(\Gamma = c \mid \mathbbm{X} = \mathbbm{x}, \mathbbm{Y} = \mathbbm{y}\right) \propto
     f_{\mathbbm{X} \; \mid \; \Gamma = c, \; \mathbbm{Y} = \mathbbm{y}}(\mathbbm{x}) \propto
