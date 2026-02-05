@@ -438,10 +438,10 @@ While numerous modifications to LDA and QDA have been proposed to address this i
 
 In contrast, our approach introduces a paradigm shift by utilizing \textit{permutation symmetry} as a form of model-based regularization. Instead of assuming correlations are zero (sparsity) or uniform (scalar shrinkage), we assume that groups of features may be exchangeable. This allows the data to dictate its own complexity through the discovery of invariant structures.
 
-The specific contributions of this work are as follows:
+21:
 
 \begin{itemize}
-    \item \textbf{Development of \texttt{gipsDA} Package:} We provide a fully functional R\cite{rcore2025} package that integrates \texttt{gips} methodology with the standard discriminant analysis workflow. The package is designed to be API-compatible with the widely used \texttt{MASS}\cite{venables2002} library, ensuring immediate accessibility for practitioners.
+    \item \textbf{Development of \texttt{gipsDA} Package:} We provide a fully functional R~\cite{rcore2025} package that integrates \texttt{gips} methodology with the standard discriminant analysis workflow. The package is designed to be API-compatible with the widely used \texttt{MASS}~\cite{venables2002} library, ensuring immediate accessibility for practitioners.
 
 %    \item \textbf{Novel Covariance Estimators:} We introduce three distinct classification models that leverage symmetry in different ways:
 %    \begin{itemize}
@@ -2648,6 +2648,8 @@ This transformation aims to ensure that \texttt{LDAmod} and \texttt{QDAmod} rema
   We write $X\sim \mathcal N(\mu,\Sigma)$ for a random vector with mean $\mu$ and covariance matrix $\Sigma$
   (optionally: in $\mathbb R^p$ we write $\mathcal N_p(\mu,\Sigma)$).
 
+  \item[$f_X(x)$] probability density function (pdf) of $X$ evaluated at $x$.
+
   \item[$\Sigma$] covariance matrix.
 
   \item[$K$] precision matrix, defined as the inverse covariance: $K=\Sigma^{-1}$ (when $\Sigma$ is invertible).
@@ -2678,6 +2680,7 @@ This transformation aims to ensure that \texttt{LDAmod} and \texttt{QDAmod} rema
   (with composition as the group operation).
 
   \item[$\Gamma \le \mathfrak{S}_p$] a subgroup $\Gamma$ of the symmetric group $\mathfrak{S}_p$.
+
 \end{itemize}
 \thispagestyle{empty}
 
