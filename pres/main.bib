@@ -16,6 +16,14 @@
   address   = {Sebastopol, CA},
 }
 
+@book{hollander2013nonparametric,
+  title={{Nonparametric Statistical Methods}},
+  author={Hollander, Myles and Wolfe, Douglas A and Chicken, Eric},
+  year={2013},
+  publisher={John Wiley \& Sons},
+  address={Hoboken, NJ},
+  edition={3}
+}
 
 
 %--------------------------------------------articles----------------------------------------------
@@ -63,9 +71,38 @@ year = {2020},
 journal = {The R Journal},
 url = {https://arxiv.org/abs/2002.07472},
 pages = {Accepted for publication}
-} 
+}
 
+@misc{chojecki2026newclasscoloredgaussian,
+      title={A new class of colored Gaussian graphical models with explicit normalizing constants},
+      author={Adam Chojecki and Piotr Graczyk and Hideyuki Ishi and Bartosz Kołodziejek},
+      year={2026},
+      eprint={2601.16945},
+      archivePrefix={arXiv},
+      primaryClass={math.ST},
+      url={https://arxiv.org/abs/2601.16945},
+}
 
+@article{hand2001simple,
+  title={{A simple generalisation of the area under the ROC curve for multiple class classification problems}},
+  author={Hand, David J and Till, Robert J},
+  journal={Machine learning},
+  volume={45},
+  pages={171--186},
+  year={2001},
+  publisher={Springer}
+}
+
+@article{fawcett2006introduction,
+  title={{An introduction to ROC analysis}},
+  author={Fawcett, Tom},
+  journal={Pattern recognition letters},
+  volume={27},
+  number={8},
+  pages={861--874},
+  year={2006},
+  publisher={Elsevier}
+}
 
 %--------------------------------------------online----------------------------------------------
 @online{sklearn_lda,
@@ -95,5 +132,168 @@ pages = {Accepted for publication}
   note         = {{DOI}: https://doi.org/10.24432/C5DW2B}
 }
 
+@misc{dataset_for_sensorless_drive_diagnosis_325,
+  author       = {Bator, Martyna},
+  title        = {{Dataset for Sensorless Drive Diagnosis}},
+  year         = {2013},
+  howpublished = {UCI Machine Learning Repository},
+  note         = {{DOI}: https://doi.org/10.24432/C5VP5F}
+}
 
+@misc{steel_plates_faults_198,
+  author = {Buscema, M. and Terzi, S. and Tastle, W.},
+  title        = {{Steel Plates Faults}},
+  year         = {2010},
+  howpublished = {UCI Machine Learning Repository},
+  note         = {{DOI}: https://doi.org/10.24432/C5J88N}
+}
 
+@misc{birdy654_eeg_emotions,
+  author       = {{birdy654}},
+  title        = {{EEG Brainwave Dataset: Feeling Emotions}},
+  year         = {2018},
+  howpublished = {Kaggle},
+  url          = {https://www.kaggle.com/datasets/birdy654/eeg-brainwave-dataset-feeling-emotions},
+  note         = {Accessed: 2025-12-05}
+}
+
+@misc{ulb_creditcard_fraud,
+  author       = {{Machine Learning Group - ULB}},
+  title        = {{Credit Card Fraud Detection}},
+  year         = {2018},
+  howpublished = {Kaggle},
+  url          = {https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud},
+  note         = {Accessed: 2025-12-05}
+}
+
+@misc{iris_53,
+  author       = {Fisher, R. A.},
+  title        = {{Iris}},
+  year         = {1936},
+  howpublished = {UCI Machine Learning Repository},
+  note         = {{DOI}: https://doi.org/10.24432/C56C76}
+}
+
+%-----------------------------------------additional-------------------------------------------
+
+@article{friedman1989regularized,
+  title={Regularized discriminant analysis},
+  author={Friedman, Jerome H},
+  journal={Journal of the American statistical association},
+  volume={84},
+  number={405},
+  pages={165--175},
+  year={1989},
+  publisher={Taylor \& Francis}
+}
+
+@article{ledoit2004well,
+  title={A well-conditioned estimator for large-dimensional covariance matrices},
+  author={Ledoit, Olivier and Wolf, Michael},
+  journal={Journal of multivariate analysis},
+  volume={88},
+  number={2},
+  pages={365--411},
+  year={2004},
+  publisher={Elsevier}
+}
+
+@article{andersson1998symmetry,
+  title={Symmetry and lattice conditional independence in a multivariate normal distribution},
+  author={Andersson, Steen A and Madsen, Jesper K},
+  journal={The Annals of Statistics},
+  volume={26},
+  number={2},
+  pages={525--572},
+  year={1998},
+  publisher={Institute of Mathematical Statistics}
+}
+
+@article{dudoit2002comparison,
+  title={Comparison of discrimination methods for the classification of tumors using gene expression data},
+  author={Dudoit, Sandrine and Fridlyand, Jane and Speed, Terence P},
+  journal={Journal of the American statistical association},
+  volume={97},
+  number={457},
+  pages={77--87},
+  year={2002},
+  publisher={Taylor \& Francis}
+}
+
+% For the Breast Cancer example
+@inproceedings{street1993nuclear,
+  title={Nuclear feature extraction for breast tumor diagnosis},
+  author={Street, W Nick and Wolberg, William H and Mangasarian, Olvi L},
+  booktitle={Biomedical image processing and biomedical visualization},
+  volume={1905},
+  pages={861--870},
+  year={1993},
+  organization={SPIE}
+}
+
+% For the Sensorless Drive / Industrial example
+@article{seera2014classification,
+  title={Classification of induction motor faults using a hybrid intelligent model},
+  author={Seera, Manjeevan and Lim, Chee Peng and Nahavandi, Saeid and Loo, Chu Kiong},
+  journal={Neurocomputing},
+  volume={129},
+  pages={422--432},
+  year={2014},
+  publisher={Elsevier}
+}
+
+% Classic paper on why standard LDA fails in high dimensions
+@article{bickel2004some,
+  title={Some theory for Fisher's linear discriminant function, `naive Bayes', and some alternatives when there are many more variables than observations},
+  author={Bickel, Peter J and Levina, Elizaveta},
+  journal={Bernoulli},
+  volume={10},
+  number={6},
+  pages={989--1010},
+  year={2004},
+  publisher={Bernoulli Society for Mathematical Statistics and Probability}
+}
+
+% Penalized LDA (Sparsity approach - widely cited alternative)
+@article{witten2011penalized,
+  title={Penalized classification using Fisher's linear discriminant},
+  author={Witten, Daniela M and Tibshirani, Robert},
+  journal={Journal of the Royal Statistical Society: Series B (Statistical Methodology)},
+  volume={73},
+  number={5},
+  pages={753--772},
+  year={2011},
+  publisher={Wiley Online Library}
+}
+
+% ----- MASS and R references -----
+
+@Manual{rcore2025,
+    title = {{R: A Language and Environment for Statistical Computing}},
+    author = {{R Core Team}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2025},
+    url = {https://www.R-project.org/},
+}
+
+@Misc{CRAN,
+  title        = {{The Comprehensive R Archive Network}},
+  author       = {{R Core Team}},
+  organization = {R Foundation for Statistical Computing},
+  address      = {Vienna, Austria},
+  year         = {2026},
+  url          = {https://cran.r-project.org/},
+  note         = {Accessed: 2026-01-29}
+}
+
+@Book{venables2002,
+    title = {{Modern Applied Statistics with S}},
+    author = {W. N. Venables and B. D. Ripley},
+    publisher = {Springer},
+    edition = {Fourth},
+    address = {New York},
+    year = {2002},
+    note = {ISBN 0-387-95457-0},
+    url = {https://www.stats.ox.ac.uk/pub/MASS4/},
+}

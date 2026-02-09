@@ -337,15 +337,6 @@ Permutations with their estimated probabilities:
     \end{figure}
 \end{frame}
 
-\begin{frame}{Encountered Problems}
-The main problem of testing was big number of hyperparameters.
-    \begin{alertblock}{Large grid}
-        Big number of hyperparameters is equivalent to a high-dimensional grid. Total number of combinations skyrocketed, which combined with limited computational power forced us to limit individual dimensions' sizes.
-    \end{alertblock}
-    \begin{alertblock}{Visualisation and interpretation problems}
-        It is hard to visualise any data of dimension 3 or higher. As such we found it difficult to describe the influence of individual hyperparameters on the result.
-    \end{alertblock}
-\end{frame}
 
 %------------------------------------------------
 \section{Miscellaneous}
@@ -354,7 +345,8 @@ The main problem of testing was big number of hyperparameters.
     \begin{itemize}
         \item \textbf{Extended Models:} Adapting permutation symmetry constraints to Cluster Analysis e.g. Gaussian Mixture Models.
         \item \textbf{Symmetry Groups:} Expanding the library to support more complex symmetry structures beyond cyclic subgroups.
-        \item \textbf{CRAN Submission:} Finalizing the package structure for official release to the Comprehensive R Archive Network.
+        \item \textbf{Conditional Independence:} Integrating graphical modeling to simultaneously discover symmetries and sparsity, utilizing the theory of Colored Graphical Gaussian Models~\cite{chojecki2026newclasscoloredgaussian}.
+        \item \textbf{Scalability \& Optimization:} Rewriting computational bottlenecks using \texttt{Rcpp} and exploring advanced sampling algorithms (e.g. evolutionary algorithms) to improve performance in high dimensions.
     \end{itemize}
 \end{frame}
 
