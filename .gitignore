@@ -373,7 +373,7 @@ data/synthetic_datasets/*
 
 pres/*
 !pres/main.tex
-!pres/references.bib
+!pres/main.bib
 
 # Thesis files
 thesis/*
