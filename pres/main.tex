@@ -246,7 +246,7 @@
         \item \textbf{\texttt{gipsmult} module:} Contains the core optimization logic, supporting Brute-Force (for $p \le 9$) and Metropolis-Hastings (for $p > 9$) search algorithms.
         \item \textbf{\texttt{models} module:} Provides a user-friendly API consistent with R standards (\texttt{fit()}, \texttt{predict()}, \texttt{print()}).
         \item \textbf{Serialization:} A custom JSON engine (\texttt{gipsDA\_to\_json}) to handle complex R objects like formulas and permutation groups for production deployment.
-        \item \textbf{Tests:} Comprehensive suite using the \texttt{testthat} framework, achieving approximately 80\% code coverage.
+        \item \textbf{Tests:} Comprehensive suite using the \texttt{testthat} framework, achieving approximately 85\% code coverage.
     \end{itemize}
 \end{frame}
 
@@ -308,7 +308,7 @@ Permutations with their estimated probabilities:
 \begin{frame}{Synthetic Data Results}
     Testing across 5 scenarios (LDA, QDA, gipsLDA, gipsQDA, gipsmultQDA) revealed:
     \begin{itemize}
-        \item \textbf{Regularization Benefit:} In data-scarce regimes ($n$ small), \texttt{gipsQDA} outperformed standard \texttt{QDA}.
+        \item \textbf{Regularization Benefit:} In data-scarce regimes ($n$ small), \texttt{gipsMultQDA} outperformed standard \texttt{QDA}.
         \item \textbf{Convergence:} As sample size increases, the gap between \texttt{gips}-based models and classical models narrows, as empirical estimates become more reliable.
     \end{itemize}
 \end{frame}
@@ -317,15 +317,15 @@ Permutations with their estimated probabilities:
     \begin{figure}
     \centering
     
-    \includegraphics[width = 0.85\linewidth]{seminarium_png/synth_10_10_chisq_sparse_trans_TRUE.png}
-    \caption*{Testing results synth\_10\_10\_chisq\_sparse\_trans\_TRUE scenario}
+    \includegraphics[width = 0.7\linewidth]{seminarium_png/synth_10_10_chisq_dense_trans_TRUE.png}
+    %\caption*{Testing results synth\_10\_10\_chisq\_dense\_trans\_TRUE scenario}
     \end{figure}
 \end{frame}
 
 \begin{frame}{Real-World Data Performance}
     \begin{itemize}
         \item \textbf{Heart Failure Prediction:} \texttt{gips}-based models demonstrated superior data efficiency, reaching their accuracy plateau significantly faster than standard LDA/QDA.
-        \item \textbf{Breast Cancer (Diagnostic):} \texttt{gipsLDA classic} achieved robust performance with as few as 30 observations, whereas standard \texttt{QDA} required nearly 200 observations to reach a similar level.
+        \item \textbf{Breast Cancer (Diagnostic):} \texttt{gipsLDA classic} achieved robust performance with as few as 30 observations.
         \item \textbf{Robustness:} Despite violations of multivariate normality (categorical features), the models proved stable and effective.
     \end{itemize}
 \end{frame}
@@ -335,8 +335,8 @@ Permutations with their estimated probabilities:
     \begin{figure}
     \centering
     
-    \includegraphics[width = 0.8\linewidth]{seminarium_png/breast.jpg}
-    \caption*{Testing results for breast\cite{breast} dataset}
+    \includegraphics[width = 0.7\linewidth]{seminarium_png/breast_boxplot}
+    %\caption*{Testing results for breast\cite{breast} dataset}
     \end{figure}
 \end{frame}
 
@@ -344,8 +344,8 @@ Permutations with their estimated probabilities:
     \begin{figure}
     \centering
     
-    \includegraphics[width = 0.8\linewidth]{seminarium_png/heart.png}
-    \caption*{Testing results for heart\cite{heart} dataset}
+    \includegraphics[width = 0.85\linewidth]{seminarium_png/heart_plot_auc}
+    %\caption*{Testing results for heart\cite{heart} dataset}
     \end{figure}
 \end{frame}
 
@@ -356,7 +356,6 @@ Permutations with their estimated probabilities:
 \begin{frame}{Opportunities for Further Development}
     \begin{itemize}
         \item \textbf{Extended Models:} Adapting permutation symmetry constraints to Cluster Analysis e.g. Gaussian Mixture Models.
-        \item \textbf{Symmetry Groups:} Expanding the library to support more complex symmetry structures beyond cyclic subgroups.
         \item \textbf{Conditional Independence:} Integrating graphical modeling to simultaneously discover symmetries and sparsity, utilizing the theory of Colored Graphical Gaussian Models~\cite{chojecki2026newclasscoloredgaussian}.
         \item \textbf{Scalability \& Optimization:} Rewriting computational bottlenecks using \texttt{Rcpp} and exploring advanced sampling algorithms (e.g. evolutionary algorithms) to improve performance in high dimensions.
     \end{itemize}
@@ -398,13 +397,6 @@ Permutations with their estimated probabilities:
     \tiny
     \bibliography{main.bib}
     \bibliographystyle{apalike}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-    \Huge{\centerline{\textbf{Koniec}}}
-    \Huge{\centerline{\textbf{Dziękujemy za uwagę}}}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
